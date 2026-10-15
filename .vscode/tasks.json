@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "adb reverse (API :4000)",
+      "detail": "Tunnel the phone/emulator's localhost:4000 to this PC's API over USB",
+      "type": "shell",
+      "command": "node scripts/adb-reverse.mjs",
+      "presentation": { "reveal": "silent", "panel": "shared" },
+      "problemMatcher": []
+    }
+  ]
+}

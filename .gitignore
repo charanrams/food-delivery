@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+# Flutter
+mobile-*/.dart_tool/
+mobile-*/build/
+mobile-*/.flutter-plugins*
+backend/.data/
+
+# Project docs stay local
+docs/

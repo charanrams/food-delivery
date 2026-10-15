@@ -1,0 +1,27 @@
+{
+  "name": "a3-kitchen",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "backend/contracts",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w backend",
+    "dev:web": "npm run dev -w frontend",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "postinstall": "node scripts/ensure-native-bindings.mjs",
+    "phone": "node scripts/adb-reverse.mjs"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

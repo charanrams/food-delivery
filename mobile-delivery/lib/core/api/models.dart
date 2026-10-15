@@ -1,0 +1,95 @@
+/// Typed mirrors of backend/contracts/src/dto.ts used by the delivery app. Money is integer paise.
+class Partner {
+  const Partner({required this.id, required this.name, required this.phone, this.email, required this.online, this.vehicle, required this.todayDelivered});
+  final String id, name, phone;
+  final String? email, vehicle;
+  final bool online;
+  final int todayDelivered;
+
+  factory Partner.fromJson(Map<String, dynamic> j) => Partner(
+        id: j['id'] as String,
+        name: j['name'] as String,
+        phone: j['phone'] as String,
+        email: j['email'] as String?,
+        online: j['availability'] == 'ONLINE',
+        vehicle: [j['vehicleType'], j['vehicleNumber']].whereType<String>().join(' · '),
+        todayDelivered: (j['todayDelivered'] as num? ?? 0).toInt(),
+      );
+}
+
+class DeliveryItem {
+  const DeliveryItem({required this.name, this.variant, required this.quantity});
+  final String name;
+  final String? variant;
+  final int quantity;
+}
+
+class Delivery {
+  const Delivery({
+    required this.id,
+    required this.orderNumber,
+    required this.status,
+    required this.paymentMethod,
+    required this.paymentStatus,
+    required this.totalPaise,
+    required this.items,
+    required this.customerName,
+    required this.customerPhone,
+    required this.address,
+    required this.actions,
+    this.deliveredAt,
+  });
+  final String id, orderNumber, status, paymentMethod, paymentStatus, customerName, customerPhone;
+  final int totalPaise;
+  final List<DeliveryItem> items;
+  final Map<String, dynamic> address;
+  final List<String> actions;
+  final DateTime? deliveredAt;
+
+  /// Cash to collect at the door (COD that isn't paid yet).
+  bool get collectCash => paymentMethod == 'COD' && paymentStatus != 'PAID';
+  String get addressLine => [address['line1'], address['line2'], address['landmark'], address['city'], address['postalCode']].whereType<String>().where((s) => s.isNotEmpty).join(', ');
+  String get recipient => address['recipientName'] as String? ?? customerName;
+  String get recipientPhone => address['phone'] as String? ?? customerPhone;
+
+  factory Delivery.fromJson(Map<String, dynamic> j) {
+    final customer = j['customer'] as Map<String, dynamic>? ?? const {};
+    final timeline = j['timeline'] as Map<String, dynamic>? ?? const {};
+    return Delivery(
+      id: j['id'] as String,
+      orderNumber: j['orderNumber'] as String,
+      status: j['status'] as String,
+      paymentMethod: j['paymentMethod'] as String,
+      paymentStatus: j['paymentStatus'] as String,
+      totalPaise: (j['totalPaise'] as num).toInt(),
+      items: [
+        for (final i in (j['items'] as List).cast<Map<String, dynamic>>())
+          DeliveryItem(name: i['productName'] as String, variant: i['variantName'] as String?, quantity: (i['quantity'] as num).toInt()),
+      ],
+      customerName: customer['name'] as String? ?? 'Customer',
+      customerPhone: customer['phone'] as String? ?? '',
+      address: j['deliveryAddress'] as Map<String, dynamic>,
+      actions: (j['actions'] as List? ?? const []).cast<String>(),
+      deliveredAt: timeline['deliveredAt'] is String ? DateTime.parse(timeline['deliveredAt'] as String).toLocal() : null,
+    );
+  }
+}
+
+String formatPaise(int paise) {
+  final rupees = paise ~/ 100;
+  final rest = paise % 100;
+  final whole = rupees.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d\d)+\d$)'), (m) => '${m[1]},');
+  return rest == 0 ? '₹$whole' : '₹$whole.${rest.toString().padLeft(2, '0')}';
+}
+
+String timeOfDay(DateTime d) {
+  final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+  return '$h:${d.minute.toString().padLeft(2, '0')} ${d.hour < 12 ? 'AM' : 'PM'}';
+}
+
+const deliveryStatusLabel = {
+  'ASSIGNED': 'New assignment',
+  'PICKED_UP': 'Picked up',
+  'OUT_FOR_DELIVERY': 'Out for delivery',
+  'DELIVERED': 'Delivered',
+};

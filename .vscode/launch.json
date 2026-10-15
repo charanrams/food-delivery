@@ -1,0 +1,39 @@
+{
+  // Run & Debug (F5). Local configs first run `adb reverse` so the app's
+  // http://localhost:4000 reaches this PC's API — phone over USB or emulator.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Customer app (local API)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "mobile-customer",
+      "program": "lib/main.dart",
+      "preLaunchTask": "adb reverse (API :4000)"
+    },
+    {
+      "name": "Delivery app (local API)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "mobile-delivery",
+      "program": "lib/main.dart",
+      "preLaunchTask": "adb reverse (API :4000)"
+    },
+    {
+      "name": "Customer app (production API)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "mobile-customer",
+      "program": "lib/main.dart",
+      "toolArgs": ["--dart-define=USE_PRODUCTION=true"]
+    },
+    {
+      "name": "Delivery app (production API)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "mobile-delivery",
+      "program": "lib/main.dart",
+      "toolArgs": ["--dart-define=USE_PRODUCTION=true"]
+    }
+  ]
+}
