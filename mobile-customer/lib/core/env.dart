@@ -13,7 +13,7 @@ abstract final class Env {
   static const String _override = String.fromEnvironment('API_BASE_URL');
   static const String _production = String.fromEnvironment(
     'PROD_API_BASE_URL',
-    defaultValue: 'https://api.a3kitchen.in/api/v1',
+    defaultValue: 'https://fooddelivery.speshway.site/api/v1',
   );
   static const String _local = 'http://localhost:4000/api/v1';
 
@@ -24,7 +24,7 @@ abstract final class Env {
   static const String _webOverride = String.fromEnvironment('WEB_BASE_URL');
   static const String _webProduction = String.fromEnvironment(
     'PROD_WEB_BASE_URL',
-    defaultValue: 'https://a3kitchen.in',
+    defaultValue: 'https://fooddelivery.speshway.site',
   );
   static const String _webLocal = 'http://localhost:5173';
 

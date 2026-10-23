@@ -31,3 +31,10 @@ final historyProvider = FutureProvider.autoDispose<List<Delivery>>((ref) async {
   ref.watch(authProvider.select((a) => a.value?.id));
   return [for (final j in (await ref.watch(apiClientProvider).get('/delivery/history') as List)) Delivery.fromJson(j as Map<String, dynamic>)];
 });
+
+final earningsProvider = FutureProvider.autoDispose<PartnerEarnings>((ref) async {
+  ref.watch(authProvider.select((a) => a.value?.id));
+  final res = await ref.watch(apiClientProvider).get('/delivery/earnings');
+  return PartnerEarnings.fromJson(res as Map<String, dynamic>);
+});
+

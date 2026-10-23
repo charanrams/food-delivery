@@ -1,4 +1,4 @@
-package `in`.a3kitchen.a3_delivery
+package com.a3kitchen.delivery
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -54,7 +54,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     final wait = Future<void>.delayed(minimum);
     final user = await ref.read(authProvider.future).timeout(const Duration(seconds: 8), onTimeout: () => null).catchError((_) => null);
     await wait;
-    if (mounted) context.go(user != null ? '/' : '/login');
+    if (mounted) context.go(user != null ? '/' : '/onboarding');
   }
 
   @override

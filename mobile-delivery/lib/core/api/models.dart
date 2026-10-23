@@ -1,8 +1,18 @@
 /// Typed mirrors of backend/contracts/src/dto.ts used by the delivery app. Money is integer paise.
 class Partner {
-  const Partner({required this.id, required this.name, required this.phone, this.email, required this.online, this.vehicle, required this.todayDelivered});
+  const Partner({
+    required this.id,
+    required this.name,
+    required this.phone,
+    this.email,
+    required this.online,
+    this.vehicle,
+    this.vehicleType,
+    this.vehicleNumber,
+    required this.todayDelivered,
+  });
   final String id, name, phone;
-  final String? email, vehicle;
+  final String? email, vehicle, vehicleType, vehicleNumber;
   final bool online;
   final int todayDelivered;
 
@@ -13,6 +23,8 @@ class Partner {
         email: j['email'] as String?,
         online: j['availability'] == 'ONLINE',
         vehicle: [j['vehicleType'], j['vehicleNumber']].whereType<String>().join(' · '),
+        vehicleType: j['vehicleType'] as String?,
+        vehicleNumber: j['vehicleNumber'] as String?,
         todayDelivered: (j['todayDelivered'] as num? ?? 0).toInt(),
       );
 }
@@ -93,3 +105,36 @@ const deliveryStatusLabel = {
   'OUT_FOR_DELIVERY': 'Out for delivery',
   'DELIVERED': 'Delivered',
 };
+
+class EarningsSummary {
+  const EarningsSummary({
+    required this.deliveredCount,
+    required this.earningsPaise,
+    required this.codCashCollectedPaise,
+  });
+  final int deliveredCount, earningsPaise, codCashCollectedPaise;
+
+  factory EarningsSummary.fromJson(Map<String, dynamic> j) => EarningsSummary(
+        deliveredCount: (j['deliveredCount'] as num? ?? 0).toInt(),
+        earningsPaise: (j['earningsPaise'] as num? ?? 0).toInt(),
+        codCashCollectedPaise: (j['codCashCollectedPaise'] as num? ?? 0).toInt(),
+      );
+}
+
+class PartnerEarnings {
+  const PartnerEarnings({
+    required this.today,
+    required this.week,
+    required this.totalDelivered,
+    required this.unremittedCashPaise,
+  });
+  final EarningsSummary today, week;
+  final int totalDelivered, unremittedCashPaise;
+
+  factory PartnerEarnings.fromJson(Map<String, dynamic> j) => PartnerEarnings(
+        today: EarningsSummary.fromJson(j['today'] as Map<String, dynamic>? ?? const {}),
+        week: EarningsSummary.fromJson(j['week'] as Map<String, dynamic>? ?? const {}),
+        totalDelivered: (j['totalDelivered'] as num? ?? 0).toInt(),
+        unremittedCashPaise: (j['unremittedCashPaise'] as num? ?? 0).toInt(),
+      );
+}

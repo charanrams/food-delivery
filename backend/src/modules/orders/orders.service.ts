@@ -739,6 +739,31 @@ export async function partnerProfile(actor: Actor): Promise<DeliveryProfileDto> 
   };
 }
 
+/**
+ * Partner earnings = delivery fees of orders they delivered (no separate payout model yet).
+ * Cash remittance isn't tracked yet, so "unremitted" is the COD cash collected today
+ * (settled with the kitchen daily).
+ */
+export async function partnerEarnings(actor: Actor) {
+  const today = startOfTodayIST();
+  const week = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+  const [rows, totalDelivered] = await Promise.all([
+    Order.find({ partnerId: actor.userId, status: 'DELIVERED', deliveredAt: { $gte: week } })
+      .select('deliveredAt deliveryFeePaise totalPaise paymentMethod cashCollectedAt')
+      .lean(),
+    Order.countDocuments({ partnerId: actor.userId, status: 'DELIVERED' }),
+  ]);
+  const cash = (o: (typeof rows)[number]) => (o.paymentMethod === 'COD' && o.cashCollectedAt ? o.totalPaise : 0);
+  const summarise = (list: typeof rows) => ({
+    deliveredCount: list.length,
+    earningsPaise: list.reduce((s, o) => s + (o.deliveryFeePaise ?? 0), 0),
+    codCashCollectedPaise: list.reduce((s, o) => s + cash(o), 0),
+  });
+  const todayRows = rows.filter((o) => o.deliveredAt && o.deliveredAt >= today);
+  const todaySummary = summarise(todayRows);
+  return { today: todaySummary, week: summarise(rows), totalDelivered, unremittedCashPaise: todaySummary.codCashCollectedPaise };
+}
+
 export async function setAvailability(actor: Actor, availability: 'ONLINE' | 'OFFLINE') {
   if (availability === 'OFFLINE' && (await activeCount(actor.userId)) > 0) {
     throw AppError.conflict('PARTNER_BUSY', 'Finish your current delivery before going offline.');

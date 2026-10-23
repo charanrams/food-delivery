@@ -14,6 +14,8 @@ abstract final class A3Colors {
   static const success = Color(0xFF2E7D4F);
   static const danger = Color(0xFFC0392B);
   static const warning = Color(0xFFB7791F);
+  static const frame = Color(0xFFE6721A);
+  static const card = Color(0xFFF3F2EF);
 }
 
 abstract final class A3Spacing {

@@ -76,3 +76,5 @@
 
 ## 12. Last Updated
 2026-10-14
+
+- 2026-10-23 mobile-delivery replaced with the newer copy from `Desktop/speshway/food delivery/mobile-delivery`: package `com.a3kitchen.delivery`, onboarding → login (+forgot/OTP/reset), redesigned home + delivery steps + confirmation, break tracker, duty history, profile sub-screens (edit, bank/KYC, payouts, notifications, settings, help, legal). API now defaults to PRODUCTION `https://fooddelivery.speshway.site/api/v1`; local = `--dart-define=USE_LOCAL=true`. Backend added `GET /delivery/earnings` (orders.service partnerEarnings: earnings = delivery fees of delivered orders; unremitted cash = today's collected COD, since remittance isn't tracked). Web delivery dashboard NOT yet updated to match the new app screens.

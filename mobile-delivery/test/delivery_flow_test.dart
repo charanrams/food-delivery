@@ -34,6 +34,7 @@ Future<GoRouter> _app(WidgetTester tester, Partner? p, List<Delivery> active) as
   final container = ProviderContainer(overrides: [
     authProvider.overrideWith(() => _FakeAuth(p)),
     activeDeliveriesProvider.overrideWith((ref) => Stream.value(active)),
+    earningsProvider.overrideWith((ref) async => PartnerEarnings.fromJson(const {})),
   ]);
   addTearDown(container.dispose);
   await container.read(authProvider.future);
@@ -46,29 +47,31 @@ Future<GoRouter> _app(WidgetTester tester, Partner? p, List<Delivery> active) as
 void main() {
   const suresh = Partner(id: 'p1', name: 'Suresh R.', phone: '+919000000002', online: true, todayDelivered: 3);
 
-  testWidgets('logged-out partners are sent to login', (tester) async {
+  testWidgets('logged-out partners are sent to onboarding, then login', (tester) async {
     final router = await _app(tester, null, const []);
     router.go('/');
     await tester.pumpAndSettle();
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/login');
-    expect(find.text('Partner login'), findsOneWidget);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/onboarding');
+    router.go('/login');
+    await tester.pumpAndSettle();
+    expect(find.text('Delivery Partner'), findsOneWidget);
   });
 
   testWidgets('online partner sees a new assignment with the cash to collect', (tester) async {
     final router = await _app(tester, suresh, [_delivery()]);
     router.go('/');
     await tester.pumpAndSettle();
-    expect(find.text('3 delivered today'), findsOneWidget);
+    expect(find.text('3'), findsWidgets); // delivered-today stat
     expect(find.text('A3-20261014-0042'), findsOneWidget);
-    expect(find.text('New — tap to accept'), findsOneWidget);
-    expect(find.textContaining('Collect ₹561.90 cash'), findsOneWidget);
+    expect(find.text('ACTION REQUIRED'), findsOneWidget);
+    expect(find.text('Collect ₹561.90 cash'), findsOneWidget);
   });
 
   testWidgets('an empty online list explains that assignments arrive automatically', (tester) async {
     final router = await _app(tester, suresh, const []);
     router.go('/');
     await tester.pumpAndSettle();
-    expect(find.text('Waiting for an assignment'), findsOneWidget);
+    expect(find.text('Waiting for assignments'), findsOneWidget);
   });
 
   test('prepaid orders never ask the partner to collect cash', () {

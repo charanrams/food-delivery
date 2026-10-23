@@ -107,6 +107,10 @@ deliveryRouter.get('/history', async (req, res) => {
   ok(res, await orders.listForPartner(actorOf(req), 'history'));
 });
 
+deliveryRouter.get('/earnings', async (req, res) => {
+  ok(res, await orders.partnerEarnings(actorOf(req)));
+});
+
 deliveryRouter.get('/orders/:id', validate({ params: idParams }), async (req, res) => {
   ok(res, await orders.getForPartner(actorOf(req), String(req.params.id)));
 });
