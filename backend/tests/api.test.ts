@@ -260,10 +260,8 @@ describe('one-field login + sign-up (driveflow flow, dummy OTP)', () => {
     expect((await request(app).post(`${api}/auth/phone/verify`).send({ phone: '9111122223', otp: '123456' })).status).toBe(404);
   });
 
-  it('signs up with name, email, password and a verified number — then both logins work', async () => {
-    await request(app).post(`${api}/auth/phone/otp`).send({ phone: '9123456780' });
-    const body = { name: 'Lakshmi', email: 'lakshmi@example.com', phone: '9123456780', password: 'longenough1', otp: '123456' };
-    expect((await request(app).post(`${api}/auth/signup`).send({ ...body, otp: '999999' })).status).toBe(400);
+  it('signs up with name, email, password and mobile number (no OTP) — then email login works', async () => {
+    const body = { name: 'Lakshmi', email: 'lakshmi@example.com', phone: '9123456780', password: 'longenough1' };
     const done = await request(app).post(`${api}/auth/signup`).set('X-Client', 'mobile').send(body);
     expect(done.status).toBe(201);
     expect(done.body.data.user).toMatchObject({ name: 'Lakshmi', phone: '+919123456780', email: 'lakshmi@example.com', role: 'CUSTOMER' });

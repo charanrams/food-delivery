@@ -46,7 +46,7 @@ void main() {
     (tester) async {
       await _pump(tester, const RegisterScreen(phone: '9876543210'));
       expect(find.text('9876543210'), findsOneWidget);
-      await tester.tap(find.text('Send OTP'));
+      await tester.tap(find.text('Create account'));
       await tester.pump();
       expect(find.text('Enter your full name.'), findsOneWidget);
     },

@@ -54,20 +54,18 @@ class AuthController extends AsyncNotifier<AppUser?> {
     await _acceptCustomer(data);
   }
 
-  /// Sign-up: name, email, password + the mobile number verified with its OTP.
+  /// Sign-up: name, email, password + mobile number (no OTP).
   Future<void> signup({
     required String name,
     required String email,
     required String phone,
     required String password,
-    required String otp,
   }) async {
     final data = await _api.post('/auth/signup', {
       'name': name.trim(),
       'email': email.trim(),
       'phone': phone,
       'password': password,
-      'otp': otp,
     }) as Map<String, dynamic>;
     await _acceptCustomer(data);
   }

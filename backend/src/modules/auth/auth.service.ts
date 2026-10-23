@@ -153,11 +153,11 @@ export async function verifyPhoneOtp(input: { phone: string; otp: string }, user
 }
 
 /**
- * Sign-up (driveflow pattern): name, email, password and a mobile number verified by OTP.
+ * Sign-up: name, email, password and a mobile number (not verified; no SMS provider yet).
  * Creates a CUSTOMER only; the customer can later log in with either email+password or phone OTP.
  */
 export async function signupWithPhone(
-  input: { name: string; email: string; phone: string; password: string; otp: string },
+  input: { name: string; email: string; phone: string; password: string },
   userAgent?: string,
 ) {
   const phone = normalizePhone(input.phone);
@@ -167,7 +167,6 @@ export async function signupWithPhone(
     const what = clash.phone === phone ? 'mobile number' : 'email';
     throw AppError.conflict('ALREADY_EXISTS', `An account with this ${what} already exists. Please log in.`);
   }
-  await verifyOtp(phone, 'LOGIN', input.otp);
   const doc = await User.create({
     name: input.name.trim(),
     phone,

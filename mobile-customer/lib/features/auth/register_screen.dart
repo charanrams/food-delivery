@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 import 'auth_controller.dart';
 import 'auth_widgets.dart';
 
-/// Register (driveflow workflow): name, email, password + mobile number verified by OTP.
+/// Register: name, email, password + mobile number (no OTP; the number isn't verified).
 /// Opened from login when the email / number isn't registered — that value arrives pre-filled.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key, this.email, this.phone});
@@ -24,13 +24,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   late final _phone = TextEditingController(text: widget.phone);
-  final _otp = TextEditingController();
-  bool _otpSent = false, _busy = false, _showPassword = false;
-  String? _error, _devCode;
+  bool _busy = false, _showPassword = false;
+  String? _error;
 
   @override
   void dispose() {
-    for (final c in [_name, _email, _password, _confirm, _phone, _otp]) {
+    for (final c in [_name, _email, _password, _confirm, _phone]) {
       c.dispose();
     }
     super.dispose();
@@ -55,7 +54,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   /// Validates the details; returns an error message or null.
-  String? _validate({required bool needOtp}) {
+  String? _validate() {
     if (_name.text.trim().length < 2) return 'Enter your full name.';
     if (!emailPattern.hasMatch(_email.text.trim())) {
       return 'Enter a valid email address.';
@@ -67,26 +66,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!phonePattern.hasMatch(_phone.text.trim())) {
       return 'Enter a valid 10-digit mobile number.';
     }
-    if (needOtp && _otp.text.length != 6) {
-      return 'Enter the 6-digit OTP sent to your number.';
-    }
     return null;
   }
 
-  Future<void> _sendOtp() async {
-    final problem = _validate(needOtp: false);
-    if (problem != null) return setState(() => _error = problem);
-    await _run(() async {
-      final code = await _auth.sendPhoneOtp(_phone.text.trim());
-      setState(() {
-        _devCode = code;
-        _otpSent = true;
-      });
-    });
-  }
-
   Future<void> _create() async {
-    final problem = _validate(needOtp: true);
+    final problem = _validate();
     if (problem != null) return setState(() => _error = problem);
     await _run(() async {
       await _auth.signup(
@@ -94,7 +78,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         email: _email.text,
         phone: _phone.text.trim(),
         password: _password.text,
-        otp: _otp.text,
       );
       if (mounted) context.canPop() ? context.pop() : context.go('/');
     });
@@ -180,79 +163,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
                 digitsOnly: true,
-                enabled: !_otpSent,
                 autofillHints: const [AutofillHints.telephoneNumberNational],
-                suffix: _otpSent
-                    ? IconButton(
-                        tooltip: 'Change number',
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: AuthColors.textSoft,
-                          size: 20,
-                        ),
-                        onPressed: () => setState(() {
-                          _otpSent = false;
-                          _otp.clear();
-                        }),
-                      )
-                    : null,
                 onChanged: (_) => setState(() => _error = null),
-                onSubmitted: (_) => _sendOtp(),
+                onSubmitted: (_) => _create(),
               ),
-              if (_otpSent) ...[
-                _gap(),
-                GlassField(
-                  controller: _otp,
-                  hint: '6-digit OTP',
-                  icon: Icons.sms_outlined,
-                  keyboardType: TextInputType.number,
-                  autofillHints: const [AutofillHints.oneTimeCode],
-                  maxLength: 6,
-                  digitsOnly: true,
-                  letterSpacing: 6,
-                  autofocus: true,
-                  onChanged: (_) => setState(() => _error = null),
-                  onSubmitted: (_) => _create(),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        _devCode != null
-                            ? 'Test mode — use OTP $_devCode'
-                            : 'OTP sent to +91 ${_phone.text.trim()}',
-                        style: const TextStyle(
-                          color: AuthColors.hint,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    ResendOtp(
-                      onResend: () async {
-                        try {
-                          final code = await _auth.sendPhoneOtp(
-                            _phone.text.trim(),
-                          );
-                          setState(() => _devCode = code);
-                        } on ApiException catch (e) {
-                          setState(() => _error = e.message);
-                          rethrow;
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
             ],
           ),
         ),
         AuthError(_error),
         const SizedBox(height: A3Spacing.xl),
         AuthButton(
-          label: _otpSent ? 'Create account' : 'Send OTP',
+          label: 'Create account',
           busy: _busy,
-          onPressed: _otpSent ? _create : _sendOtp,
+          onPressed: _create,
         ),
         const SizedBox(height: A3Spacing.md),
         TextButton(

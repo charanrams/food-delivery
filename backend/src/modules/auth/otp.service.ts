@@ -43,16 +43,15 @@ export const phoneOtpDummy = () => (config().OTP_DUMMY ?? (config().NODE_ENV ===
  * Returns the code only in dummy mode.
  */
 export async function issuePhoneOtp(phone: string): Promise<string | undefined> {
-  if (!phoneOtpDummy()) {
-    throw new AppError('SERVICE_UNAVAILABLE', 503, 'SMS login isn’t set up yet. Please contact the kitchen.');
-  }
-  const code = config().DUMMY_OTP_CODE;
+  // No SMS provider yet: outside dummy mode the code is random and handed back to the app
+  // to fill in (user decision 2026-10-23). Once SMS is wired in, send it and stop returning it.
+  const code = phoneOtpDummy() ? config().DUMMY_OTP_CODE : String(randomInt(0, 1_000_000)).padStart(6, '0');
   await AuthOtp.findOneAndUpdate(
     { email: phone, purpose: 'LOGIN' },
     { codeHash: hashCode(phone, 'LOGIN', code), attempts: 0, sentAt: new Date(), expiresAt: new Date(Date.now() + config().OTP_TTL_SECONDS * 1000) },
     { upsert: true },
   );
-  logger.info({ phone: phone.slice(0, 5) + '•••••' }, 'dummy phone OTP issued');
+  logger.info({ phone: phone.slice(0, 5) + '•••••' }, 'phone OTP issued (returned to app, no SMS)');
   return code;
 }
 

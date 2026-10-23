@@ -49,12 +49,12 @@ describe('one-field login (web)', () => {
     expect(await screen.findByRole('heading', { name: 'Enter your password' })).toBeInTheDocument();
   });
 
-  it('registered phone → OTP step with the test-mode hint', async () => {
+  it('registered phone → OTP step with the server code filled in', async () => {
     fakeServer({ '9000000003': true });
     renderLogin();
     await continueWith('9000000003');
     expect(await screen.findByRole('heading', { name: 'Verify your number' })).toBeInTheDocument();
-    expect(screen.getByText('Test mode: use OTP 123456')).toBeInTheDocument();
+    expect(screen.getByText('Your code is 123456 (filled in for you)')).toBeInTheDocument();
   });
 
   it('unregistered number → register, pre-filled', async () => {

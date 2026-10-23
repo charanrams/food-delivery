@@ -51,6 +51,7 @@ export function LoginPage() {
   const sendOtp = async () => {
     const r = await api.post<{ devCode?: string }>('/auth/phone/otp', { phone });
     setDevCode(r.devCode);
+    if (r.devCode) setOtp(r.devCode); // no SMS yet: the server hands the code back, fill it in
   };
 
   const submit = (e: FormEvent) => {
@@ -67,8 +68,8 @@ export function LoginPage() {
           setPassword('');
           setStep('password');
         } else {
-          await sendOtp();
           setOtp('');
+          await sendOtp();
           setStep('otp');
         }
       });
@@ -134,7 +135,7 @@ export function LoginPage() {
           <>
             <OtpField value={otp} onChange={setOtp} />
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[13px] text-muted">{devCode ? `Test mode: use OTP ${devCode}` : `Sent to +91 ${phone}`}</span>
+              <span className="text-[13px] text-muted">{devCode ? `Your code is ${devCode} (filled in for you)` : `Sent to +91 ${phone}`}</span>
               <ResendButton onResend={() => sendOtp().catch((e: unknown) => setError(e instanceof ApiError ? e.message : 'Couldn’t resend.'))} />
             </div>
           </>

@@ -96,7 +96,6 @@ const signupBody = z.object({
   email: z.email().max(120),
   phone,
   password,
-  otp,
 });
 authRouter.post('/signup', authLimiter, validate({ body: signupBody }), async (req, res) => {
   respond(req, res, await signupWithPhone(req.body, req.get('user-agent')), 201);

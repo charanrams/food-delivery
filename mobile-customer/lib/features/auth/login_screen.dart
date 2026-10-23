@@ -96,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final code = await _auth.sendPhoneOtp(_phoneDigits);
         setState(() {
           _devCode = code;
-          _otp.clear();
+          _otp.text = code ?? ''; // no SMS yet: the server hands the code back, fill it in
           _step = _Step.otp;
         });
       }
@@ -227,7 +227,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: A3Spacing.sm),
                   child: Text(
-                    'Test mode — use OTP $_devCode',
+                    'Your code is $_devCode (filled in for you)',
                     style: const TextStyle(
                       color: AuthColors.hint,
                       fontSize: 13,
@@ -248,7 +248,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onResend: () async {
                       try {
                         final code = await _auth.sendPhoneOtp(_phoneDigits);
-                        setState(() => _devCode = code);
+                        setState(() {
+                          _devCode = code;
+                          _otp.text = code ?? '';
+                        });
                       } on ApiException catch (e) {
                         setState(() => _error = e.message);
                         rethrow;
