@@ -13,6 +13,11 @@ class _FakeAuth extends AuthController {
   final Partner? partner;
   @override
   Future<Partner?> build() async => partner;
+  @override
+  Future<({bool isEmail, bool exists})> checkIdentifier(String identifier) async =>
+      (isEmail: identifier.contains('@'), exists: true);
+  @override
+  Future<String?> sendPhoneOtp(String phone) async => '482913';
 }
 
 Delivery _delivery({String payment = 'COD', String status = 'ASSIGNED', List<String> actions = const ['accept', 'decline']}) => Delivery.fromJson({
@@ -84,5 +89,28 @@ void main() {
   test('prepaid orders never ask the partner to collect cash', () {
     expect(_delivery(payment: 'RAZORPAY').collectCash, isFalse);
     expect(_delivery().collectCash, isTrue);
+  });
+
+  testWidgets('login: a mobile number goes to the code step with the server code filled in', (tester) async {
+    final router = await _app(tester, null, const []);
+    router.go('/login');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '9000000002');
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter the code'), findsOneWidget);
+    expect(find.text('482913'), findsOneWidget);
+    expect(find.text('Your code is 482913 (filled in for you)'), findsOneWidget);
+  });
+
+  testWidgets('login: an email goes to the password step', (tester) async {
+    final router = await _app(tester, null, const []);
+    router.go('/login');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'delivery@a3kitchen.in');
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter your password'), findsOneWidget);
+    expect(find.text('Forgot password?'), findsOneWidget);
   });
 }

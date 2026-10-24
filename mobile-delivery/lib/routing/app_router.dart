@@ -8,7 +8,6 @@ import '../features/auth/auth_controller.dart';
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/onboarding_screen.dart';
-import '../features/auth/otp_verify_screen.dart';
 import '../features/auth/reset_password_screen.dart';
 import '../features/deliveries/break_tracker_screen.dart';
 import '../features/deliveries/delivery_confirmation_screen.dart';
@@ -46,7 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final path = state.matchedLocation;
       if (path == '/splash' || session.value.isLoading) return null;
       final loggedIn = session.value.value != null;
-      const publicPaths = ['/splash', '/login', '/onboarding', '/forgot-password', '/reset-password', '/verify-otp'];
+      const publicPaths = ['/splash', '/login', '/onboarding', '/forgot-password', '/reset-password'];
       if (!loggedIn && !publicPaths.contains(path)) return '/login';
       if (loggedIn && (path == '/login' || path == '/onboarding')) return '/';
       return null;
@@ -57,7 +56,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/forgot-password', builder: (_, _) => const ForgotPasswordScreen()),
       GoRoute(path: '/reset-password', builder: (_, s) => ResetPasswordScreen(phone: s.extra as String?)),
-      GoRoute(path: '/verify-otp', builder: (_, s) => OtpVerifyScreen(phone: s.extra as String?)),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => Scaffold(
           backgroundColor: A3Colors.surface,
