@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/prefs.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/auth_controller.dart';
 
@@ -54,7 +55,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     final wait = Future<void>.delayed(minimum);
     final user = await ref.read(authProvider.future).timeout(const Duration(seconds: 8), onTimeout: () => null).catchError((_) => null);
     await wait;
-    if (mounted) context.go(user != null ? '/' : '/onboarding');
+    // Onboarding shows once per install; after that logged-out partners go straight to login.
+    final next = user != null ? '/' : (await onboardingSeen() ? '/login' : '/onboarding');
+    if (mounted) context.go(next);
   }
 
   @override

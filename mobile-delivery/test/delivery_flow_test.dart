@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:a3_delivery/core/api/models.dart';
 import 'package:a3_delivery/features/auth/auth_controller.dart';
 import 'package:a3_delivery/features/deliveries/deliveries_providers.dart';
@@ -47,14 +48,20 @@ Future<GoRouter> _app(WidgetTester tester, Partner? p, List<Delivery> active) as
 void main() {
   const suresh = Partner(id: 'p1', name: 'Suresh R.', phone: '+919000000002', online: true, todayDelivered: 3);
 
-  testWidgets('logged-out partners are sent to onboarding, then login', (tester) async {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('logged-out partners are sent to login', (tester) async {
     final router = await _app(tester, null, const []);
     router.go('/');
     await tester.pumpAndSettle();
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/onboarding');
-    router.go('/login');
-    await tester.pumpAndSettle();
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/login');
     expect(find.text('Delivery Partner'), findsOneWidget);
+  });
+
+  testWidgets('first launch shows the partner onboarding', (tester) async {
+    final router = await _app(tester, null, const []);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/onboarding');
+    expect(find.text('Deliver for\nA3 Kitchen'), findsOneWidget);
   });
 
   testWidgets('online partner sees a new assignment with the cash to collect', (tester) async {

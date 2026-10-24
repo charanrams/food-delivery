@@ -47,7 +47,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (path == '/splash' || session.value.isLoading) return null;
       final loggedIn = session.value.value != null;
       const publicPaths = ['/splash', '/login', '/onboarding', '/forgot-password', '/reset-password', '/verify-otp'];
-      if (!loggedIn && !publicPaths.contains(path)) return '/onboarding';
+      if (!loggedIn && !publicPaths.contains(path)) return '/login';
       if (loggedIn && (path == '/login' || path == '/onboarding')) return '/';
       return null;
     },
