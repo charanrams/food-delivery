@@ -96,7 +96,7 @@ class RouteMapCard extends StatelessWidget {
                       point: kitchenLatLng,
                       width: 40,
                       height: 40,
-                      child: const _Pin(
+                      child: _Pin(
                         icon: Icons.restaurant_rounded,
                         color: A3Colors.primary,
                       ),
@@ -106,7 +106,7 @@ class RouteMapCard extends StatelessWidget {
                         point: customer,
                         width: 40,
                         height: 40,
-                        child: const _Pin(
+                        child: _Pin(
                           icon: Icons.home_rounded,
                           color: A3Colors.danger,
                         ),
@@ -131,10 +131,7 @@ class RouteMapCard extends StatelessWidget {
                     children: [
                       Text(
                         toCustomer ? 'Delivering to' : 'Pick up at',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: A3Colors.muted,
-                        ),
+                        style: TextStyle(fontSize: 12, color: A3Colors.muted),
                       ),
                       Text(
                         toCustomer ? d.recipient : kitchenName,
@@ -149,10 +146,7 @@ class RouteMapCard extends StatelessWidget {
                         km != null
                             ? '${km.toStringAsFixed(1)} km away (straight line)'
                             : 'Customer didn’t drop a map pin; Navigate uses the address',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: A3Colors.muted,
-                        ),
+                        style: TextStyle(fontSize: 12, color: A3Colors.muted),
                       ),
                     ],
                   ),

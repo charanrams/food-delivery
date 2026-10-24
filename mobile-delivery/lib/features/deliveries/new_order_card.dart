@@ -159,24 +159,24 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
         children: [
           // Header: bell · New Order · countdown chip
           Container(
-            color: const Color(0xFFFFF4EC),
+            color: A3Colors.primarySoft,
             padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
             child: Row(
               children: [
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: A3Colors.primarySoft,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.notifications_active_rounded,
                     color: A3Colors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -213,7 +213,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.timer_outlined,
                           size: 18,
                           color: A3Colors.danger,
@@ -221,7 +221,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                         const SizedBox(width: 4),
                         Text(
                           '00:${_left.toString().padLeft(2, '0')}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
                             color: A3Colors.danger,
@@ -268,7 +268,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 kitchenName,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
@@ -279,7 +279,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                                 '$kitchenArea · ${d.orderNumber}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: A3Colors.muted,
                                   fontSize: 13,
                                 ),
@@ -288,7 +288,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                           ),
                         ),
                         if (!widget.compactHeader)
-                          const Icon(
+                          Icon(
                             Icons.chevron_right_rounded,
                             color: A3Colors.muted,
                           ),
@@ -315,7 +315,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                                 width: 34,
                                 child: Text(
                                   '${i.quantity} x',
-                                  style: const TextStyle(color: A3Colors.muted),
+                                  style: TextStyle(color: A3Colors.muted),
                                 ),
                               ),
                               Expanded(
@@ -338,13 +338,13 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                             ],
                           ),
                         ),
-                      const Divider(color: A3Colors.line, height: 18),
+                      Divider(color: A3Colors.line, height: 18),
                       Row(
                         children: [
                           Expanded(
                             child: Text(
                               'Total amount · $itemCount ${itemCount == 1 ? 'item' : 'items'}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: A3Colors.muted,
                                 fontSize: 13,
                               ),
@@ -365,10 +365,10 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Cash on delivery: collect ${formatPaise(d.totalPaise)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFB45309),
+                              color: A3Colors.warning,
                             ),
                           ),
                         ),
@@ -383,11 +383,11 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                     Container(
                       width: 44,
                       height: 44,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: A3Colors.primarySoft,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.location_on_rounded,
                         color: A3Colors.primary,
                       ),
@@ -397,7 +397,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Deliver to',
                             style: TextStyle(
                               fontSize: 12,
@@ -415,7 +415,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                             d.addressLine,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               color: A3Colors.muted,
                             ),
@@ -427,10 +427,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                       IconButton.outlined(
                         tooltip: 'Call ${d.recipient}',
                         onPressed: () => callNumber(context, d.recipientPhone),
-                        icon: const Icon(
-                          Icons.call_rounded,
-                          color: A3Colors.ink,
-                        ),
+                        icon: Icon(Icons.call_rounded, color: A3Colors.ink),
                       ),
                   ],
                 ),
@@ -480,7 +477,7 @@ class _NewOrderCardState extends ConsumerState<NewOrderCard> {
                           backgroundColor: A3Colors.danger.withValues(
                             alpha: 0.05,
                           ),
-                          side: const BorderSide(color: A3Colors.danger),
+                          side: BorderSide(color: A3Colors.danger),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -554,18 +551,24 @@ class _Fact extends StatelessWidget {
         child: Icon(icon, size: 18, color: const Color(0xFF1A73E8)),
       ),
       const SizedBox(width: 10),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
-          ),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: A3Colors.muted),
-          ),
-        ],
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+            ),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: A3Colors.muted),
+            ),
+          ],
+        ),
       ),
     ],
   );

@@ -183,20 +183,20 @@ class SoftIconButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     required this.tooltip,
-    this.color = A3Colors.ink,
-    this.background = A3Colors.card,
+    this.color,
+    this.background,
   });
 
   final IconData icon;
   final VoidCallback onPressed;
   final String tooltip;
-  final Color color, background;
+  final Color? color, background;
 
   @override
   Widget build(BuildContext context) => Tooltip(
     message: tooltip,
     child: Material(
-      color: background,
+      color: background ?? A3Colors.card,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -204,7 +204,7 @@ class SoftIconButton extends StatelessWidget {
         child: SizedBox(
           width: 44,
           height: 44,
-          child: Icon(icon, color: color, size: 22),
+          child: Icon(icon, color: color ?? A3Colors.ink, size: 22),
         ),
       ),
     ),

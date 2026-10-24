@@ -12,4 +12,13 @@ abstract final class Env {
 
   static String get apiBaseUrl =>
       _override.isNotEmpty ? _override : (useLocal ? _local : _production);
+
+  /// Website that hosts /terms and /privacy (opened in the browser via url_launcher).
+  static const String _webOverride = String.fromEnvironment('WEB_BASE_URL');
+  static const String _webProduction = 'https://fooddelivery.speshway.site';
+  static const String _webLocal = 'http://localhost:5173';
+
+  static String get webBaseUrl => _webOverride.isNotEmpty
+      ? _webOverride
+      : (useLocal ? _webLocal : _webProduction);
 }

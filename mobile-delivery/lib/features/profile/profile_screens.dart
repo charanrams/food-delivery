@@ -27,13 +27,6 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
     return FramedPage(
       title: 'Earnings',
       showBack: false,
-      actions: [
-        SoftIconButton(
-          icon: Icons.refresh_rounded,
-          tooltip: 'Refresh earnings',
-          onPressed: () => ref.invalidate(earningsProvider),
-        ),
-      ],
       child: earnings.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(
@@ -162,9 +155,9 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                 Container(
                   padding: const EdgeInsets.all(A3Spacing.lg),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFBEB),
+                    color: A3Colors.warningSoft,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFFDE68A)),
+                    border: Border.all(color: A3Colors.line),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,9 +171,9 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                                   .withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.payments_outlined,
-                              color: Color(0xFFB45309),
+                              color: A3Colors.warning,
                               size: 22,
                             ),
                           ),
@@ -189,19 +182,19 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Cash in Hand (COD)',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 15,
-                                    color: Color(0xFF92400E),
+                                    color: A3Colors.warning,
                                   ),
                                 ),
                                 Text(
                                   'Collected $period',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFFB45309),
+                                    color: A3Colors.warning,
                                   ),
                                 ),
                               ],
@@ -209,21 +202,21 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                           ),
                           Text(
                             formatPaise(summary.codCashCollectedPaise),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 20,
                               fontFamily: 'Outfit',
-                              color: Color(0xFF92400E),
+                              color: A3Colors.warning,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: A3Spacing.sm),
-                      const Text(
+                      Text(
                         'Deposit collected cash at the kitchen counter at the end of your shift.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF78350F),
+                          color: A3Colors.warning,
                           height: 1.4,
                         ),
                       ),
@@ -247,7 +240,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.military_tech_outlined,
                               color: A3Colors.primaryStrong,
                               size: 26,
@@ -261,7 +254,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                                 fontFamily: 'Outfit',
                               ),
                             ),
-                            const Text(
+                            Text(
                               'Lifetime trips',
                               style: TextStyle(
                                 fontSize: 12,
@@ -283,7 +276,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.calendar_month_rounded,
                               color: A3Colors.success,
                               size: 26,
@@ -297,7 +290,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                                 fontFamily: 'Outfit',
                               ),
                             ),
-                            const Text(
+                            Text(
                               'Trips this month',
                               style: TextStyle(
                                 fontSize: 12,
@@ -341,13 +334,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return FramedPage(
       title: 'Order History',
       showBack: false,
-      actions: [
-        SoftIconButton(
-          icon: Icons.refresh_rounded,
-          tooltip: 'Refresh history',
-          onPressed: () => ref.invalidate(historyProvider),
-        ),
-      ],
       child: Column(
         children: [
           Padding(
@@ -486,7 +472,7 @@ class _HistoryRow extends StatelessWidget {
                         : d.addressLine,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13, color: A3Colors.muted),
+                    style: TextStyle(fontSize: 13, color: A3Colors.muted),
                   ),
                 ],
               ),
@@ -507,7 +493,7 @@ class _HistoryRow extends StatelessWidget {
                 ),
               ),
             ),
-            if (canOpen) const Icon(Icons.chevron_right, color: A3Colors.muted),
+            if (canOpen) Icon(Icons.chevron_right, color: A3Colors.muted),
           ],
         ),
       ),
@@ -602,14 +588,14 @@ class ProfileScreen extends ConsumerWidget {
                 tint: const Color(0xFF2563EB),
                 title: 'Privacy Policy',
                 subtitle: 'Read our privacy policy',
-                onTap: () => context.push('/privacy-policy'),
+                onTap: () => openWebPage(context, '/privacy'),
               ),
               _MenuRow(
                 icon: Icons.description_outlined,
                 tint: A3Colors.primary,
                 title: 'Terms & Conditions',
                 subtitle: 'Read our terms and conditions',
-                onTap: () => context.push('/terms-conditions'),
+                onTap: () => openWebPage(context, '/terms'),
               ),
             ],
           ),
@@ -617,10 +603,10 @@ class ProfileScreen extends ConsumerWidget {
 
           // SOS sits apart from the menus so it is never mistaken for one.
           Material(
-            color: const Color(0xFFFDECEA),
+            color: A3Colors.dangerSoft,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
-              side: const BorderSide(color: Color(0xFFF5B7B1)),
+              side: BorderSide(color: A3Colors.danger),
             ),
             clipBehavior: Clip.antiAlias,
             child: _MenuRow(
@@ -637,7 +623,7 @@ class ProfileScreen extends ConsumerWidget {
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
               foregroundColor: A3Colors.danger,
-              side: const BorderSide(color: A3Colors.danger),
+              side: BorderSide(color: A3Colors.danger),
               minimumSize: const Size.fromHeight(52),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -663,7 +649,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text(
+                      child: Text(
                         'Log out',
                         style: TextStyle(color: A3Colors.danger),
                       ),
@@ -679,7 +665,7 @@ class ProfileScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: A3Spacing.lg),
-          const Center(
+          Center(
             child: Text(
               'A3 Kitchen Partner v0.1.0 · Single-Kitchen Fleet',
               style: TextStyle(color: A3Colors.muted, fontSize: 12),
@@ -728,7 +714,7 @@ class _PartnerCard extends StatelessWidget {
                       backgroundColor: A3Colors.primarySoft,
                       child: Text(
                         p.name.characters.first.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: A3Colors.primaryStrong,
                           fontWeight: FontWeight.w800,
                           fontSize: 28,
@@ -773,7 +759,7 @@ class _PartnerCard extends StatelessWidget {
                               p.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 19,
                                 fontFamily: 'Outfit',
@@ -795,10 +781,10 @@ class _PartnerCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE7F5EC),
+                          color: A3Colors.successSoft,
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -824,7 +810,7 @@ class _PartnerCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: A3Colors.line),
+          Divider(height: 1, color: A3Colors.line),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: A3Spacing.sm,
@@ -839,14 +825,14 @@ class _PartnerCard extends StatelessWidget {
                     value: e == null ? '–' : '${e.totalDelivered}',
                     label: 'Total trips',
                   ),
-                  const VerticalDivider(width: 1, color: A3Colors.line),
+                  VerticalDivider(width: 1, color: A3Colors.line),
                   _StatTile(
                     icon: Icons.emoji_events_rounded,
                     tint: A3Colors.success,
                     value: e == null ? '–' : '${e.month.deliveredCount}',
                     label: 'This month',
                   ),
-                  const VerticalDivider(width: 1, color: A3Colors.line),
+                  VerticalDivider(width: 1, color: A3Colors.line),
                   _StatTile(
                     icon: Icons.account_balance_wallet_rounded,
                     tint: const Color(0xFF7C3AED),
@@ -873,7 +859,7 @@ class _StatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: online ? const Color(0xFFE7F5EC) : A3Colors.card,
+        color: online ? A3Colors.successSoft : A3Colors.card,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -912,7 +898,7 @@ class _ContactLine extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13, color: A3Colors.muted),
+            style: TextStyle(fontSize: 13, color: A3Colors.muted),
           ),
         ),
       ],
@@ -941,7 +927,7 @@ class _StatTile extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               fontFamily: 'Outfit',
@@ -954,7 +940,7 @@ class _StatTile extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12, color: A3Colors.muted),
+          style: TextStyle(fontSize: 12, color: A3Colors.muted),
         ),
       ],
     ),
@@ -973,7 +959,7 @@ class _GroupHeading extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             fontFamily: 'Outfit',
@@ -981,10 +967,7 @@ class _GroupHeading extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          subtitle,
-          style: const TextStyle(fontSize: 13, color: A3Colors.muted),
-        ),
+        Text(subtitle, style: TextStyle(fontSize: 13, color: A3Colors.muted)),
       ],
     ),
   );
@@ -999,13 +982,13 @@ class _MenuGroup extends StatelessWidget {
     color: A3Colors.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(18),
-      side: const BorderSide(color: A3Colors.line),
+      side: BorderSide(color: A3Colors.line),
     ),
     clipBehavior: Clip.antiAlias,
     child: Column(
       children: [
         for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) const Divider(height: 1, indent: 72, color: A3Colors.line),
+          if (i > 0) Divider(height: 1, indent: 72, color: A3Colors.line),
           children[i],
         ],
       ],

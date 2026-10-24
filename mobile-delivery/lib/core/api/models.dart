@@ -10,11 +10,13 @@ class Partner {
     this.vehicleType,
     this.vehicleNumber,
     required this.todayDelivered,
+    this.bank,
   });
   final String id, name, phone;
   final String? email, vehicle, vehicleType, vehicleNumber;
   final bool online;
   final int todayDelivered;
+  final PartnerBank? bank;
 
   factory Partner.fromJson(Map<String, dynamic> j) => Partner(
     id: j['id'] as String,
@@ -29,6 +31,52 @@ class Partner {
     vehicleType: j['vehicleType'] as String?,
     vehicleNumber: j['vehicleNumber'] as String?,
     todayDelivered: (j['todayDelivered'] as num? ?? 0).toInt(),
+    bank: j['bank'] == null
+        ? null
+        : PartnerBank.fromJson(j['bank'] as Map<String, dynamic>),
+  );
+}
+
+/// Payout account; the server only ever returns the account's last 4 digits.
+class PartnerBank {
+  const PartnerBank({
+    required this.holderName,
+    required this.accountLast4,
+    required this.ifsc,
+    this.upiId,
+  });
+  final String holderName, accountLast4, ifsc;
+  final String? upiId;
+
+  factory PartnerBank.fromJson(Map<String, dynamic> j) => PartnerBank(
+    holderName: j['holderName'] as String,
+    accountLast4: j['accountLast4'] as String,
+    ifsc: j['ifsc'] as String,
+    upiId: j['upiId'] as String?,
+  );
+}
+
+/// One Monday–Sunday earnings statement.
+class WeeklyStatement {
+  const WeeklyStatement({
+    required this.weekStart,
+    required this.weekEnd,
+    required this.current,
+    required this.deliveredCount,
+    required this.earningsPaise,
+    required this.codCashCollectedPaise,
+  });
+  final DateTime weekStart, weekEnd;
+  final bool current;
+  final int deliveredCount, earningsPaise, codCashCollectedPaise;
+
+  factory WeeklyStatement.fromJson(Map<String, dynamic> j) => WeeklyStatement(
+    weekStart: DateTime.parse(j['weekStart'] as String).toLocal(),
+    weekEnd: DateTime.parse(j['weekEnd'] as String).toLocal(),
+    current: j['current'] as bool? ?? false,
+    deliveredCount: (j['deliveredCount'] as num).toInt(),
+    earningsPaise: (j['earningsPaise'] as num).toInt(),
+    codCashCollectedPaise: (j['codCashCollectedPaise'] as num? ?? 0).toInt(),
   );
 }
 

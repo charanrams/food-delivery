@@ -7,6 +7,7 @@ import type {
   CheckoutQuoteDto,
   CheckoutRequestDto,
   DeliveryProfileDto,
+  PartnerWeeklyStatementDto,
   EligiblePartnerDto,
   OrderDto,
   OrderItemDto,
@@ -788,7 +789,77 @@ export async function partnerProfile(actor: Actor): Promise<DeliveryProfileDto> 
     ...(profile?.vehicleType ? { vehicleType: profile.vehicleType } : {}),
     ...(profile?.vehicleNumber ? { vehicleNumber: profile.vehicleNumber } : {}),
     todayDelivered,
+    ...(profile?.bank?.accountNumber && profile.bank.holderName && profile.bank.ifsc
+      ? {
+          bank: {
+            holderName: profile.bank.holderName,
+            accountLast4: profile.bank.accountNumber.slice(-4),
+            ifsc: profile.bank.ifsc,
+            ...(profile.bank.upiId ? { upiId: profile.bank.upiId } : {}),
+          },
+        }
+      : {}),
   };
+}
+
+/** Partner-editable profile fields. Phone and email are sign-in identifiers, so they stay as-is here. */
+export async function updatePartnerProfile(
+  actor: Actor,
+  body: { name?: string; vehicleType?: string; vehicleNumber?: string },
+) {
+  if (body.name) await User.updateOne({ _id: actor.userId }, { name: body.name });
+  const set: Record<string, string> = {};
+  if (body.vehicleType !== undefined) set.vehicleType = body.vehicleType;
+  if (body.vehicleNumber !== undefined) set.vehicleNumber = body.vehicleNumber;
+  if (Object.keys(set).length) await DeliveryPartnerProfile.updateOne({ userId: actor.userId }, { $set: set }, { upsert: true });
+  return partnerProfile(actor);
+}
+
+export async function updatePartnerBank(
+  actor: Actor,
+  body: { holderName: string; accountNumber: string; ifsc: string; upiId?: string },
+) {
+  await DeliveryPartnerProfile.updateOne(
+    { userId: actor.userId },
+    { $set: { bank: { ...body, updatedAt: new Date() } } },
+    { upsert: true },
+  );
+  return partnerProfile(actor);
+}
+
+/**
+ * Weekly (Mon–Sun, IST) earnings statements for the last [weeks] weeks, newest first.
+ * Built from delivered orders — there is no separate payout ledger yet.
+ */
+export async function partnerWeeklyStatements(actor: Actor, weeks = 12): Promise<PartnerWeeklyStatementDto[]> {
+  const IST = 5.5 * 3600_000;
+  const DAY = 24 * 3600_000;
+  const today = startOfTodayIST();
+  const dow = (new Date(today.getTime() + IST).getUTCDay() + 6) % 7; // 0 = Monday
+  const thisWeek = new Date(today.getTime() - dow * DAY);
+  const since = new Date(thisWeek.getTime() - (weeks - 1) * 7 * DAY);
+  const rows = await Order.find({ partnerId: actor.userId, status: 'DELIVERED', deliveredAt: { $gte: since } })
+    .select('deliveredAt deliveryFeePaise totalPaise paymentMethod cashCollectedAt')
+    .lean();
+  const out: PartnerWeeklyStatementDto[] = [];
+  for (let i = 0; i < weeks; i++) {
+    const start = new Date(thisWeek.getTime() - i * 7 * DAY);
+    const end = new Date(start.getTime() + 7 * DAY);
+    const list = rows.filter((o) => o.deliveredAt && o.deliveredAt >= start && o.deliveredAt < end);
+    if (!list.length && i > 0) continue;
+    out.push({
+      weekStart: start.toISOString(),
+      weekEnd: end.toISOString(),
+      current: i === 0,
+      deliveredCount: list.length,
+      earningsPaise: list.reduce((s, o) => s + (o.deliveryFeePaise ?? 0), 0),
+      codCashCollectedPaise: list.reduce(
+        (s, o) => s + (o.paymentMethod === 'COD' && o.cashCollectedAt ? o.totalPaise : 0),
+        0,
+      ),
+    });
+  }
+  return out;
 }
 
 /**

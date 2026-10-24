@@ -211,7 +211,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     child: Column(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.power_settings_new_rounded,
                           size: 48,
                           color: A3Colors.muted,
@@ -226,7 +226,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
+                        Text(
                           'Toggle the switch in the top header to go online and receive live delivery dispatches.',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: A3Colors.muted, height: 1.4),
@@ -280,7 +280,7 @@ class HomeScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(color: A3Colors.line),
                         ),
-                        child: const Column(
+                        child: Column(
                           children: [
                             Icon(
                               Icons.radar_rounded,
@@ -359,7 +359,7 @@ class _StatCard extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
               fontFamily: 'Outfit',
@@ -371,12 +371,12 @@ class _StatCard extends StatelessWidget {
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 12, color: A3Colors.muted),
+          style: TextStyle(fontSize: 12, color: A3Colors.muted),
         ),
         if (subtitle != null)
           Text(
             subtitle!,
-            style: const TextStyle(fontSize: 12, color: A3Colors.muted),
+            style: TextStyle(fontSize: 12, color: A3Colors.muted),
           ),
       ],
     ),
@@ -390,15 +390,15 @@ class _OnDutyCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     decoration: BoxDecoration(
-      color: const Color(0xFFEAF7EF),
+      color: A3Colors.successSoft,
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: const Color(0xFFBFE6CC)),
+      border: Border.all(color: A3Colors.successSoft),
     ),
-    child: const Row(
+    child: Row(
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundColor: Color(0xFFD3F0DD),
+          backgroundColor: A3Colors.successSoft,
           child: Icon(Icons.gps_fixed_rounded, color: A3Colors.success),
         ),
         SizedBox(width: 12),
@@ -537,14 +537,14 @@ class _DeliveryCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: A3Spacing.md),
-              const Divider(color: A3Colors.line, height: 1),
+              Divider(color: A3Colors.line, height: 1),
               const SizedBox(height: A3Spacing.md),
 
               // Drop Address
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on_rounded,
                     size: 18,
                     color: A3Colors.primaryStrong,
@@ -565,7 +565,7 @@ class _DeliveryCard extends StatelessWidget {
                           d.addressLine,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: A3Colors.muted,
                             height: 1.35,
@@ -596,8 +596,8 @@ class _DeliveryCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: (d.collectCash
-                          ? const Color(0xFFFEF3C7)
-                          : const Color(0xFFDCFCE7)),
+                          ? A3Colors.warningSoft
+                          : A3Colors.successSoft),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -609,8 +609,8 @@ class _DeliveryCard extends StatelessWidget {
                               : Icons.check_circle_outline,
                           size: 14,
                           color: d.collectCash
-                              ? const Color(0xFFB45309)
-                              : const Color(0xFF15803D),
+                              ? A3Colors.warning
+                              : A3Colors.success,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -621,15 +621,15 @@ class _DeliveryCard extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: d.collectCash
-                                ? const Color(0xFFB45309)
-                                : const Color(0xFF15803D),
+                                ? A3Colors.warning
+                                : A3Colors.success,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const Spacer(),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_rounded,
                     size: 18,
                     color: A3Colors.primaryStrong,

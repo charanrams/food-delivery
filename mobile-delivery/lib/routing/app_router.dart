@@ -15,7 +15,6 @@ import '../features/profile/app_settings_screen.dart';
 import '../features/profile/bank_kyc_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/help_support_screen.dart';
-import '../features/profile/legal_screens.dart';
 import '../features/profile/notifications_screen.dart';
 import '../features/profile/payout_history_screen.dart';
 import '../features/profile/profile_screens.dart';
@@ -180,14 +179,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const EditProfileScreen(),
       ),
       GoRoute(path: '/settings', builder: (_, _) => const AppSettingsScreen()),
-      GoRoute(
-        path: '/privacy-policy',
-        builder: (_, _) => const PrivacyPolicyScreen(),
-      ),
-      GoRoute(
-        path: '/terms-conditions',
-        builder: (_, _) => const TermsConditionsScreen(),
-      ),
     ],
   );
 });

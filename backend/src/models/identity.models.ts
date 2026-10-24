@@ -66,6 +66,14 @@ const deliveryPartnerProfileSchema = new Schema(
     isEligible: { type: Boolean, default: true },
     vehicleType: String,
     vehicleNumber: { type: String, trim: true, uppercase: true },
+    /** Payout account. Only the last 4 digits of the account number ever leave the server. */
+    bank: {
+      holderName: { type: String, trim: true },
+      accountNumber: { type: String, trim: true },
+      ifsc: { type: String, trim: true, uppercase: true },
+      upiId: { type: String, trim: true, lowercase: true },
+      updatedAt: Date,
+    },
     lastSeenAt: Date,
   },
   { timestamps: true },

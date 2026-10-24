@@ -13,7 +13,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       // Only used when VITE_API_URL is empty (same-origin calls through the dev server).
-      proxy: { '/api': env.VITE_API_URL || 'http://localhost:4000' },
+      proxy: {
+        '/api': env.VITE_API_URL || 'http://localhost:4000',
+        // Live updates (Socket.IO); ws: true forwards the WebSocket upgrade.
+        '/socket.io': { target: env.VITE_API_URL || 'http://localhost:4000', ws: true },
+      },
     },
     test: { environment: 'jsdom', setupFiles: ['./src/test-setup.ts'], css: false },
   };

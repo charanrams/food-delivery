@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/form_fields.dart';
 import '../../core/widgets/frame.dart';
 import '../auth/auth_controller.dart';
 
-/// Screen 17 · Edit Profile (Sheet 1)
-/// Change photo, update full name, verified phone, vehicle type and plate number.
+/// Screen 17 · Edit Profile
+/// Name and vehicle are editable and saved to the server (PATCH /delivery/me).
+/// Phone and email are sign-in identifiers, so they are shown read-only.
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -16,301 +19,216 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _vehicleNumberController = TextEditingController();
-  String _vehicleType = 'Bike';
+  static const _vehicleTypes = [
+    'Bike',
+    'Scooter',
+    'Electric Vehicle',
+    'Bicycle',
+  ];
+
+  final _form = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _phone = TextEditingController();
+  final _email = TextEditingController();
+  final _vehicleNumber = TextEditingController();
+  String? _vehicleType;
   bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    final partner = ref.read(authProvider).value;
-    _nameController.text = partner?.name ?? 'Suresh Kumar';
-    _phoneController.text = partner?.phone ?? '+91 98765 43210';
-    _emailController.text = partner?.email ?? 'suresh@gmail.com';
-    _vehicleNumberController.text = partner?.vehicleNumber ?? 'TS09AB1234';
-    _vehicleType = partner?.vehicleType ?? 'Bike';
+    final p = ref.read(authProvider).value;
+    _name.text = p?.name ?? '';
+    _phone.text = p?.phone ?? '';
+    _email.text = p?.email ?? '';
+    _vehicleNumber.text = p?.vehicleNumber ?? '';
+    _vehicleType = _vehicleTypes.contains(p?.vehicleType)
+        ? p!.vehicleType
+        : null;
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _vehicleNumberController.dispose();
+    _name.dispose();
+    _phone.dispose();
+    _email.dispose();
+    _vehicleNumber.dispose();
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
+    FocusScope.of(context).unfocus();
+    if (!_form.currentState!.validate()) return;
     setState(() => _busy = true);
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) {
-        setState(() => _busy = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
-            backgroundColor: A3Colors.success,
-          ),
-        );
-        context.pop();
-      }
-    });
+    try {
+      await ref
+          .read(authProvider.notifier)
+          .updateProfile(
+            name: _name.text.trim(),
+            vehicleType: _vehicleType,
+            vehicleNumber: _vehicleNumber.text.trim().isEmpty
+                ? null
+                : _vehicleNumber.text.trim().toUpperCase(),
+          );
+      if (!mounted) return;
+      showResult(context, 'Profile updated');
+      context.pop();
+    } catch (e) {
+      if (mounted) showResult(context, e.toString(), error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final initial = _name.text.trim().isEmpty
+        ? '?'
+        : _name.text.trim().characters.first.toUpperCase();
+
     return FramedPage(
       title: 'Edit Profile',
       showBack: true,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      bottom: PrimaryButton(
+        label: 'Save changes',
+        busy: _busy,
+        onPressed: _save,
+      ),
+      child: Form(
+        key: _form,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            A3Spacing.lg,
+            A3Spacing.xl,
+            A3Spacing.lg,
+            A3Spacing.lg,
+          ),
           children: [
-            const SizedBox(height: 8),
-            // Profile Avatar with Change Photo badge
             Center(
-              child: Stack(
-                children: [
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      color: A3Colors.primarySoft,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: A3Colors.line, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      size: 54,
-                      color: A3Colors.primary,
-                    ),
+              child: CircleAvatar(
+                radius: 44,
+                backgroundColor: A3Colors.primarySoft,
+                child: Text(
+                  initial,
+                  style: TextStyle(
+                    color: A3Colors.primaryStrong,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 34,
+                    fontFamily: 'Outfit',
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: A3Colors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Center(
-              child: Text(
-                'Change Photo',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: A3Colors.primary,
                 ),
               ),
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: A3Spacing.xl),
 
-            const Text(
-              'Full Name',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: A3Colors.ink,
-              ),
+            const _GroupLabel('Personal details'),
+            LabeledField(
+              label: 'Full name',
+              controller: _name,
+              textCapitalization: TextCapitalization.words,
+              validator: (v) => (v == null || v.trim().length < 2)
+                  ? 'Enter your full name.'
+                  : null,
             ),
-            const SizedBox(height: 6),
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            const Text(
-              'Mobile Number',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: A3Colors.ink,
-              ),
-            ),
-            const SizedBox(height: 6),
-            TextFormField(
-              controller: _phoneController,
+            LabeledField(
+              label: 'Mobile number',
+              controller: _phone,
               readOnly: true,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                suffixIcon: Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.check_circle_rounded,
-                        size: 14,
-                        color: A3Colors.success,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Verified',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: A3Colors.success,
-                        ),
-                      ),
-                    ],
-                  ),
+              helper: 'Used to sign in. Contact the kitchen to change it.',
+              suffix: Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: Icon(
+                  Icons.verified_rounded,
+                  color: A3Colors.success,
+                  semanticLabel: 'Verified',
                 ),
               ),
             ),
-            const SizedBox(height: 14),
+            if (_email.text.isNotEmpty)
+              LabeledField(
+                label: 'Email',
+                controller: _email,
+                readOnly: true,
+                helper: 'Used to sign in. Contact the kitchen to change it.',
+              ),
+            const SizedBox(height: A3Spacing.sm),
 
-            const Text(
-              'Email',
+            const _GroupLabel('Vehicle'),
+            Text(
+              'Vehicle type',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: A3Colors.ink,
               ),
             ),
             const SizedBox(height: 6),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            const Text(
-              'Vehicle Type',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: A3Colors.ink,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: A3Colors.card,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _vehicleType,
-                  isExpanded: true,
-                  items: ['Bike', 'Scooter', 'Electric Vehicle'].map((t) {
-                    return DropdownMenuItem(value: t, child: Text(t));
-                  }).toList(),
-                  onChanged: (v) => setState(() => _vehicleType = v ?? 'Bike'),
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            const Text(
-              'Vehicle Number',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: A3Colors.ink,
-              ),
-            ),
-            const SizedBox(height: 6),
-            TextFormField(
-              controller: _vehicleNumberController,
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            FilledButton(
-              onPressed: _busy ? null : _save,
-              style: FilledButton.styleFrom(
-                backgroundColor: A3Colors.primary,
-                minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              child: _busy
-                  ? const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text(
-                      'Save Changes',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+            Wrap(
+              spacing: A3Spacing.sm,
+              runSpacing: A3Spacing.sm,
+              children: [
+                for (final t in _vehicleTypes)
+                  ChoiceChip(
+                    label: Text(t),
+                    selected: _vehicleType == t,
+                    onSelected: (_) => setState(() => _vehicleType = t),
+                    selectedColor: A3Colors.primarySoft,
+                    labelStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: _vehicleType == t
+                          ? A3Colors.primaryStrong
+                          : A3Colors.ink,
                     ),
+                    side: BorderSide(
+                      color: _vehicleType == t
+                          ? A3Colors.primary
+                          : A3Colors.line,
+                    ),
+                    showCheckmark: false,
+                  ),
+              ],
+            ),
+            const SizedBox(height: A3Spacing.lg),
+            LabeledField(
+              label: 'Vehicle number',
+              controller: _vehicleNumber,
+              hint: 'e.g. TS09AB1234',
+              textCapitalization: TextCapitalization.characters,
+              textInputAction: TextInputAction.done,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9 -]')),
+                LengthLimitingTextInputFormatter(15),
+              ],
+              validator: (v) {
+                final s = v?.trim() ?? '';
+                if (s.isEmpty) return null;
+                return RegExp(r'^[A-Za-z0-9 -]{4,15}$').hasMatch(s)
+                    ? null
+                    : 'Enter a valid vehicle number.';
+              },
             ),
           ],
         ),
       ),
     );
   }
+}
+
+class _GroupLabel extends StatelessWidget {
+  const _GroupLabel(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: A3Spacing.md),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.w800,
+        fontFamily: 'Outfit',
+        color: A3Colors.ink,
+      ),
+    ),
+  );
 }

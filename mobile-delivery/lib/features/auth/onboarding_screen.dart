@@ -124,15 +124,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         body: Stack(
           children: [
             // Warm wash behind the art (peach → white), like the reference.
-            const Positioned.fill(
+            Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.center,
                     colors: [
-                      Color(0xFFFFE3CC),
-                      Color(0xFFFFF4EA),
+                      A3Colors.primarySoft,
+                      A3Colors.primarySoft,
                       Colors.white,
                     ],
                   ),
@@ -448,7 +448,7 @@ class _IconDisc extends StatelessWidget {
       ],
     ),
     child: DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: A3Colors.primarySoft,
       ),
@@ -465,7 +465,7 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: size,
     height: size,
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       color: A3Colors.ink,
       shape: BoxShape.circle,
       boxShadow: [
@@ -611,7 +611,7 @@ class _OrbitArt extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
@@ -695,7 +695,7 @@ class _TrackingArt extends StatelessWidget {
                 6,
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF6F2EE),
+                    color: A3Colors.card,
                     borderRadius: BorderRadius.circular(28),
                     border: Border.all(color: Colors.white, width: 4),
                     boxShadow: const [
@@ -867,7 +867,7 @@ class _StatusCard extends StatelessWidget {
                 sub,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 11, color: A3Colors.muted),
+                style: TextStyle(fontSize: 11, color: A3Colors.muted),
               ),
               if (pill != null) ...[
                 const SizedBox(height: 4),
@@ -882,7 +882,7 @@ class _StatusCard extends StatelessWidget {
                   ),
                   child: Text(
                     pill!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: A3Colors.success,
@@ -1112,7 +1112,7 @@ class _EarningsArt extends StatelessWidget {
                     children: [
                       _enterItem(enter, 1, 6, const _DutyRow(), rise: 8),
                       const Spacer(),
-                      const Text(
+                      Text(
                         'Today’s earnings',
                         style: TextStyle(fontSize: 13, color: A3Colors.muted),
                       ),
@@ -1121,7 +1121,7 @@ class _EarningsArt extends StatelessWidget {
                         enter,
                         2,
                         6,
-                        const FittedBox(
+                        FittedBox(
                           child: Text(
                             '₹640',
                             style: TextStyle(
@@ -1214,7 +1214,7 @@ class _DutyRow extends StatelessWidget {
       Container(
         width: 10,
         height: 10,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: A3Colors.success,
           shape: BoxShape.circle,
         ),
@@ -1272,7 +1272,7 @@ class _MiniStat extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 11, color: A3Colors.muted),
+          style: TextStyle(fontSize: 11, color: A3Colors.muted),
         ),
       ],
     ),

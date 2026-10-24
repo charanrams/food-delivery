@@ -57,3 +57,14 @@ final earningsProvider = FutureProvider.autoDispose<PartnerEarnings>((
   final res = await ref.watch(apiClientProvider).get('/delivery/earnings');
   return PartnerEarnings.fromJson(res as Map<String, dynamic>);
 });
+
+final statementsProvider = FutureProvider.autoDispose<List<WeeklyStatement>>((
+  ref,
+) async {
+  ref.watch(authProvider.select((a) => a.value?.id));
+  final res = await ref.watch(apiClientProvider).get('/delivery/statements');
+  return [
+    for (final j in (res as List).cast<Map<String, dynamic>>())
+      WeeklyStatement.fromJson(j),
+  ];
+});

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../env.dart';
 import '../theme/app_theme.dart';
 
 /// Loading / empty / error states shared by every async screen.
@@ -45,7 +46,7 @@ class StateView extends StatelessWidget {
             Text(
               message!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: A3Colors.muted, height: 1.45),
+              style: TextStyle(color: A3Colors.muted, height: 1.45),
             ),
           ],
           if (action != null) ...[
@@ -102,6 +103,23 @@ Future<void> navigateTo(
       context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Couldn’t open maps on this device.')),
+    );
+  }
+}
+
+/// Opens a page of the A3 Kitchen website (e.g. `/terms`) in the in-app browser tab.
+Future<void> openWebPage(BuildContext context, String path) async {
+  final ok = await launchUrl(
+    Uri.parse('${Env.webBaseUrl}$path'),
+    mode: LaunchMode.inAppBrowserView,
+  ).catchError((_) => false);
+  if (!ok && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Couldn’t open the page. Check your connection and try again.',
+        ),
+      ),
     );
   }
 }

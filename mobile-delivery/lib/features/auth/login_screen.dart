@@ -210,8 +210,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             onChanged: (_) => setState(() => _error = null),
             onSubmitted: (_) => _login(),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Wraps to two lines on narrow screens / large text instead of overflowing.
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               TextButton.icon(
                 onPressed: _busy ? null : _back,

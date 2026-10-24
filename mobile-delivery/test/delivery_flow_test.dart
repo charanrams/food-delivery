@@ -37,6 +37,10 @@ Delivery _delivery({String payment = 'COD', String status = 'ASSIGNED', List<Str
     });
 
 Future<GoRouter> _app(WidgetTester tester, Partner? p, List<Delivery> active) async {
+  // Phone-sized screen (the default 800x600 test view hides the bottom buttons).
+  tester.view.physicalSize = const Size(1080, 2400);
+  tester.view.devicePixelRatio = 3;
+  addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [
     authProvider.overrideWith(() => _FakeAuth(p)),
     activeDeliveriesProvider.overrideWith((ref) => Stream.value(active)),
@@ -74,9 +78,9 @@ void main() {
     router.go('/');
     await tester.pumpAndSettle();
     expect(find.text('3'), findsWidgets); // delivered-today stat
-    expect(find.text('A3-20261014-0042'), findsOneWidget);
-    expect(find.text('ACTION REQUIRED'), findsOneWidget);
-    expect(find.text('Collect ₹561.90 cash'), findsOneWidget);
+    expect(find.textContaining('A3-20261014-0042'), findsOneWidget);
+    expect(find.text('New Order'), findsOneWidget);
+    expect(find.textContaining('collect ₹561.90'), findsOneWidget);
   });
 
   testWidgets('an empty online list explains that assignments arrive automatically', (tester) async {
@@ -99,7 +103,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Enter Code', findRichText: true), findsOneWidget);
-    expect(find.text('482913'), findsOneWidget);
+    expect(find.text('482913'), findsWidgets); // shown in the code note and filled into the field
     expect(find.text('Your login code'), findsOneWidget);
   });
 

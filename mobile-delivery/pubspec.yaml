@@ -16,6 +16,7 @@ dependencies:
   http: ^1.6.0
   latlong2: 0.10.1
   shared_preferences: ^2.5.6
+  socket_io_client: ^3.1.6
   url_launcher: ^6.3.3
 dev_dependencies:
   flutter_test:

@@ -308,7 +308,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
         _Stage.done => [
           _Hero(
             icon: Icons.check_rounded,
-            tint: const Color(0xFFDCFCE7),
+            tint: A3Colors.successSoft,
             iconColor: A3Colors.success,
             solid: true,
             title: 'Delivery Completed!',
@@ -348,7 +348,7 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: padding,
     decoration: BoxDecoration(
-      color: color ?? Colors.white,
+      color: color ?? A3Colors.surface,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(color: A3Colors.line),
     ),
@@ -357,21 +357,19 @@ class _Card extends StatelessWidget {
 }
 
 class _RoundIcon extends StatelessWidget {
-  const _RoundIcon(
-    this.icon, {
-    this.color = A3Colors.primary,
-    this.bg = A3Colors.primarySoft,
-    this.size = 48,
-  });
+  const _RoundIcon(this.icon, {this.color, this.bg, this.size = 48});
   final IconData icon;
-  final Color color, bg;
+  final Color? color, bg;
   final double size;
   @override
   Widget build(BuildContext context) => Container(
     width: size,
     height: size,
-    decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-    child: Icon(icon, color: color, size: size * 0.5),
+    decoration: BoxDecoration(
+      color: bg ?? A3Colors.primarySoft,
+      shape: BoxShape.circle,
+    ),
+    child: Icon(icon, color: color ?? A3Colors.primary, size: size * 0.5),
   );
 }
 
@@ -390,7 +388,7 @@ class _CircleAction extends StatelessWidget {
     onPressed: onPressed,
     style: IconButton.styleFrom(
       minimumSize: const Size(48, 48),
-      side: const BorderSide(color: A3Colors.line),
+      side: BorderSide(color: A3Colors.line),
     ),
     icon: Icon(icon, color: A3Colors.ink),
   );
@@ -424,7 +422,9 @@ class _Steps extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: i < current
                           ? A3Colors.success
-                          : (i == current ? A3Colors.primary : Colors.white),
+                          : (i == current
+                                ? A3Colors.primary
+                                : A3Colors.surface),
                       border: Border.all(
                         color: i < current
                             ? A3Colors.success
@@ -494,7 +494,7 @@ class _Hero extends StatelessWidget {
   final bool solid;
   @override
   Widget build(BuildContext context) => _Card(
-    color: solid ? const Color(0xFFF0FBF4) : Colors.white,
+    color: solid ? A3Colors.successSoft : A3Colors.surface,
     padding: const EdgeInsets.symmetric(
       horizontal: A3Spacing.lg,
       vertical: A3Spacing.xl,
@@ -523,12 +523,12 @@ class _Hero extends StatelessWidget {
               ),
             ),
             if (!solid)
-              const Positioned(
+              Positioned(
                 right: -2,
                 bottom: 4,
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundColor: Colors.white,
+                  backgroundColor: A3Colors.surface,
                   child: CircleAvatar(
                     radius: 14,
                     backgroundColor: A3Colors.success,
@@ -555,11 +555,7 @@ class _Hero extends StatelessWidget {
         Text(
           subtitle,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: A3Colors.muted,
-            fontSize: 15,
-            height: 1.4,
-          ),
+          style: TextStyle(color: A3Colors.muted, fontSize: 15, height: 1.4),
         ),
       ],
     ),
@@ -589,7 +585,7 @@ class _KitchenCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -612,13 +608,13 @@ class _KitchenCard extends StatelessWidget {
           ],
         ),
         if (showAddress) ...[
-          const Divider(color: A3Colors.line, height: 28),
-          const Text(
+          Divider(color: A3Colors.line, height: 28),
+          Text(
             'Pickup from',
             style: TextStyle(fontSize: 12.5, color: A3Colors.muted),
           ),
           const SizedBox(height: 2),
-          const Text(
+          Text(
             kitchenAddress,
             style: TextStyle(fontWeight: FontWeight.w600, height: 1.4),
           ),
@@ -633,7 +629,7 @@ class _KitchenCard extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(46),
               foregroundColor: A3Colors.primaryStrong,
-              side: const BorderSide(color: A3Colors.primary),
+              side: BorderSide(color: A3Colors.primary),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -660,7 +656,7 @@ class _ItemsCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showKitchen) ...[
-          const Row(
+          Row(
             children: [
               _RoundIcon(Icons.storefront_rounded, size: 40),
               SizedBox(width: 10),
@@ -670,7 +666,7 @@ class _ItemsCard extends StatelessWidget {
               ),
             ],
           ),
-          const Divider(color: A3Colors.line, height: 24),
+          Divider(color: A3Colors.line, height: 24),
         ],
         Row(
           children: [
@@ -691,7 +687,7 @@ class _ItemsCard extends StatelessWidget {
               ),
               child: Text(
                 d.orderNumber,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: A3Colors.primaryStrong,
@@ -711,7 +707,7 @@ class _ItemsCard extends StatelessWidget {
                   width: 36,
                   child: Text(
                     '${i.quantity} ×',
-                    style: const TextStyle(color: A3Colors.muted, fontSize: 15),
+                    style: TextStyle(color: A3Colors.muted, fontSize: 15),
                   ),
                 ),
                 Expanded(
@@ -734,13 +730,13 @@ class _ItemsCard extends StatelessWidget {
               ],
             ),
           ),
-        const Divider(color: A3Colors.line, height: 24),
+        Divider(color: A3Colors.line, height: 24),
         Row(
           children: [
             Expanded(
               child: Text(
                 'Total amount · ${_count(d)}',
-                style: const TextStyle(color: A3Colors.muted),
+                style: TextStyle(color: A3Colors.muted),
               ),
             ),
             Text(
@@ -790,10 +786,7 @@ class _CustomerCard extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: A3Colors.muted,
-                      ),
+                      style: TextStyle(fontSize: 12.5, color: A3Colors.muted),
                     ),
                     Text(
                       d.recipient,
@@ -806,7 +799,7 @@ class _CustomerCard extends StatelessWidget {
                       d.addressLine,
                       maxLines: showNavigate ? 1 : 3,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: A3Colors.muted,
                         fontSize: 13.5,
                         height: 1.4,
@@ -858,7 +851,7 @@ class _CustomerCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.location_on_rounded, color: A3Colors.primary),
+                Icon(Icons.location_on_rounded, color: A3Colors.primary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -870,10 +863,7 @@ class _CustomerCard extends StatelessWidget {
                       ),
                       Text(
                         d.addressLine,
-                        style: const TextStyle(
-                          color: A3Colors.muted,
-                          height: 1.4,
-                        ),
+                        style: TextStyle(color: A3Colors.muted, height: 1.4),
                       ),
                     ],
                   ),
@@ -888,7 +878,7 @@ class _CustomerCard extends StatelessWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: A3Colors.primaryStrong,
-                    side: const BorderSide(color: A3Colors.primary),
+                    side: BorderSide(color: A3Colors.primary),
                     minimumSize: const Size(0, 44),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(99),
@@ -908,12 +898,12 @@ class _CustomerCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF6EE),
+                color: A3Colors.primarySoft,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.sticky_note_2_rounded,
                     color: A3Colors.primary,
                     size: 22,
@@ -923,7 +913,7 @@ class _CustomerCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Landmark',
                           style: TextStyle(
                             fontSize: 12.5,
@@ -961,18 +951,24 @@ class _Fact extends StatelessWidget {
         size: 38,
       ),
       const SizedBox(width: 10),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-          ),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: A3Colors.muted),
-          ),
-        ],
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: A3Colors.muted),
+            ),
+          ],
+        ),
       ),
     ],
   );
@@ -985,11 +981,11 @@ class _PaymentNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cod = d.collectCash;
-    final fg = cod ? const Color(0xFF92400E) : const Color(0xFF166534);
+    final fg = cod ? A3Colors.warning : A3Colors.success;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cod ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7),
+        color: cod ? A3Colors.warningSoft : A3Colors.successSoft,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -1043,7 +1039,7 @@ class _CodeCardState extends State<_CodeCard> {
   Widget build(BuildContext context) {
     final code = widget.controller.text;
     return _Card(
-      color: const Color(0xFFFAF9F7),
+      color: A3Colors.card,
       child: Column(
         children: [
           const _RoundIcon(Icons.verified_user_rounded, size: 56),
@@ -1057,7 +1053,7 @@ class _CodeCardState extends State<_CodeCard> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Ask the customer for the 6-digit code shown in their A3 Kitchen app.',
             textAlign: TextAlign.center,
             style: TextStyle(color: A3Colors.muted, height: 1.4),
@@ -1137,7 +1133,7 @@ class _CodeCardState extends State<_CodeCard> {
             Text(
               widget.error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: A3Colors.danger,
                 fontWeight: FontWeight.w600,
               ),
@@ -1147,17 +1143,17 @@ class _CodeCardState extends State<_CodeCard> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFDCFCE7),
+              color: A3Colors.successSoft,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.lock_rounded, size: 16, color: A3Colors.success),
                 SizedBox(width: 6),
                 Text(
                   'Code-verified handovers keep orders safe.',
-                  style: TextStyle(fontSize: 12.5, color: Color(0xFF166534)),
+                  style: TextStyle(fontSize: 12.5, color: A3Colors.success),
                 ),
               ],
             ),
@@ -1186,24 +1182,21 @@ class _CashCheck extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   @override
   Widget build(BuildContext context) => Material(
-    color: const Color(0xFFFEF3C7),
+    color: A3Colors.warningSoft,
     borderRadius: BorderRadius.circular(16),
     child: CheckboxListTile(
       value: value,
       onChanged: (v) => onChanged(v ?? false),
-      activeColor: const Color(0xFFB45309),
+      activeColor: A3Colors.warning,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       controlAffinity: ListTileControlAffinity.leading,
       title: Text(
         'I collected $amount in cash',
-        style: const TextStyle(
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF78350F),
-        ),
+        style: TextStyle(fontWeight: FontWeight.w700, color: A3Colors.warning),
       ),
-      subtitle: const Text(
+      subtitle: Text(
         'Cash on delivery order',
-        style: TextStyle(color: Color(0xFF92400E)),
+        style: TextStyle(color: A3Colors.warning),
       ),
     ),
   );
@@ -1214,7 +1207,7 @@ class _EarnedCard extends StatelessWidget {
   final int feePaise;
   @override
   Widget build(BuildContext context) => _Card(
-    color: const Color(0xFFFFF6EE),
+    color: A3Colors.primarySoft,
     child: Row(
       children: [
         const _RoundIcon(Icons.account_balance_wallet_rounded, size: 60),
@@ -1223,17 +1216,17 @@ class _EarnedCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('You earned', style: TextStyle(color: A3Colors.muted)),
+              Text('You earned', style: TextStyle(color: A3Colors.muted)),
               Text(
                 formatPaise(feePaise),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Outfit',
                   fontSize: 34,
                   fontWeight: FontWeight.w700,
                   color: A3Colors.success,
                 ),
               ),
-              const Text(
+              Text(
                 'Added to today’s earnings',
                 style: TextStyle(fontSize: 12.5, color: A3Colors.muted),
               ),

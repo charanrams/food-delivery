@@ -95,6 +95,49 @@ deliveryRouter.get('/me', async (req, res) => {
   ok(res, await orders.partnerProfile(actorOf(req)));
 });
 
+deliveryRouter.patch(
+  '/me',
+  validate({
+    body: z.object({
+      name: z.string().trim().min(2, 'Enter your full name.').max(80).optional(),
+      vehicleType: z.string().trim().max(30).optional(),
+      vehicleNumber: z
+        .string()
+        .trim()
+        .toUpperCase()
+        .regex(/^[A-Z0-9 -]{4,15}$/, 'Enter a valid vehicle number.')
+        .optional(),
+    }),
+  }),
+  async (req, res) => {
+    ok(res, await orders.updatePartnerProfile(actorOf(req), req.body));
+  },
+);
+
+deliveryRouter.put(
+  '/me/bank',
+  validate({
+    body: z.object({
+      holderName: z.string().trim().min(2, 'Enter the account holder name.').max(80),
+      accountNumber: z.string().trim().regex(/^\d{9,18}$/, 'Account number must be 9–18 digits.'),
+      ifsc: z.string().trim().toUpperCase().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, 'Enter a valid IFSC code.'),
+      upiId: z
+        .string()
+        .trim()
+        .regex(/^[\w.-]{2,}@[a-zA-Z]{2,}$/, 'Enter a valid UPI ID.')
+        .optional()
+        .or(z.literal('').transform(() => undefined)),
+    }),
+  }),
+  async (req, res) => {
+    ok(res, await orders.updatePartnerBank(actorOf(req), req.body));
+  },
+);
+
+deliveryRouter.get('/statements', async (req, res) => {
+  ok(res, await orders.partnerWeeklyStatements(actorOf(req)));
+});
+
 deliveryRouter.patch('/availability', validate({ body: z.object({ availability: z.enum(['ONLINE', 'OFFLINE']) }) }), async (req, res) => {
   ok(res, await orders.setAvailability(actorOf(req), req.body.availability));
 });

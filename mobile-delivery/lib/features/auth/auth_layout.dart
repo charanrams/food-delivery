@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 /// illustrated hero → round icon badge → two-tone title → fields → dark pill button.
 
 /// Page colour under the hero (the illustration fades into it).
-const authPage = Color(0xFFFDFBF9);
+final authPage = A3Colors.card;
 
 class AuthLayout extends StatelessWidget {
   const AuthLayout({
@@ -100,14 +100,14 @@ class AuthLayout extends StatelessWidget {
                                         children: [
                                           TextSpan(
                                             text: accent,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: A3Colors.primary,
                                             ),
                                           ),
                                         ],
                                       ),
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: 'Outfit',
                                         fontSize: 32,
                                         height: 1.1,
@@ -120,7 +120,7 @@ class AuthLayout extends StatelessWidget {
                                     Text(
                                       subtitle,
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: A3Colors.muted,
                                         height: 1.5,
                                         fontSize: 15,
@@ -143,7 +143,7 @@ class AuthLayout extends StatelessWidget {
                               onPressed: onSubmit,
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            Text(
                               'Partner accounts are created by A3 Kitchen. Need help? Contact the kitchen.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -171,7 +171,7 @@ void showPartnerInfo(BuildContext context) {
   showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    backgroundColor: Colors.white,
+    backgroundColor: A3Colors.surface,
     builder: (_) => const SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -309,7 +309,7 @@ class _Badge extends StatelessWidget {
       ],
     ),
     child: DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: A3Colors.primarySoft,
       ),
@@ -376,7 +376,7 @@ class _ContinueButton extends StatelessWidget {
             Container(
               width: 48,
               height: 48,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: A3Colors.primary,
                 shape: BoxShape.circle,
               ),
@@ -459,13 +459,13 @@ class AuthField extends StatelessWidget {
         hintText: hint,
         counterText: '',
         filled: true,
-        fillColor: Colors.white,
+        fillColor: A3Colors.surface,
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 14, right: 10),
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: A3Colors.primarySoft,
               shape: BoxShape.circle,
             ),
@@ -483,11 +483,11 @@ class AuthField extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: const BorderSide(color: A3Colors.line),
+          borderSide: BorderSide(color: A3Colors.line),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: const BorderSide(color: A3Colors.primary, width: 1.6),
+          borderSide: BorderSide(color: A3Colors.primary, width: 1.6),
         ),
       ),
     ),
@@ -534,10 +534,7 @@ class AuthResendRow extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child:
               leading ??
-              Text(
-                hint,
-                style: const TextStyle(color: A3Colors.muted, fontSize: 13),
-              ),
+              Text(hint, style: TextStyle(color: A3Colors.muted, fontSize: 13)),
         ),
       ),
       TextButton(
@@ -566,13 +563,9 @@ class AuthCodeNote extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.sms_outlined,
-              color: A3Colors.primaryStrong,
-              size: 20,
-            ),
+            Icon(Icons.sms_outlined, color: A3Colors.primaryStrong, size: 20),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Your login code',
                 style: TextStyle(
@@ -584,7 +577,7 @@ class AuthCodeNote extends StatelessWidget {
             ),
             Text(
               code,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -638,16 +631,12 @@ class AuthErrorNote extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.error_outline_rounded,
-            color: A3Colors.danger,
-            size: 20,
-          ),
+          Icon(Icons.error_outline_rounded, color: A3Colors.danger, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 color: A3Colors.danger,
                 fontSize: 13.5,
                 height: 1.4,

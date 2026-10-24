@@ -4,6 +4,7 @@ import { seedDemoData } from './scripts/seed-data';
 import { ensureCategoryRows, ensurePopularSection, ensureTodaySpecialsSection } from './modules/specials/specials';
 import { seedDemoActivity } from './scripts/seed-activity';
 import { createApp } from './app';
+import { closeRealtime, initRealtime } from './realtime/realtime';
 import { logger } from './utils/logger';
 import { syncIndexes } from './models';
 
@@ -24,10 +25,13 @@ async function main() {
   const server = app.listen(env.PORT, () => {
     console.log(`[Server] A3 Kitchen API started successfully on port ${env.PORT} (http://localhost:${env.PORT})`);
   });
+  // Live updates for web + apps (Socket.IO on the same port, path /socket.io).
+  initRealtime(server);
 
   const shutdown = (signal: string) => {
     console.log(`[Server] Shutting down (${signal})...`);
     server.close(async () => {
+      await closeRealtime();
       await disconnectDatabase();
       process.exit(0);
     });

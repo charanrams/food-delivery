@@ -20,6 +20,8 @@ let onSessionLost: (() => void) | undefined;
 export const setAccessToken = (t: string | null) => {
   accessToken = t;
 };
+/** Current in-memory access token (for the realtime socket handshake). */
+export const getAccessToken = () => accessToken;
 export const onSessionExpired = (fn: () => void) => {
   onSessionLost = fn;
 };

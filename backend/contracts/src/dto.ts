@@ -203,6 +203,24 @@ export interface DeliveryProfileDto {
   vehicleType?: string;
   vehicleNumber?: string;
   todayDelivered: number;
+  bank?: PartnerBankDto;
+}
+
+export interface PartnerBankDto {
+  holderName: string;
+  accountLast4: string;
+  ifsc: string;
+  upiId?: string;
+}
+
+/** One Monday–Sunday (IST) earnings statement for a delivery partner. */
+export interface PartnerWeeklyStatementDto {
+  weekStart: string; // ISO
+  weekEnd: string; // ISO, exclusive
+  current: boolean;
+  deliveredCount: number;
+  earningsPaise: number;
+  codCashCollectedPaise: number;
 }
 
 // ---------- Notifications ----------

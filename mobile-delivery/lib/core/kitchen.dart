@@ -14,3 +14,6 @@ const kitchenArea = 'Hyderabad';
 const kitchenPhone = '+91 90000 00000';
 const kitchenAddress =
     'Plot 12, Hitech City Road, Madhapur, Hyderabad, Telangana 500081';
+
+/// PLACEHOLDER support inbox (same as the customer app) — replace before launch.
+const kitchenEmail = 'hello@a3kitchen.in';

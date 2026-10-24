@@ -87,6 +87,35 @@ class AuthController extends AsyncNotifier<Partner?> {
     );
   }
 
+  /// Saves name / vehicle; returns the refreshed profile into state.
+  Future<void> updateProfile({
+    required String name,
+    String? vehicleType,
+    String? vehicleNumber,
+  }) async {
+    final data = await _api.patch('/delivery/me', {
+      'name': name,
+      'vehicleType': ?vehicleType,
+      'vehicleNumber': ?vehicleNumber,
+    });
+    state = AsyncData(Partner.fromJson(data as Map<String, dynamic>));
+  }
+
+  Future<void> updateBank({
+    required String holderName,
+    required String accountNumber,
+    required String ifsc,
+    String? upiId,
+  }) async {
+    final data = await _api.put('/delivery/me/bank', {
+      'holderName': holderName,
+      'accountNumber': accountNumber,
+      'ifsc': ifsc,
+      'upiId': ?upiId,
+    });
+    state = AsyncData(Partner.fromJson(data as Map<String, dynamic>));
+  }
+
   Future<void> setOnline(bool online) async {
     final data = await _api.patch('/delivery/availability', {
       'availability': online ? 'ONLINE' : 'OFFLINE',
