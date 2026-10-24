@@ -49,14 +49,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       'cat': 'System',
     },
     {
-      'title': 'New Feature',
-      'body': 'Break tracker is now available on your duty dashboard!',
-      'time': '3 days ago',
-      'icon': Icons.new_releases_outlined,
-      'color': Colors.purple,
-      'cat': 'System',
-    },
-    {
       'title': 'Order Cancelled',
       'body': 'Order #AK12812 has been cancelled by the kitchen.',
       'time': '3 days ago',

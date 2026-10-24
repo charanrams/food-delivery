@@ -823,9 +823,8 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
           ),
           const SizedBox(height: A3Spacing.md),
 
-          if (d.collectCash)
-            Container(
-              margin: const EdgeInsets.only(bottom: A3Spacing.md),
+          if (d.collectCash) ...[
+            Ink(
               decoration: BoxDecoration(
                 color: const Color(0xFFFEF3C7),
                 borderRadius: BorderRadius.circular(14),
@@ -850,6 +849,8 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
                 controlAffinity: ListTileControlAffinity.leading,
               ),
             ),
+            const SizedBox(height: A3Spacing.md),
+          ],
 
           if (_error != null)
             Padding(

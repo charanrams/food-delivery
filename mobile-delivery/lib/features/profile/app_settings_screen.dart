@@ -257,7 +257,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
+            Ink(
               decoration: BoxDecoration(
                 color: A3Colors.surface,
                 borderRadius: BorderRadius.circular(18),
@@ -435,7 +435,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
             const SizedBox(height: 20),
 
             // Account Actions
-            Container(
+            Ink(
               decoration: BoxDecoration(
                 color: A3Colors.surface,
                 borderRadius: BorderRadius.circular(18),

@@ -78,8 +78,7 @@ class HelpSupportScreen extends StatelessWidget {
 
             // Topics Grid
             for (final t in _topics) ...[
-              Container(
-                margin: const EdgeInsets.only(bottom: 10),
+              Ink(
                 decoration: BoxDecoration(
                   color: A3Colors.surface,
                   borderRadius: BorderRadius.circular(16),
@@ -130,6 +129,7 @@ class HelpSupportScreen extends StatelessWidget {
                   },
                 ),
               ),
+              const SizedBox(height: 10),
             ],
             const SizedBox(height: 16),
 

@@ -592,47 +592,13 @@ class ProfileScreen extends ConsumerWidget {
           // Fleet & Operations Menu
           const SectionTitle('Operations & Shifts'),
           const SizedBox(height: A3Spacing.sm),
-          Container(
+          Ink(
             decoration: BoxDecoration(
               color: A3Colors.card,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(
-                    Icons.coffee_rounded,
-                    color: A3Colors.primaryStrong,
-                  ),
-                  title: const Text(
-                    'Break Tracker',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Live stopwatch & pause shift'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/break-tracker'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.history_toggle_off_rounded,
-                    color: Color(0xFF1976D2),
-                  ),
-                  title: const Text(
-                    'Duty & Attendance History',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Shift timeline and hours logged'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/duty-history'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
                 ListTile(
                   leading: const Icon(
                     Icons.notifications_none_rounded,
@@ -657,7 +623,7 @@ class ProfileScreen extends ConsumerWidget {
           // Account & Finance
           const SectionTitle('Account & Finance'),
           const SizedBox(height: A3Spacing.sm),
-          Container(
+          Ink(
             decoration: BoxDecoration(
               color: A3Colors.card,
               borderRadius: BorderRadius.circular(18),
@@ -739,7 +705,7 @@ class ProfileScreen extends ConsumerWidget {
           // Kitchen Support & Legal
           const SectionTitle('Support & Legal'),
           const SizedBox(height: A3Spacing.sm),
-          Container(
+          Ink(
             decoration: BoxDecoration(
               color: A3Colors.card,
               borderRadius: BorderRadius.circular(18),

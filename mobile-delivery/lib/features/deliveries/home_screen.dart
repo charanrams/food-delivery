@@ -204,51 +204,6 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: A3Spacing.md),
 
-            // Quick actions (tabs switch with go; detail pages push so back returns here).
-            GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: A3Spacing.md,
-              crossAxisSpacing: A3Spacing.md,
-              childAspectRatio: 1.05,
-              children: [
-                _QuickAction(
-                  icon: Icons.receipt_long_rounded,
-                  label: "Today's Orders",
-                  value: '${partner?.todayDelivered ?? 0}',
-                  onTap: () => context.go('/history'),
-                ),
-                _QuickAction(
-                  icon: Icons.currency_rupee_rounded,
-                  label: 'Earnings',
-                  value: formatPaise(earnings?.today.earningsPaise ?? 0),
-                  onTap: () => context.go('/earnings'),
-                ),
-                _QuickAction(
-                  icon: Icons.free_breakfast_rounded,
-                  label: 'Break',
-                  onTap: () => context.push('/break-tracker'),
-                ),
-                _QuickAction(
-                  icon: Icons.history_rounded,
-                  label: 'Duty History',
-                  onTap: () => context.push('/duty-history'),
-                ),
-                _QuickAction(
-                  icon: Icons.help_outline_rounded,
-                  label: 'Help & Support',
-                  onTap: () => context.push('/help-support'),
-                ),
-                _QuickAction(
-                  icon: Icons.more_horiz_rounded,
-                  label: 'More',
-                  onTap: () => context.go('/profile'),
-                ),
-              ],
-            ),
-            const SizedBox(height: A3Spacing.xl),
-
             // Deliveries Stream
             deliveries.when(
               loading: () => const Padding(
@@ -393,72 +348,6 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.value,
-  });
-  final IconData icon;
-  final String label;
-  final String? value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(18),
-    child: InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: onTap,
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: A3Colors.line),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: const BoxDecoration(
-                color: A3Colors.primarySoft,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 20, color: A3Colors.primary),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: A3Colors.muted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (value != null)
-              Text(
-                value!,
-                maxLines: 1,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: A3Colors.ink,
-                ),
-              ),
-          ],
-        ),
-      ),
-    ),
-  );
 }
 
 class _StatCard extends StatelessWidget {

@@ -9,10 +9,8 @@ import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/onboarding_screen.dart';
 import '../features/auth/reset_password_screen.dart';
-import '../features/deliveries/break_tracker_screen.dart';
 import '../features/deliveries/delivery_confirmation_screen.dart';
 import '../features/deliveries/delivery_screen.dart';
-import '../features/deliveries/duty_history_screen.dart';
 import '../features/deliveries/home_screen.dart';
 import '../features/profile/app_settings_screen.dart';
 import '../features/profile/bank_kyc_screen.dart';
@@ -164,14 +162,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/delivery/:id',
         builder: (_, s) => DeliveryScreen(orderId: s.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/break-tracker',
-        builder: (_, _) => const BreakTrackerScreen(),
-      ),
-      GoRoute(
-        path: '/duty-history',
-        builder: (_, _) => const DutyHistoryScreen(),
       ),
       GoRoute(
         path: '/delivery-confirmation',
