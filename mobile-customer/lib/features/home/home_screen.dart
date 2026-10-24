@@ -187,7 +187,7 @@ class _HomeHeader extends SliverPersistentHeaderDelegate {
                   _AddressBar(loggedIn: loggedIn, light: true),
                   const SizedBox(height: 4),
                   Text(
-                    'Hi ${name ?? 'there'}',
+                    'Hi ${name ?? 'User'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -529,7 +529,7 @@ class _HeroBannerState extends ConsumerState<_HeroBanner> {
   }
 }
 
-/// Peach banner card: headline (+ orange line), tagline, button, dish photo off the right edge.
+/// Banner card: full-bleed dish photo, warm shade, white headline + orange line, one button.
 class _HeroCard extends StatelessWidget {
   const _HeroCard({required this.slide});
   final _Slide slide;
@@ -537,127 +537,116 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = slide;
     final photo = s.image == null
-        // Studio shot; zoom so the round bowl fills the round frame.
-        ? Transform.scale(
-            scale: 1.55,
-            child: Image.asset(
-              'assets/images/hero_biryani.jpg',
-              fit: BoxFit.cover,
-              alignment: const Alignment(-0.18, 0.06),
-              semanticLabel: 'A bowl of mutton biryani',
-            ),
+        ? Image.asset(
+            'assets/images/hero_biryani.jpg',
+            fit: BoxFit.cover,
+            alignment: const Alignment(0.4, 0),
+            excludeFromSemantics: true,
           )
-        : FoodImage(url: s.image, width: 700, radius: 0);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 184),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFFFE6CF), Color(0xFFFFF4EA)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+        : FoodImage(url: s.image, width: 900, radius: 0);
+    return Container(
+      height: 184,
+      decoration: BoxDecoration(
+        color: const Color(0xFF3A1503),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x40782D05),
+            blurRadius: 24,
+            offset: Offset(0, 10),
           ),
-        ),
-        child: Stack(
-          children: [
-            Positioned(
-              right: -36,
-              top: 8,
-              bottom: -28,
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x33B4530A),
-                        blurRadius: 24,
-                        offset: Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(child: photo),
-                ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      // Full-photo card: the dish fills it; a warm shade on the left keeps the white copy readable.
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          photo,
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xE62B0F02),
+                  Color(0x8C2B0F02),
+                  Color(0x002B0F02),
+                ],
+                stops: [0, 0.5, 0.9],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 0, 16),
-              child: FractionallySizedBox(
-                widthFactor: 0.58,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        text: s.title,
-                        children: [
-                          if (s.highlight != null)
-                            TextSpan(
-                              text: '\n${s.highlight}',
-                              style: const TextStyle(
-                                color: A3Colors.primaryStrong,
-                              ),
-                            ),
-                        ],
-                      ),
-                      maxLines: 3,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 0, 16),
+            child: FractionallySizedBox(
+              widthFactor: 0.68,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      text: s.title,
+                      children: [
+                        if (s.highlight != null)
+                          TextSpan(
+                            text: '\n${s.highlight}',
+                            style: const TextStyle(color: Color(0xFFFFB072)),
+                          ),
+                      ],
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      height: 1.12,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (s.subtitle != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      s.subtitle!,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: 21,
-                        fontWeight: FontWeight.w700,
-                        height: 1.15,
-                        color: A3Colors.ink,
+                        fontSize: 12.5,
+                        color: Color(0xE6FFFFFF),
+                        height: 1.35,
                       ),
                     ),
-                    if (s.subtitle != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        s.subtitle!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: A3Colors.muted,
-                          height: 1.35,
-                        ),
-                      ),
-                    ],
-                    if (s.buttonText != null &&
-                        (s.linkValue ?? '').isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      FilledButton(
-                        onPressed: () => s.open(context),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 42),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          textStyle: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(s.buttonText!),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.add_rounded, size: 18),
-                          ],
-                        ),
-                      ),
-                    ],
                   ],
-                ),
+                  if (s.buttonText != null &&
+                      (s.linkValue ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: () => s.open(context),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 40),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        shape: const StadiumBorder(),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(s.buttonText!),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.arrow_forward_rounded, size: 18),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

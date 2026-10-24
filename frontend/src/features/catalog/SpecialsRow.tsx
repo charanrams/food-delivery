@@ -47,8 +47,8 @@ export function SpecialCard({ special }: { special: SpecialDto }) {
           </Link>
         </h3>
         {p.description && <p className="line-clamp-1 text-xs text-muted">{p.description}</p>}
-        <div className="relative z-10 mt-auto flex items-center justify-between gap-2 pt-1.5">
-          <div className="flex items-baseline gap-1.5">
+        <div className="relative z-10 mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 pt-1.5">
+          <div className="flex min-w-0 flex-col leading-tight">
             <span className="tabular text-base font-extrabold text-primary-strong">
               {formatPaise(discountedPrice)}
             </span>
@@ -71,7 +71,7 @@ export function SpecialCard({ special }: { special: SpecialDto }) {
                 multi ? navigate(`/product/${p.slug}`) : add(p, defaultVariant(p)?.id, 1)
               }
               aria-label={multi ? `Choose a portion of ${p.name}` : `Add ${p.name} to cart`}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
+              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
             >
               <Plus className="size-4" strokeWidth={2.75} aria-hidden />
             Add

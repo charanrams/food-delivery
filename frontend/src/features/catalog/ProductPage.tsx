@@ -8,7 +8,7 @@ import { formatPaise, type ProductDto } from '@a3/contracts';
 import { Button, ButtonLink, EmptyState, ErrorState, FoodImage, Skeleton, Stepper, VegMark, cx } from '@/components/ui';
 import { categoriesQuery, productImage, productQuery, productsQuery, sized } from '@/lib/catalog-api';
 import { defaultVariant } from './ProductCard';
-import { PopularCard } from './HomePage';
+import { DishCard } from './ProductCard';
 import { useCart } from '@/features/cart/CartContext';
 
 function getDishHighlights(p: ProductDto): string[] {
@@ -195,7 +195,7 @@ export function ProductPage() {
   };
 
   return (
-    <div className="relative bg-surface pb-28 md:pb-16">
+    <div className="relative overflow-x-clip bg-surface pb-28 md:pb-16">
       <div className="mx-auto w-full max-w-[1200px] md:px-10 md:pt-8">
         <nav aria-label="Breadcrumb" className="mb-6 max-md:hidden">
           <ol className="flex flex-wrap items-center gap-2 text-sm text-muted">
@@ -221,7 +221,7 @@ export function ProductPage() {
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-[minmax(0,560px)_1fr] lg:gap-12">
+        <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-12">
           <div className="relative">
             <Gallery p={p} />
             {/* Floating controls over the photo */}
@@ -425,9 +425,9 @@ export function ProductPage() {
                 </Link>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 [&>*]:min-w-0">
               {related.map((item) => (
-                <PopularCard key={item.id} product={item} />
+                <DishCard key={item.id} product={item} />
               ))}
             </div>
           </section>

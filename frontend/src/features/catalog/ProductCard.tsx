@@ -71,7 +71,7 @@ export function CartControl({ product }: { product: ProductDto }) {
       type="button"
       onClick={() => (multi ? navigate(`/product/${product.slug}`) : add(product, variant?.id, 1))}
       aria-label={multi ? `Choose a portion of ${product.name}` : `Add ${product.name} to cart`}
-      className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
+      className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
     >
       <Plus className="size-4" strokeWidth={2.75} aria-hidden />
     Add
@@ -117,8 +117,8 @@ export function DishCard({ product }: { product: ProductDto }) {
           </Link>
         </h3>
         {product.description && <p className="line-clamp-1 text-xs text-muted">{product.description}</p>}
-        <div className="relative z-10 mt-auto flex items-center justify-between gap-2 pt-1.5">
-          <div className="flex items-baseline gap-1.5">
+        <div className="relative z-10 mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 pt-1.5">
+          <div className="flex min-w-0 flex-col leading-tight">
             <span className="tabular text-base font-extrabold text-primary-strong">{formatPaise(finalPrice)}</span>
             {hasDiscount && (
               <span className="tabular text-xs text-muted line-through">{formatPaise(originalPrice)}</span>
@@ -133,7 +133,7 @@ export function DishCard({ product }: { product: ProductDto }) {
               type="button"
               onClick={() => (multi ? navigate(`/product/${product.slug}`) : add(product, defaultVariant(product)?.id, 1))}
               aria-label={multi ? `Choose a portion of ${product.name}` : `Add ${product.name} to cart`}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
+              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
             >
               <Plus className="size-4" strokeWidth={2.75} aria-hidden />
             Add
@@ -181,8 +181,8 @@ export function PopularCard({ product }: { product: ProductDto }) {
           </Link>
         </h3>
         {product.description && <p className="line-clamp-1 text-xs text-muted">{product.description}</p>}
-        <div className="relative z-10 mt-auto flex items-center justify-between gap-2 pt-1.5">
-          <div className="flex items-baseline gap-1.5">
+        <div className="relative z-10 mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 pt-1.5">
+          <div className="flex min-w-0 flex-col leading-tight">
             <span className="tabular text-base font-extrabold text-primary-strong">{formatPaise(finalPrice)}</span>
             {hasDiscount && (
               <span className="tabular text-xs text-muted line-through">{formatPaise(originalPrice)}</span>
@@ -197,7 +197,7 @@ export function PopularCard({ product }: { product: ProductDto }) {
               type="button"
               onClick={() => (multi ? navigate(`/product/${product.slug}`) : add(product, defaultVariant(product)?.id, 1))}
               aria-label={multi ? `Choose a portion of ${product.name}` : `Add ${product.name} to cart`}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
+              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
             >
               <Plus className="size-4" strokeWidth={2.75} aria-hidden />
             Add

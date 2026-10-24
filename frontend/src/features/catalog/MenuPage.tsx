@@ -16,7 +16,7 @@ type Diet = 'all' | 'veg' | 'nonveg';
 
 function RowsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 md:gap-4">
+    <div className="grid grid-cols-2 [&>*]:min-w-0 gap-3.5 md:grid-cols-3 md:gap-4">
       {Array.from({ length: 6 }, (_, i) => (
         <Skeleton key={i} className="h-64 rounded-[20px]" />
       ))}
@@ -165,7 +165,7 @@ export function MenuPage() {
         ) : visible.length === 0 ? (
           <EmptyState icon={<UtensilsCrossed className="size-9" />} title="Nothing matches" body="Try another filter or browse categories." action={<ButtonLink to="/categories" variant="secondary">Browse categories</ButtonLink>} />
         ) : (
-          <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+          <div className="grid grid-cols-2 [&>*]:min-w-0 gap-3.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
             {visible.map((p) => (
               <DishCard key={p.id} product={p} />
             ))}
@@ -267,7 +267,7 @@ function DesktopMenu({ categorySlug, diet, setDiet, sort, setSort, visible, load
           {error ? (
             <ErrorState onRetry={retry} />
           ) : loading ? (
-            <div className="grid grid-cols-2 gap-5 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid grid-cols-2 [&>*]:min-w-0 gap-5 xl:grid-cols-3 2xl:grid-cols-4">
               {Array.from({ length: 6 }, (_, i) => (
                 <Skeleton key={i} className="h-72" />
               ))}
@@ -275,7 +275,7 @@ function DesktopMenu({ categorySlug, diet, setDiet, sort, setSort, visible, load
           ) : visible.length === 0 ? (
             <EmptyState icon={<Search className="size-9" />} title="Nothing matches" body="Try another filter or category." action={<ButtonLink to="/menu" variant="secondary">Show all dishes</ButtonLink>} />
           ) : (
-            <ul className="grid grid-cols-2 gap-5 xl:grid-cols-3 2xl:grid-cols-4">
+            <ul className="grid grid-cols-2 [&>*]:min-w-0 gap-5 xl:grid-cols-3 2xl:grid-cols-4">
               {visible.map((p) => (
                 <li key={p.id} className="flex">
                   <PopularCard product={p} />
@@ -460,7 +460,7 @@ export function CategoriesPage() {
               {products.isError ? (
                 <ErrorState onRetry={() => products.refetch()} />
               ) : products.isPending ? (
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                <div className="grid grid-cols-2 [&>*]:min-w-0 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
                   {Array.from({ length: 4 }, (_, i) => (
                     <Skeleton key={i} className="h-72 rounded-[20px]" />
                   ))}
@@ -473,7 +473,7 @@ export function CategoriesPage() {
                   key={current.id}
                   style={{ transform: drag ? `translateX(${drag}px)` : undefined, opacity: leaving ? 0 : 1 - Math.min(Math.abs(drag) / 900, 0.35) }}
                   className={cx(
-                    'grid grid-cols-2 gap-3 will-change-transform md:grid-cols-3 md:gap-4 xl:grid-cols-4',
+                    'grid grid-cols-2 [&>*]:min-w-0 gap-3 will-change-transform md:grid-cols-3 md:gap-4 xl:grid-cols-4',
                     // No transition while the finger is down, so the cards track it 1:1.
                     touch.current ? '' : 'transition-[transform,opacity] duration-200 ease-out',
                     !drag && !leaving && (dir > 0 ? 'motion-safe:animate-[slide-in-right_320ms_cubic-bezier(0.16,1,0.3,1)]' : 'motion-safe:animate-[slide-in-left_320ms_cubic-bezier(0.16,1,0.3,1)]'),
