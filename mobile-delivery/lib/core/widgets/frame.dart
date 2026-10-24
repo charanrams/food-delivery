@@ -16,6 +16,8 @@ class FramedPage extends StatelessWidget {
     this.showBack = true,
     this.onBack,
     this.headerWidget,
+    this.headerImage,
+    this.headerHeight = 64,
   });
 
   final String title;
@@ -26,87 +28,115 @@ class FramedPage extends StatelessWidget {
   final VoidCallback? onBack;
   final Widget? headerWidget;
 
+  /// Optional artwork behind the orange header (it runs under the status bar and
+  /// the panel's rounded corners), e.g. the Home rider banner.
+  final String? headerImage;
+  final double headerHeight;
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: A3Colors.frame,
-        body: Column(
+        body: Stack(
           children: [
-            SafeArea(
-              bottom: false,
-              child: SizedBox(
-                height: 64,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: A3Spacing.lg),
-                  child: headerWidget ??
-                      Row(
-                        children: [
-                          if (showBack)
-                            SizedBox(
-                              width: 48,
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: CircleBack(onPressed: onBack),
-                              ),
-                            )
-                          else
-                            const SizedBox(width: 48),
-                          Expanded(
-                            child: Text(
-                              title,
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Outfit',
-                              ),
-                            ),
-                          ),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 48),
-                            child: actions.isEmpty
-                                ? const SizedBox(width: 48)
-                                : Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: actions,
-                                  ),
-                          ),
-                        ],
-                      ),
+            if (headerImage != null)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: MediaQuery.of(context).padding.top + headerHeight + 40,
+                child: Image.asset(
+                  headerImage!,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.centerRight,
+                  excludeFromSemantics: true,
                 ),
               ),
-            ),
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                child: ColoredBox(
-                  color: A3Colors.surface,
-                  child: Column(
-                    children: [
-                      Expanded(child: child),
-                      if (bottom != null)
-                        SafeArea(
-                          top: false,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                              A3Spacing.lg,
-                              A3Spacing.sm,
-                              A3Spacing.lg,
-                              A3Spacing.lg,
-                            ),
-                            child: bottom,
+            Column(
+              children: [
+                SafeArea(
+                  bottom: false,
+                  child: SizedBox(
+                    height: headerHeight,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: A3Spacing.lg,
+                      ),
+                      child:
+                          headerWidget ??
+                          Row(
+                            children: [
+                              if (showBack)
+                                SizedBox(
+                                  width: 48,
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: CircleBack(onPressed: onBack),
+                                  ),
+                                )
+                              else
+                                const SizedBox(width: 48),
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Outfit',
+                                  ),
+                                ),
+                              ),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 48),
+                                child: actions.isEmpty
+                                    ? const SizedBox(width: 48)
+                                    : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: actions,
+                                      ),
+                              ),
+                            ],
                           ),
-                        ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(32),
+                    ),
+                    child: ColoredBox(
+                      color: A3Colors.surface,
+                      child: Column(
+                        children: [
+                          Expanded(child: child),
+                          if (bottom != null)
+                            SafeArea(
+                              top: false,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  A3Spacing.lg,
+                                  A3Spacing.sm,
+                                  A3Spacing.lg,
+                                  A3Spacing.lg,
+                                ),
+                                child: bottom,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -128,7 +158,9 @@ class CircleBack extends StatelessWidget {
       button: true,
       label: 'Back',
       child: InkResponse(
-        onTap: onPressed ?? () => context.canPop() ? context.pop() : context.go('/'),
+        onTap:
+            onPressed ??
+            () => context.canPop() ? context.pop() : context.go('/'),
         radius: 26,
         child: Container(
           width: 44,
@@ -162,21 +194,21 @@ class SoftIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Tooltip(
-        message: tooltip,
-        child: Material(
-          color: background,
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: onPressed,
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child: Icon(icon, color: color, size: 22),
-            ),
-          ),
+    message: tooltip,
+    child: Material(
+      color: background,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, color: color, size: 22),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 /// Pill filter / tab chip.
@@ -194,32 +226,32 @@ class PillChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(right: A3Spacing.sm),
-        child: Semantics(
-          selected: selected,
-          button: true,
-          child: Material(
-            color: selected ? A3Colors.ink : A3Colors.card,
-            borderRadius: BorderRadius.circular(99),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(99),
-              onTap: onTap,
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 40),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                alignment: Alignment.center,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : A3Colors.ink,
-                  ),
-                ),
+    padding: const EdgeInsets.only(right: A3Spacing.sm),
+    child: Semantics(
+      selected: selected,
+      button: true,
+      child: Material(
+        color: selected ? A3Colors.ink : A3Colors.card,
+        borderRadius: BorderRadius.circular(99),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(99),
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: selected ? Colors.white : A3Colors.ink,
               ),
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 /// Section title.
@@ -231,19 +263,23 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, fontFamily: 'Outfit'),
-            ),
+    children: [
+      Expanded(
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Outfit',
           ),
-          if (action != null)
-            TextButton(
-              onPressed: onAction,
-              style: TextButton.styleFrom(foregroundColor: A3Colors.primaryStrong),
-              child: Text(action!),
-            ),
-        ],
-      );
+        ),
+      ),
+      if (action != null)
+        TextButton(
+          onPressed: onAction,
+          style: TextButton.styleFrom(foregroundColor: A3Colors.primaryStrong),
+          child: Text(action!),
+        ),
+    ],
+  );
 }

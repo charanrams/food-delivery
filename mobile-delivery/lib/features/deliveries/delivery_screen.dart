@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,7 @@ import '../../core/widgets/frame.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/auth_controller.dart';
 import 'deliveries_providers.dart';
+import 'route_map.dart';
 
 /// Mission Screen: one delivery, executed step by step.
 class DeliveryScreen extends ConsumerStatefulWidget {
@@ -26,7 +29,9 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   Future<void> _act(String action, [Map<String, dynamic>? body]) async {
     setState(() => _busy = true);
     try {
-      await ref.read(apiClientProvider).post('/delivery/orders/${widget.orderId}/$action', body);
+      await ref
+          .read(apiClientProvider)
+          .post('/delivery/orders/${widget.orderId}/$action', body);
       ref.invalidate(activeDeliveriesProvider);
       ref.invalidate(earningsProvider);
       if (action == 'decline') {
@@ -35,7 +40,10 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
       }
       ref.invalidate(deliveryProvider(widget.orderId));
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -56,12 +64,19 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
             return Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 24),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                20,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,15 +85,27 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                     child: Container(
                       width: 56,
                       height: 56,
-                      decoration: const BoxDecoration(color: Color(0xFFFFEBEE), shape: BoxShape.circle),
-                      child: const Icon(Icons.cancel_outlined, size: 32, color: A3Colors.danger),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFEBEE),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.cancel_outlined,
+                        size: 32,
+                        color: A3Colors.danger,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   const Text(
                     'Why are you rejecting this order?',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 18, fontWeight: FontWeight.bold, color: A3Colors.ink),
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: A3Colors.ink,
+                    ),
                   ),
                   const SizedBox(height: 14),
                   for (var i = 0; i < reasons.length; i++)
@@ -89,12 +116,21 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                         child: Row(
                           children: [
                             Icon(
-                              selectedReason == i ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                              selectedReason == i
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_unchecked,
                               size: 20,
-                              color: selectedReason == i ? A3Colors.primary : A3Colors.muted,
+                              color: selectedReason == i
+                                  ? A3Colors.primary
+                                  : A3Colors.muted,
                             ),
                             const SizedBox(width: 10),
-                            Expanded(child: Text(reasons[i], style: const TextStyle(fontSize: 14))),
+                            Expanded(
+                              child: Text(
+                                reasons[i],
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -106,8 +142,14 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                       hintText: 'Add additional details (optional)',
                       filled: true,
                       fillColor: A3Colors.card,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -116,9 +158,14 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                     style: FilledButton.styleFrom(
                       backgroundColor: A3Colors.danger,
                       minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                    child: const Text('Submit Rejection', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Submit Rejection',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -129,7 +176,8 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     );
 
     if (confirmed == true) {
-      final reasonText = '${reasons[selectedReason]} ${detailsController.text.trim()}'.trim();
+      final reasonText =
+          '${reasons[selectedReason]} ${detailsController.text.trim()}'.trim();
       await _act('decline', {'reason': reasonText});
     }
     detailsController.dispose();
@@ -150,7 +198,10 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                 title: 'No longer assigned to you',
                 message: 'The kitchen may have reassigned this order.',
               )
-            : ErrorView(error: e, onRetry: () => ref.invalidate(deliveryProvider(widget.orderId))),
+            : ErrorView(
+                error: e,
+                onRetry: () => ref.invalidate(deliveryProvider(widget.orderId)),
+              ),
         data: (d) => d.status == 'DELIVERED' ? _Delivered(d) : _missionBody(d),
       ),
     );
@@ -160,17 +211,25 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     final step = d.actions.contains('accept')
         ? 0
         : d.actions.contains('pickup')
-            ? 1
-            : d.actions.contains('out-for-delivery')
-                ? 2
-                : 3;
+        ? 1
+        : d.actions.contains('out-for-delivery')
+        ? 2
+        : 3;
 
     return ListView(
       padding: const EdgeInsets.all(A3Spacing.lg),
       children: [
         // Stepper Progress Header
-        _MissionStepper(current: step),
-        const SizedBox(height: A3Spacing.lg),
+        // Accept step shows the 30 s countdown instead of the progress bar.
+        if (step > 0) ...[
+          _MissionStepper(current: step - 1),
+          const SizedBox(height: A3Spacing.lg),
+        ],
+        // Mockup 4: route map once accepted (to the kitchen, then to the customer).
+        if (step > 0) ...[
+          RouteMapCard(d: d, toCustomer: step >= 2),
+          const SizedBox(height: A3Spacing.lg),
+        ],
 
         // Destination / Action Card
         Container(
@@ -183,7 +242,9 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                step <= 1 ? 'STEP 1: PICK UP AT KITCHEN' : 'STEP 2: DELIVER TO CUSTOMER',
+                step <= 1
+                    ? 'STEP 1: PICK UP AT KITCHEN'
+                    : 'STEP 2: DELIVER TO CUSTOMER',
                 style: const TextStyle(
                   color: A3Colors.primaryStrong,
                   fontSize: 12,
@@ -194,11 +255,17 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
               const SizedBox(height: 6),
               Text(
                 step <= 1 ? 'A3 Kitchen Counter' : d.recipient,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, fontFamily: 'Outfit'),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  fontFamily: 'Outfit',
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                step <= 1 ? 'Collect packed order at dispatch counter and inspect items.' : d.addressLine,
+                step <= 1
+                    ? 'Collect packed order at dispatch counter and inspect items.'
+                    : d.addressLine,
                 style: const TextStyle(height: 1.4, color: A3Colors.ink),
               ),
               const SizedBox(height: A3Spacing.md),
@@ -209,11 +276,19 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
                         minimumSize: const Size.fromHeight(44),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      onPressed: () => navigateTo(context, step <= 1 ? 'A3 Kitchen' : d.addressLine),
+                      onPressed: () => navigateTo(
+                        context,
+                        step <= 1 ? 'A3 Kitchen' : d.addressLine,
+                      ),
                       icon: const Icon(Icons.navigation_outlined, size: 18),
-                      label: const Text('Directions', style: TextStyle(fontWeight: FontWeight.w700)),
+                      label: const Text(
+                        'Directions',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ),
                   const SizedBox(width: A3Spacing.sm),
@@ -222,11 +297,19 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
                         minimumSize: const Size.fromHeight(44),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      onPressed: () => callNumber(context, step <= 1 ? '+91 9876543210' : d.recipientPhone),
+                      onPressed: () => callNumber(
+                        context,
+                        step <= 1 ? '+91 9876543210' : d.recipientPhone,
+                      ),
                       icon: const Icon(Icons.call_outlined, size: 18),
-                      label: Text(step <= 1 ? 'Call Kitchen' : 'Call Customer', style: const TextStyle(fontWeight: FontWeight.w700)),
+                      label: Text(
+                        step <= 1 ? 'Call Kitchen' : 'Call Customer',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ),
                 ],
@@ -248,9 +331,15 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
             children: [
               Row(
                 children: [
-                  const Text('Order Items & Verification', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                  const Text(
+                    'Order Items & Verification',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
                   const Spacer(),
-                  Text('${d.items.length} dishes', style: const TextStyle(color: A3Colors.muted, fontSize: 13)),
+                  Text(
+                    '${d.items.length} dishes',
+                    style: const TextStyle(color: A3Colors.muted, fontSize: 13),
+                  ),
                 ],
               ),
               const SizedBox(height: A3Spacing.md),
@@ -260,22 +349,38 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(color: A3Colors.line),
                         ),
-                        child: Text('${i.quantity}x', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                        child: Text(
+                          '${i.quantity}x',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           '${i.name}${i.variant != null ? ' (${i.variant})' : ''}',
-                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                      const Icon(Icons.check_circle_outline, color: A3Colors.success, size: 18),
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: A3Colors.success,
+                        size: 18,
+                      ),
                     ],
                   ),
                 ),
@@ -284,14 +389,20 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
               Container(
                 padding: const EdgeInsets.all(A3Spacing.md),
                 decoration: BoxDecoration(
-                  color: d.collectCash ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7),
+                  color: d.collectCash
+                      ? const Color(0xFFFEF3C7)
+                      : const Color(0xFFDCFCE7),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      d.collectCash ? Icons.payments_outlined : Icons.check_circle,
-                      color: d.collectCash ? const Color(0xFFB45309) : const Color(0xFF15803D),
+                      d.collectCash
+                          ? Icons.payments_outlined
+                          : Icons.check_circle,
+                      color: d.collectCash
+                          ? const Color(0xFFB45309)
+                          : const Color(0xFF15803D),
                       size: 24,
                     ),
                     const SizedBox(width: 12),
@@ -300,19 +411,27 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            d.collectCash ? 'CASH ON DELIVERY (COD)' : 'PREPAID ONLINE',
+                            d.collectCash
+                                ? 'CASH ON DELIVERY (COD)'
+                                : 'PREPAID ONLINE',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: d.collectCash ? const Color(0xFFB45309) : const Color(0xFF15803D),
+                              color: d.collectCash
+                                  ? const Color(0xFFB45309)
+                                  : const Color(0xFF15803D),
                             ),
                           ),
                           Text(
-                            d.collectCash ? 'Collect ${formatPaise(d.totalPaise)} in cash from customer' : 'Do NOT collect any money at doorstep',
+                            d.collectCash
+                                ? 'Collect ${formatPaise(d.totalPaise)} in cash from customer'
+                                : 'Do NOT collect any money at doorstep',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
-                              color: d.collectCash ? const Color(0xFF92400E) : const Color(0xFF166534),
+                              color: d.collectCash
+                                  ? const Color(0xFF92400E)
+                                  : const Color(0xFF166534),
                             ),
                           ),
                         ],
@@ -328,23 +447,52 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
 
         // Action Buttons corresponding to current step
         if (step == 0) ...[
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-            onPressed: _busy ? null : () => _act('accept'),
-            icon: const Icon(Icons.check),
-            label: const Text('Accept Delivery Assignment', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          _AcceptCountdown(
+            key: ValueKey(d.id),
+            assignedAt: d.assignedAt,
+            onTimeout: () {
+              if (!_busy) {
+                _act('decline', {'reason': 'No response within 30 seconds'});
+              }
+            },
           ),
-          const SizedBox(height: A3Spacing.md),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-            onPressed: _busy ? null : _decline,
-            child: const Text('Decline this Order', style: TextStyle(fontWeight: FontWeight.w600, color: A3Colors.danger)),
+          const SizedBox(height: A3Spacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(54),
+                    foregroundColor: A3Colors.danger,
+                    side: const BorderSide(color: A3Colors.danger),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: _busy ? null : _decline,
+                  child: const Text(
+                    'Reject',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(width: A3Spacing.md),
+              Expanded(
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(54),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: _busy ? null : () => _act('accept'),
+                  child: const Text(
+                    'Accept',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
           ),
         ] else if (step == 1) ...[
           Container(
@@ -364,44 +512,69 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                     color: A3Colors.surface,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.camera_alt_outlined, color: A3Colors.primary, size: 28),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    color: A3Colors.primary,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(height: 10),
-                const Text('Take a photo of the packed order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                const Text(
+                  'Take a photo of the packed order',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
                 const SizedBox(height: 4),
-                const Text('Photo helps us verify the pickup at kitchen counter', style: TextStyle(color: A3Colors.muted, fontSize: 12)),
+                const Text(
+                  'Photo helps us verify the pickup at kitchen counter',
+                  style: TextStyle(color: A3Colors.muted, fontSize: 12),
+                ),
               ],
             ),
           ),
           FilledButton.icon(
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
             onPressed: _busy ? null : () => _act('pickup'),
             icon: const Icon(Icons.inventory_2_outlined),
-            label: const Text('Confirm Pickup', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            label: const Text(
+              'Confirm Pickup',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            ),
           ),
         ] else if (step == 2)
           FilledButton.icon(
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
             onPressed: _busy ? null : () => _act('out-for-delivery'),
             icon: const Icon(Icons.delivery_dining),
-            label: const Text('Start Trip to Customer', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            label: const Text(
+              'Start Trip to Customer',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            ),
           )
         else ...[
           FilledButton.icon(
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
               backgroundColor: A3Colors.success,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
             onPressed: _busy ? null : () => _showOtpSheet(d),
             icon: const Icon(Icons.key_rounded),
-            label: const Text('Enter 6-Digit Delivery Code', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            label: const Text(
+              'Enter 6-Digit Delivery Code',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            ),
           ),
           const SizedBox(height: A3Spacing.sm),
           TextButton(
@@ -432,13 +605,118 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
       ref.invalidate(earningsProvider);
       await ref.read(authProvider.notifier).reload();
       if (mounted) {
-        context.push('/delivery-confirmation', extra: {
-          'orderNumber': d.orderNumber,
-          'earningsPaise': 4000,
-        });
+        context.push(
+          '/delivery-confirmation',
+          extra: {'orderNumber': d.orderNumber, 'earningsPaise': 4000},
+        );
       }
     }
   }
+}
+
+/// "New order received!" with a 30 s ring counted from the assignment time.
+class _AcceptCountdown extends StatefulWidget {
+  const _AcceptCountdown({
+    super.key,
+    required this.assignedAt,
+    required this.onTimeout,
+  });
+  final DateTime? assignedAt;
+  final VoidCallback onTimeout;
+
+  @override
+  State<_AcceptCountdown> createState() => _AcceptCountdownState();
+}
+
+class _AcceptCountdownState extends State<_AcceptCountdown> {
+  static const _window = 30;
+  late final DateTime _start = widget.assignedAt ?? DateTime.now();
+  Timer? _timer;
+  int _left = _window;
+  bool _fired = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  void _tick() {
+    final left = (_window - DateTime.now().difference(_start).inSeconds).clamp(
+      0,
+      _window,
+    );
+    if (mounted) setState(() => _left = left);
+    if (left == 0 && !_fired) {
+      _fired = true;
+      _timer?.cancel();
+      widget.onTimeout();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: _left <= 10,
+    label: '$_left seconds left to accept or reject',
+    child: ExcludeSemantics(
+      child: Column(
+        children: [
+          SizedBox(
+            width: 92,
+            height: 92,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CircularProgressIndicator(
+                  value: _left / _window,
+                  strokeWidth: 6,
+                  backgroundColor: A3Colors.primarySoft,
+                  color: _left <= 10 ? A3Colors.danger : A3Colors.primary,
+                ),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$_left',
+                        style: const TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      const Text(
+                        'Seconds',
+                        style: TextStyle(fontSize: 11, color: A3Colors.muted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'New order received!',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 2),
+          const Text(
+            'Please accept or reject within 30 seconds',
+            style: TextStyle(fontSize: 13, color: A3Colors.muted),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _OtpSheet extends ConsumerStatefulWidget {
@@ -462,10 +740,14 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
   Future<void> _verify() async {
     final d = widget.delivery;
     if (!RegExp(r'^\d{6}$').hasMatch(_code.text)) {
-      return setState(() => _error = 'Enter the 6-digit code shown in the customer app.');
+      return setState(
+        () => _error = 'Enter the 6-digit code shown in the customer app.',
+      );
     }
     if (d.collectCash && !_cash) {
-      return setState(() => _error = 'Collect the cash and tick the box first.');
+      return setState(
+        () => _error = 'Collect the cash and tick the box first.',
+      );
     }
     setState(() {
       _busy = true;
@@ -500,7 +782,11 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
         children: [
           const Text(
             'Doorstep Handover',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, fontFamily: 'Outfit'),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Outfit',
+            ),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -517,13 +803,21 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
             textAlign: TextAlign.center,
             autofillHints: const [AutofillHints.oneTimeCode],
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: const TextStyle(fontSize: 32, letterSpacing: 16, fontWeight: FontWeight.w800, fontFamily: 'Outfit'),
+            style: const TextStyle(
+              fontSize: 32,
+              letterSpacing: 16,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Outfit',
+            ),
             decoration: InputDecoration(
               counterText: '',
               hintText: '••••••',
               filled: true,
               fillColor: A3Colors.card,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
             ),
             onSubmitted: (_) => _verify(),
           ),
@@ -543,9 +837,16 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
                 activeColor: const Color(0xFFB45309),
                 title: Text(
                   'I collected ${formatPaise(d.totalPaise)} in cash',
-                  style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF78350F), fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF78350F),
+                    fontSize: 14,
+                  ),
                 ),
-                subtitle: const Text('Ensure exact amount is in hand', style: TextStyle(fontSize: 12, color: Color(0xFF92400E))),
+                subtitle: const Text(
+                  'Ensure exact amount is in hand',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF92400E)),
+                ),
                 controlAffinity: ListTileControlAffinity.leading,
               ),
             ),
@@ -553,19 +854,36 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: A3Spacing.sm),
-              child: Text(_error!, style: const TextStyle(color: A3Colors.danger, fontWeight: FontWeight.w600)),
+              child: Text(
+                _error!,
+                style: const TextStyle(
+                  color: A3Colors.danger,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
 
           FilledButton(
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(50),
               backgroundColor: A3Colors.success,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
             onPressed: _busy ? null : _verify,
             child: _busy
-                ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Text('Verify & Finish Delivery', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text(
+                    'Verify & Finish Delivery',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
           ),
         ],
       ),
@@ -573,40 +891,83 @@ class _OtpSheetState extends ConsumerState<_OtpSheet> {
   }
 }
 
+/// 1 Pickup — 2 On the way — 3 Deliver (mockup 3). Done = tick, current = filled orange.
 class _MissionStepper extends StatelessWidget {
   const _MissionStepper({required this.current});
   final int current;
-  static const _labels = ['Accept', 'Pick Up', 'En Route', 'Handover'];
+  static const _labels = ['Pickup', 'On the way', 'Deliver'];
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context) => Semantics(
+    label: 'Step ${current + 1} of 3: ${_labels[current]}',
+    child: ExcludeSemantics(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < _labels.length; i++)
-            Expanded(
+          for (var i = 0; i < _labels.length; i++) ...[
+            SizedBox(
+              width: 72,
               child: Column(
                 children: [
                   Container(
-                    height: 5,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: i <= current ? A3Colors.primary : A3Colors.line,
-                      borderRadius: BorderRadius.circular(99),
+                      shape: BoxShape.circle,
+                      color: i <= current ? A3Colors.primary : Colors.white,
+                      border: Border.all(
+                        color: i <= current ? A3Colors.primary : A3Colors.line,
+                        width: 1.5,
+                      ),
                     ),
+                    child: i < current
+                        ? const Icon(
+                            Icons.check_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          )
+                        : Text(
+                            '${i + 1}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                              color: i == current
+                                  ? Colors.white
+                                  : A3Colors.muted,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     _labels[i],
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: i == current ? FontWeight.w800 : FontWeight.w500,
-                      color: i <= current ? A3Colors.ink : A3Colors.muted,
+                      fontSize: 12,
+                      fontWeight: i == current
+                          ? FontWeight.w800
+                          : FontWeight.w500,
+                      color: i == current
+                          ? A3Colors.primaryStrong
+                          : A3Colors.muted,
                     ),
                   ),
                 ],
               ),
             ),
+            if (i < _labels.length - 1)
+              Expanded(
+                child: Container(
+                  height: 2,
+                  margin: const EdgeInsets.only(top: 14),
+                  color: i < current ? A3Colors.primary : A3Colors.line,
+                ),
+              ),
+          ],
         ],
-      );
+      ),
+    ),
+  );
 }
 
 class _Delivered extends StatelessWidget {
@@ -615,42 +976,59 @@ class _Delivered extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(A3Spacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFDCFCE7),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check_circle_rounded, size: 40, color: Color(0xFF16A34A)),
-              ),
-              const SizedBox(height: A3Spacing.lg),
-              const Text(
-                'Delivery Completed!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, fontFamily: 'Outfit'),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Order ${d.orderNumber} handed over${d.deliveredAt != null ? ' at ${timeOfDay(d.deliveredAt!)}' : ''}. Payout credited to your earnings.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: A3Colors.muted, fontSize: 14, height: 1.4),
-              ),
-              const SizedBox(height: A3Spacing.xl),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(200, 48),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                onPressed: () => context.go('/'),
-                child: const Text('Back to Duty Console', style: TextStyle(fontWeight: FontWeight.w700)),
-              ),
-            ],
+    child: Padding(
+      padding: const EdgeInsets.all(A3Spacing.xl),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: const BoxDecoration(
+              color: Color(0xFFDCFCE7),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.check_circle_rounded,
+              size: 40,
+              color: Color(0xFF16A34A),
+            ),
           ),
-        ),
-      );
+          const SizedBox(height: A3Spacing.lg),
+          const Text(
+            'Delivery Completed!',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Outfit',
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Order ${d.orderNumber} handed over${d.deliveredAt != null ? ' at ${timeOfDay(d.deliveredAt!)}' : ''}. Payout credited to your earnings.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: A3Colors.muted,
+              fontSize: 14,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: A3Spacing.xl),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(200, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            onPressed: () => context.go('/'),
+            child: const Text(
+              'Back to Duty Console',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

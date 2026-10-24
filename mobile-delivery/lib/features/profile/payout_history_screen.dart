@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/frame.dart';
 
@@ -15,10 +16,30 @@ class _PayoutHistoryScreenState extends State<PayoutHistoryScreen> {
   int _selectedFilter = 0; // 0: All, 1: Paid, 2: Processing, 3: Failed
 
   final List<Map<String, dynamic>> _payouts = [
-    {'date': '15 Oct 2026', 'amount': '₹3,200', 'status': 'Paid', 'ref': 'UTR98231245'},
-    {'date': '8 Oct 2026', 'amount': '₹3,180', 'status': 'Paid', 'ref': 'UTR87213421'},
-    {'date': '1 Oct 2026', 'amount': '₹2,800', 'status': 'Paid', 'ref': 'UTR76124522'},
-    {'date': '24 Sep 2026', 'amount': '₹3,270', 'status': 'Paid', 'ref': 'UTR65012398'},
+    {
+      'date': '15 Oct 2026',
+      'amount': '₹3,200',
+      'status': 'Paid',
+      'ref': 'UTR98231245',
+    },
+    {
+      'date': '8 Oct 2026',
+      'amount': '₹3,180',
+      'status': 'Paid',
+      'ref': 'UTR87213421',
+    },
+    {
+      'date': '1 Oct 2026',
+      'amount': '₹2,800',
+      'status': 'Paid',
+      'ref': 'UTR76124522',
+    },
+    {
+      'date': '24 Sep 2026',
+      'amount': '₹3,270',
+      'status': 'Paid',
+      'ref': 'UTR65012398',
+    },
   ];
 
   @override
@@ -38,13 +59,24 @@ class _PayoutHistoryScreenState extends State<PayoutHistoryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: A3Colors.line),
                 boxShadow: const [
-                  BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 3)),
+                  BoxShadow(
+                    color: Color(0x0A000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 3),
+                  ),
                 ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Total Payouts', style: TextStyle(fontSize: 13, color: A3Colors.muted, fontWeight: FontWeight.w500)),
+                  Text(
+                    'Total Payouts',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: A3Colors.muted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   SizedBox(height: 4),
                   Text(
                     '₹12,450',
@@ -79,7 +111,10 @@ class _PayoutHistoryScreenState extends State<PayoutHistoryScreen> {
             // Payout Transactions List
             for (final p in _payouts) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
                   color: A3Colors.surface,
@@ -92,9 +127,22 @@ class _PayoutHistoryScreenState extends State<PayoutHistoryScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(p['date'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: A3Colors.ink)),
+                        Text(
+                          p['date'] as String,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: A3Colors.ink,
+                          ),
+                        ),
                         const SizedBox(height: 3),
-                        Text(p['ref'] as String, style: const TextStyle(fontSize: 11, color: A3Colors.muted)),
+                        Text(
+                          p['ref'] as String,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: A3Colors.muted,
+                          ),
+                        ),
                       ],
                     ),
                     Column(
@@ -112,7 +160,11 @@ class _PayoutHistoryScreenState extends State<PayoutHistoryScreen> {
                         const SizedBox(height: 2),
                         Text(
                           p['status'] as String,
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: A3Colors.success),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: A3Colors.success,
+                          ),
                         ),
                       ],
                     ),

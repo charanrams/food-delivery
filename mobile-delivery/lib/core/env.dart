@@ -12,5 +12,4 @@ abstract final class Env {
 
   static String get apiBaseUrl =>
       _override.isNotEmpty ? _override : (useLocal ? _local : _production);
-
 }

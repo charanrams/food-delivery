@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/frame.dart';
 
@@ -69,7 +70,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final filtered = _selectedTab == 0
         ? _items
-        : _items.where((i) => i['cat'] == ['All', 'Orders', 'Earnings', 'System'][_selectedTab]).toList();
+        : _items
+              .where(
+                (i) =>
+                    i['cat'] ==
+                    ['All', 'Orders', 'Earnings', 'System'][_selectedTab],
+              )
+              .toList();
 
     return FramedPage(
       title: 'Notifications',
@@ -114,10 +121,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: (item['color'] as Color).withValues(alpha: 0.12),
+                          color: (item['color'] as Color).withValues(
+                            alpha: 0.12,
+                          ),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(item['icon'] as IconData, size: 20, color: item['color'] as Color),
+                        child: Icon(
+                          item['icon'] as IconData,
+                          size: 20,
+                          color: item['color'] as Color,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -129,18 +142,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               children: [
                                 Text(
                                   item['title'] as String,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: A3Colors.ink),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: A3Colors.ink,
+                                  ),
                                 ),
                                 Text(
                                   item['time'] as String,
-                                  style: const TextStyle(fontSize: 11, color: A3Colors.muted),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: A3Colors.muted,
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text(
                               item['body'] as String,
-                              style: const TextStyle(fontSize: 13, color: A3Colors.muted, height: 1.3),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: A3Colors.muted,
+                                height: 1.3,
+                              ),
                             ),
                           ],
                         ),

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BadgeCheck, Banknote, Check, ChevronRight, History, LogOut, MapPin, Navigation, Package, PackageCheck, Phone, Bike } from 'lucide-react';
 import { formatPaise, type DeliveryProfileDto, type OrderDto } from '@a3/contracts';
 import { Button, ButtonLink, EmptyState, ErrorState, Skeleton, StatusBadge, cx } from '@/components/ui';
-import { PageFrame } from '@/components/frame';
+import { PageFrame, PillChip } from '@/components/frame';
 import { useAuth } from '@/auth/AuthContext';
 import { api, ApiError } from '@/lib/api';
 import { addressLine } from '@/lib/orders-api';
@@ -12,7 +12,14 @@ import { addressLine } from '@/lib/orders-api';
 // Same endpoints as the mobile-delivery app.
 const meQuery = { queryKey: ['delivery', 'me'], queryFn: () => api.get<DeliveryProfileDto>('/delivery/me') };
 const activeQuery = { queryKey: ['delivery', 'orders'], queryFn: () => api.get<OrderDto[]>('/delivery/orders'), refetchInterval: 15_000 };
-const historyQuery = { queryKey: ['delivery', 'history'], queryFn: () => api.get<OrderDto[]>('/delivery/history') };
+/** History rows carry what happened for this partner (declined orders moved on to someone else). */
+type HistoryOrder = OrderDto & { partnerOutcome?: 'DELIVERED' | 'CANCELLED' | 'DECLINED'; partnerOutcomeAt?: string };
+const historyQuery = { queryKey: ['delivery', 'history'], queryFn: () => api.get<HistoryOrder[]>('/delivery/history') };
+const OUTCOME = {
+  DELIVERED: { label: 'Completed', cls: 'bg-success/12 text-success' },
+  CANCELLED: { label: 'Cancelled', cls: 'bg-danger/10 text-danger' },
+  DECLINED: { label: 'Declined', cls: 'bg-card text-muted' },
+} as const;
 const deliveryQuery = (id: string) => ({ queryKey: ['delivery', 'order', id], queryFn: () => api.get<OrderDto>(`/delivery/orders/${id}`), refetchInterval: 15_000 });
 
 const collectCash = (o: OrderDto) => o.paymentMethod === 'COD' && o.paymentStatus !== 'PAID';
@@ -288,29 +295,49 @@ export function DeliveryOrderPage() {
 
 export function DeliveryHistoryPage() {
   const history = useQuery(historyQuery);
+  const [filter, setFilter] = useState<'ALL' | 'COMPLETED' | 'CANCELLED'>('ALL');
+  const rows = (history.data ?? []).filter((o) => {
+    const done = (o.partnerOutcome ?? 'DELIVERED') === 'DELIVERED';
+    return filter === 'ALL' || (filter === 'COMPLETED' ? done : !done);
+  });
   return (
-    <PageFrame title="History" back={false}>
+    <PageFrame title="Order history" back={false}>
+      <div className="mb-4 flex gap-2" role="group" aria-label="Filter history">
+        {(['ALL', 'COMPLETED', 'CANCELLED'] as const).map((f) => (
+          <PillChip key={f} selected={filter === f} onClick={() => setFilter(f)}>
+            {f === 'ALL' ? 'All' : f === 'COMPLETED' ? 'Completed' : 'Cancelled'}
+          </PillChip>
+        ))}
+      </div>
       {history.isError ? (
         <ErrorState onRetry={() => history.refetch()} />
       ) : history.isPending ? (
         <Skeleton className="h-40" />
-      ) : history.data.length === 0 ? (
-        <EmptyState icon={<History className="size-9" />} title="No deliveries yet" body="Completed deliveries will show up here." />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={<History className="size-9" />}
+          title={filter === 'CANCELLED' ? 'No cancelled orders' : 'No deliveries yet'}
+          body={filter === 'CANCELLED' ? 'Orders cancelled by the kitchen or declined by you show up here.' : 'Completed deliveries will show up here.'}
+        />
       ) : (
         <ul className="flex flex-col gap-3">
-          {history.data.map((o) => (
-            <li key={o.id} className="flex flex-col gap-1 rounded-[18px] bg-card p-4">
-              <span className="flex justify-between gap-2">
-                <span className="tabular font-bold">{o.orderNumber}</span>
-                <StatusBadge status={o.status} />
-              </span>
-              <span className="truncate text-[13px] text-muted">{addressLine(o.deliveryAddress)}</span>
-              <span className="flex justify-between text-[13px]">
-                <span className="text-muted">{o.timeline.deliveredAt ? new Date(o.timeline.deliveredAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : ''}</span>
-                <span className="tabular font-bold">{formatPaise(o.totalPaise)}</span>
-              </span>
-            </li>
-          ))}
+          {rows.map((o) => {
+            const outcome = OUTCOME[o.partnerOutcome ?? 'DELIVERED'];
+            const at = o.partnerOutcomeAt ?? o.timeline.deliveredAt;
+            return (
+              <li key={o.id} className="flex flex-col gap-1 rounded-[18px] bg-card p-4">
+                <span className="flex justify-between gap-2">
+                  <span className="tabular font-bold">{o.orderNumber}</span>
+                  <span className={cx('rounded-full px-2.5 py-0.5 text-xs font-bold', outcome.cls)}>{outcome.label}</span>
+                </span>
+                <span className="truncate text-[13px] text-muted">{addressLine(o.deliveryAddress)}</span>
+                <span className="flex justify-between text-[13px]">
+                  <span className="text-muted">{at ? new Date(at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : ''}</span>
+                  <span className="tabular font-bold">{formatPaise(o.totalPaise)}</span>
+                </span>
+              </li>
+            );
+          })}
         </ul>
       )}
     </PageFrame>

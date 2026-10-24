@@ -166,6 +166,9 @@ export async function toOrderDto(o: OrderRow, role: UserRole, opts: { withOtp?: 
       city: o.deliveryAddress.city,
       state: o.deliveryAddress.state,
       postalCode: o.deliveryAddress.postalCode,
+      ...(o.deliveryAddress.lat != null && o.deliveryAddress.lng != null
+        ? { lat: o.deliveryAddress.lat, lng: o.deliveryAddress.lng }
+        : {}),
     },
     subtotalPaise: o.subtotalPaise,
     discountPaise: o.discountPaise,
@@ -308,6 +311,9 @@ export async function checkout(actor: Actor, req: CheckoutRequestDto, idempotenc
               city: address.city,
               state: address.state,
               postalCode: address.postalCode,
+              ...(address.location?.coordinates?.length === 2
+                ? { lng: address.location.coordinates[0], lat: address.location.coordinates[1] }
+                : {}),
             },
             subtotalPaise: priced.subtotalPaise,
             discountPaise: priced.discountPaise,
@@ -708,10 +714,56 @@ export async function adminSummary(): Promise<AdminSummaryDto> {
 }
 
 export async function listForPartner(actor: Actor, scope: 'active' | 'history') {
-  const status: OrderStatus[] = scope === 'active' ? ACTIVE_DELIVERY : ['DELIVERED'];
-  const filter = { partnerId: actor.userId, status: { $in: status } };
-  const rows = await Order.find(filter).sort({ updatedAt: -1 }).limit(scope === 'active' ? 10 : 50).lean();
+  if (scope === 'history') return partnerHistory(actor);
+  const rows = await Order.find({ partnerId: actor.userId, status: { $in: ACTIVE_DELIVERY } })
+    .sort({ updatedAt: -1 })
+    .limit(10)
+    .lean();
   return Promise.all(rows.map((o) => toOrderDto(o, 'DELIVERY_PARTNER')));
+}
+
+type PartnerOutcome = 'DELIVERED' | 'CANCELLED' | 'DECLINED';
+
+/**
+ * The partner's past runs, newest first, each tagged with what happened for THIS partner:
+ * DELIVERED, CANCELLED (order cancelled while it was theirs) or DECLINED (they turned it down;
+ * the order itself moved on to someone else).
+ */
+async function partnerHistory(actor: Actor) {
+  const [assignments, own] = await Promise.all([
+    DeliveryAssignment.find({ partnerId: actor.userId, status: { $in: ['DECLINED', 'CANCELLED'] } })
+      .sort({ updatedAt: -1 })
+      .limit(50)
+      .lean(),
+    Order.find({ partnerId: actor.userId, status: { $in: ['DELIVERED', 'CANCELLED'] } })
+      .sort({ updatedAt: -1 })
+      .limit(50)
+      .lean(),
+  ]);
+  const entries = new Map<string, { order: (typeof own)[number]; outcome: PartnerOutcome; at: Date }>();
+  for (const o of own) {
+    const outcome: PartnerOutcome = o.status === 'DELIVERED' ? 'DELIVERED' : 'CANCELLED';
+    entries.set(String(o._id), { order: o, outcome, at: (o.deliveredAt ?? o.updatedAt) as Date });
+  }
+  const missing = assignments.filter((a) => !entries.has(String(a.orderId)));
+  const others = missing.length
+    ? await Order.find({ _id: { $in: missing.map((a) => a.orderId) } }).lean()
+    : [];
+  const byId = new Map(others.map((o) => [String(o._id), o]));
+  for (const a of missing) {
+    const o = byId.get(String(a.orderId));
+    if (!o || entries.has(String(o._id))) continue;
+    const outcome: PartnerOutcome = a.status === 'DECLINED' ? 'DECLINED' : 'CANCELLED';
+    entries.set(String(o._id), { order: o, outcome, at: (a.declinedAt ?? a.updatedAt) as Date });
+  }
+  const sorted = [...entries.values()].sort((x, y) => y.at.getTime() - x.at.getTime()).slice(0, 50);
+  return Promise.all(
+    sorted.map(async ({ order, outcome, at }) => ({
+      ...(await toOrderDto(order, 'DELIVERY_PARTNER')),
+      partnerOutcome: outcome,
+      partnerOutcomeAt: at.toISOString(),
+    })),
+  );
 }
 
 export async function getForPartner(actor: Actor, id: string) {
@@ -747,8 +799,12 @@ export async function partnerProfile(actor: Actor): Promise<DeliveryProfileDto> 
 export async function partnerEarnings(actor: Actor) {
   const today = startOfTodayIST();
   const week = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+  // Calendar month in IST (1st of this month, 00:00 IST).
+  const ist = new Date(today.getTime() + 5.5 * 3600_000);
+  const month = new Date(Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), 1) - 5.5 * 3600_000);
+  const since = month < week ? month : week;
   const [rows, totalDelivered] = await Promise.all([
-    Order.find({ partnerId: actor.userId, status: 'DELIVERED', deliveredAt: { $gte: week } })
+    Order.find({ partnerId: actor.userId, status: 'DELIVERED', deliveredAt: { $gte: since } })
       .select('deliveredAt deliveryFeePaise totalPaise paymentMethod cashCollectedAt')
       .lean(),
     Order.countDocuments({ partnerId: actor.userId, status: 'DELIVERED' }),
@@ -759,9 +815,15 @@ export async function partnerEarnings(actor: Actor) {
     earningsPaise: list.reduce((s, o) => s + (o.deliveryFeePaise ?? 0), 0),
     codCashCollectedPaise: list.reduce((s, o) => s + cash(o), 0),
   });
-  const todayRows = rows.filter((o) => o.deliveredAt && o.deliveredAt >= today);
-  const todaySummary = summarise(todayRows);
-  return { today: todaySummary, week: summarise(rows), totalDelivered, unremittedCashPaise: todaySummary.codCashCollectedPaise };
+  const from = (d: Date) => rows.filter((o) => o.deliveredAt && o.deliveredAt >= d);
+  const todaySummary = summarise(from(today));
+  return {
+    today: todaySummary,
+    week: summarise(from(week)),
+    month: summarise(from(month)),
+    totalDelivered,
+    unremittedCashPaise: todaySummary.codCashCollectedPaise,
+  };
 }
 
 export async function setAvailability(actor: Actor, availability: 'ONLINE' | 'OFFLINE') {

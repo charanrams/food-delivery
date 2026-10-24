@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/frame.dart';
 
@@ -49,7 +51,9 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
       _onBreak = !_onBreak;
       if (!_onBreak) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Break ended. You are now back ON DUTY for orders.')),
+          const SnackBar(
+            content: Text('Break ended. You are now back ON DUTY for orders.'),
+          ),
         );
       }
     });
@@ -72,7 +76,11 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: A3Colors.line),
                 boxShadow: const [
-                  BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 4)),
+                  BoxShadow(
+                    color: Color(0x0F000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
                 ],
               ),
               child: Column(
@@ -82,12 +90,21 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
                     children: [
                       const Text(
                         'Current Break',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: A3Colors.ink),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: A3Colors.ink,
+                        ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: _onBreak ? const Color(0xFFE8F5E9) : A3Colors.card,
+                          color: _onBreak
+                              ? const Color(0xFFE8F5E9)
+                              : A3Colors.card,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -96,7 +113,9 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: _onBreak ? A3Colors.success : A3Colors.muted,
+                                color: _onBreak
+                                    ? A3Colors.success
+                                    : A3Colors.muted,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -106,7 +125,9 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: _onBreak ? A3Colors.success : A3Colors.muted,
+                                color: _onBreak
+                                    ? A3Colors.success
+                                    : A3Colors.muted,
                               ),
                             ),
                           ],
@@ -122,7 +143,11 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
                       color: A3Colors.primarySoft,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.coffee_rounded, size: 36, color: A3Colors.primary),
+                    child: const Icon(
+                      Icons.coffee_rounded,
+                      size: 36,
+                      color: A3Colors.primary,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -139,13 +164,20 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
                   FilledButton(
                     onPressed: _toggleBreak,
                     style: FilledButton.styleFrom(
-                      backgroundColor: _onBreak ? A3Colors.danger : A3Colors.primary,
+                      backgroundColor: _onBreak
+                          ? A3Colors.danger
+                          : A3Colors.primary,
                       minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                     child: Text(
                       _onBreak ? 'End Break' : 'Take a Break',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -156,7 +188,11 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
             // Today's Breaks Section
             const Text(
               'Today\'s Breaks',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: A3Colors.ink),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: A3Colors.ink,
+              ),
             ),
             const SizedBox(height: 12),
             _buildBreakItem('01:15 PM – 01:30 PM', '15 mins'),
@@ -202,12 +238,30 @@ class _BreakTrackerScreenState extends State<BreakTrackerScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.access_time_rounded, size: 18, color: A3Colors.muted),
+              const Icon(
+                Icons.access_time_rounded,
+                size: 18,
+                color: A3Colors.muted,
+              ),
               const SizedBox(width: 10),
-              Text(times, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: A3Colors.ink)),
+              Text(
+                times,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: A3Colors.ink,
+                ),
+              ),
             ],
           ),
-          Text(duration, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: A3Colors.primaryStrong)),
+          Text(
+            duration,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: A3Colors.primaryStrong,
+            ),
+          ),
         ],
       ),
     );

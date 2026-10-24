@@ -49,7 +49,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) {
         setState(() => _busy = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: A3Colors.success),
+          const SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: A3Colors.success,
+          ),
         );
         context.pop();
       }
@@ -78,7 +81,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: A3Colors.line, width: 2),
                     ),
-                    child: const Icon(Icons.person, size: 54, color: A3Colors.primary),
+                    child: const Icon(
+                      Icons.person,
+                      size: 54,
+                      color: A3Colors.primary,
+                    ),
                   ),
                   Positioned(
                     bottom: 0,
@@ -89,7 +96,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         color: A3Colors.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -99,25 +110,49 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             const Center(
               child: Text(
                 'Change Photo',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.primary),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: A3Colors.primary,
+                ),
               ),
             ),
             const SizedBox(height: 22),
 
-            const Text('Full Name', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink)),
+            const Text(
+              'Full Name',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: A3Colors.ink,
+              ),
+            ),
             const SizedBox(height: 6),
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 14),
 
-            const Text('Mobile Number', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink)),
+            const Text(
+              'Mobile Number',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: A3Colors.ink,
+              ),
+            ),
             const SizedBox(height: 6),
             TextFormField(
               controller: _phoneController,
@@ -125,11 +160,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
                 suffixIcon: Container(
                   margin: const EdgeInsets.only(right: 12),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE8F5E9),
                     borderRadius: BorderRadius.circular(8),
@@ -137,9 +181,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle_rounded, size: 14, color: A3Colors.success),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 14,
+                        color: A3Colors.success,
+                      ),
                       SizedBox(width: 4),
-                      Text('Verified', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: A3Colors.success)),
+                      Text(
+                        'Verified',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: A3Colors.success,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -147,20 +202,40 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
             const SizedBox(height: 14),
 
-            const Text('Email', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink)),
+            const Text(
+              'Email',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: A3Colors.ink,
+              ),
+            ),
             const SizedBox(height: 6),
             TextFormField(
               controller: _emailController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 14),
 
-            const Text('Vehicle Type', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink)),
+            const Text(
+              'Vehicle Type',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: A3Colors.ink,
+              ),
+            ),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -181,7 +256,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
             const SizedBox(height: 14),
 
-            const Text('Vehicle Number', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink)),
+            const Text(
+              'Vehicle Number',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: A3Colors.ink,
+              ),
+            ),
             const SizedBox(height: 6),
             TextFormField(
               controller: _vehicleNumberController,
@@ -189,8 +271,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -200,11 +288,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               style: FilledButton.styleFrom(
                 backgroundColor: A3Colors.primary,
                 minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               child: _busy
-                  ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Save Changes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'Save Changes',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ],
         ),

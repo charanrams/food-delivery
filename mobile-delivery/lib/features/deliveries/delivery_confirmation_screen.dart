@@ -67,7 +67,10 @@ class DeliveryConfirmationScreen extends StatelessWidget {
 
               // Earnings Highlight Pill
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F8F4),
                   borderRadius: BorderRadius.circular(18),
@@ -110,7 +113,11 @@ class DeliveryConfirmationScreen extends StatelessWidget {
                 children: List.generate(5, (_) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(Icons.star_rounded, size: 30, color: Color(0xFFFFB300)),
+                    child: Icon(
+                      Icons.star_rounded,
+                      size: 30,
+                      color: Color(0xFFFFB300),
+                    ),
                   );
                 }),
               ),
@@ -121,9 +128,14 @@ class DeliveryConfirmationScreen extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: A3Colors.primary,
                   minimumSize: const Size.fromHeight(54),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
-                child: const Text('Done', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Done',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 12),
             ],

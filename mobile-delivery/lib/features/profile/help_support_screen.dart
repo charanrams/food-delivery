@@ -64,8 +64,14 @@ class HelpSupportScreen extends StatelessWidget {
                 prefixIcon: const Icon(Icons.search, color: A3Colors.muted),
                 filled: true,
                 fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -80,7 +86,10 @@ class HelpSupportScreen extends StatelessWidget {
                   border: Border.all(color: A3Colors.line),
                 ),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   leading: Container(
                     width: 42,
                     height: 42,
@@ -88,11 +97,28 @@ class HelpSupportScreen extends StatelessWidget {
                       color: (t['color'] as Color).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(t['icon'] as IconData, color: t['color'] as Color, size: 22),
+                    child: Icon(
+                      t['icon'] as IconData,
+                      color: t['color'] as Color,
+                      size: 22,
+                    ),
                   ),
-                  title: Text(t['title'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: A3Colors.ink)),
-                  subtitle: Text(t['subtitle'] as String, style: const TextStyle(fontSize: 12, color: A3Colors.muted)),
-                  trailing: const Icon(Icons.chevron_right_rounded, color: A3Colors.muted),
+                  title: Text(
+                    t['title'] as String,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: A3Colors.ink,
+                    ),
+                  ),
+                  subtitle: Text(
+                    t['subtitle'] as String,
+                    style: const TextStyle(fontSize: 12, color: A3Colors.muted),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right_rounded,
+                    color: A3Colors.muted,
+                  ),
                   onTap: () {
                     if (t['title'] == 'Contact Support') {
                       launchUrl(Uri.parse('tel:+919876543210'));
@@ -123,16 +149,32 @@ class HelpSupportScreen extends StatelessWidget {
                       color: A3Colors.surface,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.phone_in_talk, color: A3Colors.primary),
+                    child: const Icon(
+                      Icons.phone_in_talk,
+                      color: A3Colors.primary,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text('Kitchen Dispatch Helpline', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: A3Colors.ink)),
+                        Text(
+                          'Kitchen Dispatch Helpline',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: A3Colors.ink,
+                          ),
+                        ),
                         SizedBox(height: 2),
-                        Text('Immediate assistance for active dispatches', style: TextStyle(fontSize: 12, color: A3Colors.primaryStrong)),
+                        Text(
+                          'Immediate assistance for active dispatches',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: A3Colors.primaryStrong,
+                          ),
+                        ),
                       ],
                     ),
                   ),

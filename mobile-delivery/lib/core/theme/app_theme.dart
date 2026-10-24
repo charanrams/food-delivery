@@ -38,8 +38,19 @@ ThemeData buildA3Theme() {
     outline: A3Colors.line,
   );
   // Fonts are bundled in assets/fonts (pubspec.yaml) so they work offline.
-  const display = TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, letterSpacing: -0.4, color: A3Colors.ink);
-  final text = ThemeData(useMaterial3: true).textTheme.apply(fontFamily: 'Inter', bodyColor: A3Colors.ink, displayColor: A3Colors.ink).copyWith(
+  const display = TextStyle(
+    fontFamily: 'Outfit',
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.4,
+    color: A3Colors.ink,
+  );
+  final text = ThemeData(useMaterial3: true).textTheme
+      .apply(
+        fontFamily: 'Inter',
+        bodyColor: A3Colors.ink,
+        displayColor: A3Colors.ink,
+      )
+      .copyWith(
         displaySmall: display.copyWith(fontSize: 36),
         headlineMedium: display.copyWith(fontSize: 28, height: 1.2),
         headlineSmall: display.copyWith(fontSize: 22),
@@ -77,8 +88,15 @@ ThemeData buildA3Theme() {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     ),
-    textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: A3Colors.primaryStrong, minimumSize: const Size(48, 48))),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(color: A3Colors.primary),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: A3Colors.primaryStrong,
+        minimumSize: const Size(48, 48),
+      ),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: A3Colors.primary,
+    ),
     cardTheme: CardThemeData(
       color: A3Colors.surface,
       elevation: 0,
@@ -91,15 +109,28 @@ ThemeData buildA3Theme() {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: A3Colors.surface,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: A3Colors.line)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: A3Colors.line)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: A3Colors.primary, width: 2)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: A3Colors.line),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: A3Colors.line),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: A3Colors.primary, width: 2),
+      ),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: A3Colors.surface,
       indicatorColor: A3Colors.primarySoft,
       iconTheme: WidgetStateProperty.resolveWith(
-        (s) => IconThemeData(color: s.contains(WidgetState.selected) ? A3Colors.primary : A3Colors.muted),
+        (s) => IconThemeData(
+          color: s.contains(WidgetState.selected)
+              ? A3Colors.primary
+              : A3Colors.muted,
+        ),
       ),
     ),
   );

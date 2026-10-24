@@ -31,6 +31,9 @@ const addressSnapshotSchema = new Schema(
     city: { type: String, required: true },
     state: { type: String, required: true },
     postalCode: { type: String, required: true },
+    // Map pin copied from the saved address (for the rider's navigation).
+    lat: Number,
+    lng: Number,
   },
   { _id: false },
 );
