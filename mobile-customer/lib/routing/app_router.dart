@@ -257,64 +257,66 @@ class _TabShellState extends ConsumerState<_TabShell> {
         backgroundColor: A3Colors.surface,
         body: shell,
         // Floating bar (reference design): white pill with 4 tabs + a round orange cart button,
-        // lifted above the gesture/home-indicator area by SafeArea.
-        bottomNavigationBar: SafeArea(
-          top: false,
-          minimum: const EdgeInsets.only(bottom: 10),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 66,
-                    decoration: BoxDecoration(
-                      color: A3Colors.surface,
-                      borderRadius: BorderRadius.circular(26),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x261E1D1B),
-                          blurRadius: 24,
-                          offset: Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < tabs.length; i++)
-                          Expanded(
-                            child: Semantics(
-                              selected: shell.currentIndex == i,
-                              button: true,
-                              label: tabs[i].$3,
-                              excludeSemantics: true,
-                              child: InkResponse(
-                                onTap: () => go(i),
-                                radius: 36,
-                                child: _TabItem(
-                                  icon: shell.currentIndex == i
-                                      ? tabs[i].$2
-                                      : tabs[i].$1,
-                                  label: tabs[i].$3,
-                                  selected: shell.currentIndex == i,
-                                ),
+        // lifted above the gesture/home-indicator area by SafeArea. Hidden on the cart.
+        bottomNavigationBar: shell.currentIndex == cartIndex
+            ? null
+            : SafeArea(
+                top: false,
+                minimum: const EdgeInsets.only(bottom: 10),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 66,
+                          decoration: BoxDecoration(
+                            color: A3Colors.surface,
+                            borderRadius: BorderRadius.circular(26),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x261E1D1B),
+                                blurRadius: 24,
+                                offset: Offset(0, 8),
                               ),
-                            ),
+                            ],
                           ),
-                      ],
-                    ),
+                          child: Row(
+                            children: [
+                              for (var i = 0; i < tabs.length; i++)
+                                Expanded(
+                                  child: Semantics(
+                                    selected: shell.currentIndex == i,
+                                    button: true,
+                                    label: tabs[i].$3,
+                                    excludeSemantics: true,
+                                    child: InkResponse(
+                                      onTap: () => go(i),
+                                      radius: 36,
+                                      child: _TabItem(
+                                        icon: shell.currentIndex == i
+                                            ? tabs[i].$2
+                                            : tabs[i].$1,
+                                        label: tabs[i].$3,
+                                        selected: shell.currentIndex == i,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _CartButton(
+                        count: count,
+                        selected: shell.currentIndex == cartIndex,
+                        onTap: () => go(cartIndex),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                _CartButton(
-                  count: count,
-                  selected: shell.currentIndex == cartIndex,
-                  onTap: () => go(cartIndex),
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }

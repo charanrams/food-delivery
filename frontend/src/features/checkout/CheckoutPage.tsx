@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Lock, MapPin, MapPinPlus, Wallet } from 'lucide-react';
@@ -32,8 +32,10 @@ export function CheckoutPage() {
   const [error, setError] = useState<string>();
   // One key per checkout attempt: a double-click or retry can't create two orders.
   const [idemKey] = useState(() => crypto.randomUUID());
+  const placed = useRef(false);
 
-  if (lines.length === 0 && !placing) return <Navigate to="/cart" replace />;
+  // `placed` stops the empty-cart redirect from beating the navigation to the Order placed screen.
+  if (lines.length === 0 && !placing && !placed.current) return <Navigate to="/cart" replace />;
 
   const list = addresses.data ?? [];
   const address = list.find((a) => a.id === picked) ?? list.find((a) => a.isDefault && a.isServiceable) ?? list.find((a) => a.isServiceable);
@@ -53,8 +55,10 @@ export function CheckoutPage() {
           return;
         }
       }
-      clear();
+      placed.current = true;
       navigate(`/orders/${order.id}/confirmed`, { replace: true });
+      clear();
+      return;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Couldn’t place the order. Please try again.');
       if (e instanceof ApiError && e.code === 'PRODUCT_UNAVAILABLE') void quote.refetch();

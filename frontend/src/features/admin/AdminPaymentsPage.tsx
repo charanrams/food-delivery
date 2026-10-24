@@ -43,6 +43,7 @@ export function AdminPaymentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        crumbs={[{ label: 'Business' }, { label: 'Payments & refunds' }]}
         title="Payments & refunds"
         description="Rejected or cancelled online orders are refunded automatically. Cash orders are marked paid when the rider collects."
       />

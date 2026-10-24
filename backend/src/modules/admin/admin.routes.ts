@@ -7,10 +7,15 @@ import { actorOf, authenticate, requireRole } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
 import { AppError } from '../../utils/app-error';
 import { ok } from '../../utils/http';
+import { adminDashboard } from './dashboard';
 
 /** Admin read models for customers, payments, reports and kitchen settings. */
 export const adminInsightsRouter = Router();
 adminInsightsRouter.use(authenticate, requireRole('ADMIN'));
+
+adminInsightsRouter.get('/dashboard', async (_req, res) => {
+  ok(res, await adminDashboard());
+});
 
 const IST = 5.5 * 3600_000;
 const istDay = (d: Date) => new Date(d.getTime() + IST).toISOString().slice(0, 10);

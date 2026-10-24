@@ -56,6 +56,8 @@ const orderSchema = new Schema(
     partnerId: { type: Schema.Types.ObjectId, ref: 'User' }, // current partner (denormalised for queries)
     rejectionReason: String,
     cancellationReason: String,
+    // Customer feedback after delivery (one per order).
+    review: { rating: { type: Number, min: 1, max: 5 }, comment: { type: String, maxlength: 500 }, createdAt: Date },
     acceptedAt: Date,
     preparingAt: Date,
     readyAt: Date,

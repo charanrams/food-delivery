@@ -3,7 +3,7 @@ import type { UploadSignatureDto } from '@a3/contracts';
 import { config } from '../../config';
 import { AppError } from '../../utils/app-error';
 
-export const UPLOAD_FOLDERS = ['products', 'categories'] as const;
+export const UPLOAD_FOLDERS = ['products', 'categories', 'banners'] as const;
 export type UploadFolder = (typeof UPLOAD_FOLDERS)[number];
 
 const ALLOWED_FORMATS = 'jpg,jpeg,png,webp';

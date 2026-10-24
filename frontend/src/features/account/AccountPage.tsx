@@ -143,7 +143,7 @@ export function AccountPage() {
 
   if (!user)
     return (
-      <PageFrame title="Profile" back={false}>
+      <PageFrame art title="Profile" subtitle="Your account, orders and saved places" back={false}>
         <EmptyState
           icon={<LogOut className="size-9" />}
           title="You’re not logged in"
@@ -199,7 +199,7 @@ export function AccountPage() {
   };
 
   return (
-    <PageFrame title="Profile" back={false}>
+    <PageFrame art title="Profile" subtitle="Your account, orders and saved places" back={false}>
       <div className="mx-auto flex max-w-xl flex-col gap-6 pb-12">
         {/* User card — identity row on top, contact details full-width below so long emails never clip */}
         <div className="flex flex-col gap-4 rounded-3xl border border-line/70 bg-surface p-5 shadow-sm md:p-6">
@@ -746,6 +746,8 @@ export function NotificationsPage() {
 
   return (
     <PageFrame
+      art
+      subtitle="Order updates, offers and alerts"
       title="Notifications"
       actions={
         (notes.data?.unread ?? 0) > 0 && (

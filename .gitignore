@@ -14,3 +14,6 @@ backend/.data/
 
 # Project docs stay local
 docs/
+
+# Reference copy of the VSR project (inspiration only, not part of this app)
+vsr/

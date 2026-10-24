@@ -84,6 +84,7 @@ export function AdminDeliveryPartnersPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        crumbs={[{ label: 'People' }, { label: 'Delivery partners' }]}
         title="Delivery partners"
         description="New partners get their login details by email."
         actions={

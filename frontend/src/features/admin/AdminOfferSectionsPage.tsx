@@ -1,23 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ArrowDown,
-  ArrowUp,
-  CalendarClock,
-  Flame,
-  UtensilsCrossed,
-  ChevronRight,
-  LayoutList,
-  Pencil,
-  Plus,
-  Trash2,
-  X,
-} from 'lucide-react';
+import { ArrowDown, ArrowUp, CalendarClock, ChevronRight, Eye, Flame, LayoutList, Pencil, Plus, Tag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import type { OfferSectionDto, OfferSectionInput } from '@a3/contracts';
 import { Button, EmptyState, ErrorState, Skeleton, Toggle, cx } from '@/components/ui';
 import { adminApi, adminKeys } from './admin-api';
-import { NoticeBar, PageHeader, RowMenu, errorText, inputCls, type Notice } from './admin-ui';
+import { NoticeBar, PageHeader, RowMenu, SectionCard, StatCard, StatGrid, errorText, inputCls, type Notice } from './admin-ui';
 
 /** Admin · Offer sections — custom Home rows (e.g. "Weekend deals") that work like Today's specials. */
 export function AdminOfferSectionsPage() {
@@ -74,18 +62,26 @@ export function AdminOfferSectionsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
-        title="Offer sections"
-        description="The rows on the customer Home, top to bottom. Use the arrows to set the order. Deal sections have their own dishes and discounts; Popular Near You fills itself with best sellers; category rows come from the Row on Home switch on Food categories. Website and app use this same order."
+        crumbs={[{ label: 'Menu' }, { label: 'Offers & specials' }]}
+        title="Offers & specials"
+        description="The rows customers see on Home, in the app and on the website. Deal rows carry their own dishes and discounts; Popular Near You fills itself; category rows come from Categories."
         actions={
           <Button icon={<Plus className="size-[18px]" aria-hidden />} onClick={() => setDialog({})}>
             New section
           </Button>
         }
       />
+      <StatGrid>
+        <StatCard label="Home rows" value={String(list.length)} icon={<LayoutList />} hint="Top to bottom on Home" />
+        <StatCard label="On Home now" value={String(list.filter((x) => x.isActive).length)} tone="green" icon={<Eye />} hint="Visible to customers" />
+        <StatCard label="Deal rows" value={String(list.filter((x) => x.kind === 'DEALS').length)} tone="pink" icon={<Tag />} hint="With their own discounts" />
+        <StatCard label="Dishes on offer" value={String(list.reduce((n, x) => n + (x.kind === 'DEALS' ? (x.specialCount ?? 0) : 0), 0))} tone="blue" icon={<UtensilsCrossed />} hint="One deal per dish" />
+      </StatGrid>
       <NoticeBar notice={notice} onDismiss={() => setNotice(undefined)} />
 
+      <SectionCard title="Rows on the customer Home" actions={<span className="text-xs text-muted">Use the arrows to change the order</span>}>
       {sections.isError ? (
         <ErrorState onRetry={() => sections.refetch()} />
       ) : sections.isPending ? (
@@ -107,7 +103,7 @@ export function AdminOfferSectionsPage() {
             <li
               key={x.id}
               className={cx(
-                'relative flex items-center gap-4 rounded-[20px] bg-surface p-4 ring-1 ring-line/70 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-primary-strong',
+                'relative flex items-center gap-4 rounded-2xl bg-surface p-3.5 ring-1 ring-line/70 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-primary-strong',
                 !x.isActive && 'bg-panel',
               )}
             >
@@ -220,6 +216,7 @@ export function AdminOfferSectionsPage() {
           ))}
         </ul>
       )}
+      </SectionCard>
 
       {dialog && (
         <SectionDialog
@@ -256,7 +253,7 @@ const toLocal = (iso?: string) => {
 };
 
 /** Live / scheduled / ended / hidden, with the start and stop times. */
-export function SectionSchedule({ section: x }: { section: OfferSectionDto }) {
+export function SectionSchedule({ section: x }: { section: Pick<OfferSectionDto, 'isActive' | 'isLive' | 'startsAt' | 'endsAt'> }) {
   const now = new Date();
   const state = !x.isActive
     ? { text: 'Hidden', tone: 'bg-panel text-muted' }

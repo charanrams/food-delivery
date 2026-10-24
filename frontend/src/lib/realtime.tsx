@@ -15,7 +15,7 @@ const KEYS: Record<Topic, string[][]> = {
   orders: [['orders'], ['order'], ['admin']],
   deliveries: [['delivery']],
   notifications: [['notifications']],
-  catalog: [['products'], ['product'], ['categories'], ['specials'], ['offer-sections'], ['quote'], ['admin']],
+  catalog: [['products'], ['product'], ['categories'], ['specials'], ['offer-sections'], ['banners'], ['quote'], ['admin']],
   settings: [['quote'], ['admin']],
   people: [['admin']],
   payments: [['admin'], ['orders'], ['order']],

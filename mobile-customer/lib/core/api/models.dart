@@ -83,6 +83,7 @@ class Product {
     required this.isVegetarian,
     required this.variants,
     this.preparationTimeMinutes,
+    this.rating,
   });
 
   final String id;
@@ -95,6 +96,9 @@ class Product {
   final bool isAvailable;
   final bool isVegetarian;
   final int? preparationTimeMinutes;
+
+  /// Average customer rating (1–5) from order reviews; null until reviewed.
+  final double? rating;
   final List<Variant> variants;
 
   String? get imageUrl => images.isEmpty ? null : images.first;
@@ -121,6 +125,7 @@ class Product {
     isAvailable: j['isAvailable'] as bool? ?? true,
     isVegetarian: j['isVegetarian'] as bool? ?? false,
     preparationTimeMinutes: (j['preparationTimeMinutes'] as num?)?.toInt(),
+    rating: (j['rating'] as num?)?.toDouble(),
     variants: (j['variants'] as List? ?? const [])
         .map((v) => Variant.fromJson(v as Map<String, dynamic>))
         .toList(),
@@ -280,8 +285,12 @@ class Order {
     this.partner,
     this.deliveryOtp,
     this.reason,
+    this.reviewRating,
   });
   final String id, orderNumber, status, paymentStatus, paymentMethod;
+
+  /// 1–5 once the customer has rated this delivered order.
+  final int? reviewRating;
   final List<OrderItem> items;
   final Map<String, dynamic> address;
   final int subtotalPaise,
@@ -328,6 +337,8 @@ class Order {
             e.key: DateTime.parse(e.value as String).toLocal(),
       },
       actions: (j['actions'] as List? ?? const []).cast<String>(),
+      reviewRating: ((j['review'] as Map<String, dynamic>?)?['rating'] as num?)
+          ?.toInt(),
       partner: p == null
           ? null
           : OrderPartner(

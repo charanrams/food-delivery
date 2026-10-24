@@ -11,7 +11,7 @@ export const inputCls =
 export const iconBtnCls =
   'grid size-10 place-items-center rounded-lg focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-40';
 export const thCls =
-  'bg-panel px-4 py-3 text-xs font-semibold text-muted first:rounded-l-xl last:rounded-r-xl';
+  'bg-[#fff6ee] px-4 py-3 text-xs font-semibold text-muted first:rounded-l-xl last:rounded-r-xl';
 export const tdCls = 'px-4 py-3.5 align-middle';
 export const errorText = (e: unknown, fallback = 'Something went wrong. Please try again.') =>
   e instanceof ApiError ? e.message : fallback;
@@ -20,15 +20,34 @@ export function PageHeader({
   title,
   description,
   actions,
+  crumbs,
 }: {
   title: string;
   description?: ReactNode;
   actions?: ReactNode;
+  /** Breadcrumb trail above the title, e.g. [{ label: 'Orders', to: '/admin/orders' }, { label: 'A3-…' }]. */
+  crumbs?: { label: string; to?: string }[];
 }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
-        <h1 className="text-balance text-2xl font-bold leading-tight tracking-[-0.02em] md:text-[1.875rem]">
+        {crumbs && crumbs.length > 0 && (
+          <nav aria-label="Breadcrumb" className="mb-1 flex flex-wrap items-center gap-1.5 text-[13px] text-muted">
+            {crumbs.map((c, i) => (
+              <span key={c.label} className="flex items-center gap-1.5">
+                {i > 0 && <span aria-hidden>›</span>}
+                {c.to ? (
+                  <Link to={c.to} className="hover:text-primary-strong">
+                    {c.label}
+                  </Link>
+                ) : (
+                  <span className={i === crumbs.length - 1 ? 'text-ink' : ''}>{c.label}</span>
+                )}
+              </span>
+            ))}
+          </nav>
+        )}
+        <h1 className="font-display text-balance text-2xl font-bold leading-tight tracking-[-0.02em] md:text-[1.875rem]">
           {title}
         </h1>
         {description && <p className="mt-1 max-w-[65ch] text-sm text-muted">{description}</p>}
@@ -109,7 +128,7 @@ export function FilterTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="no-scrollbar flex min-w-0 max-w-full gap-1 overflow-x-auto rounded-full bg-surface p-1 ring-1 ring-line/70"
+      className="no-scrollbar flex min-w-0 max-w-full gap-1 overflow-x-auto rounded-full bg-surface p-1 shadow-sm ring-1 ring-line/70"
     >
       {options.map((o) => {
         const active = o.value === value;
@@ -122,8 +141,8 @@ export function FilterTabs<T extends string>({
             className={cx(
               'inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors',
               active
-                ? 'bg-primary-strong text-surface shadow-sm'
-                : 'text-muted hover:bg-panel hover:text-ink',
+                ? 'bg-ink text-surface shadow-sm'
+                : 'text-muted hover:bg-primary-soft hover:text-ink',
             )}
           >
             {o.label}
@@ -204,9 +223,13 @@ export const dateTime = (iso?: string) =>
         minute: '2-digit',
       })
     : '-';
+/** "4 min", "2 h 5 min", "3 d" — long waits stay readable. */
+export const waitLabel = (mins: number) =>
+  mins < 60 ? `${mins} min` : mins < 24 * 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${Math.floor(mins / (24 * 60))} d`;
+export const itemsLabel = (n: number) => `${n} ${n === 1 ? 'item' : 'items'}`;
 export const localPhone = (p: string) => p.replace(/^\+91/, '');
 
-/** KPI tile (Sociafy-style): label, round icon chip, big number, small context line. */
+/** KPI tile (VSR-style): tinted icon square, label, big number and a context line. */
 export function StatCard({
   label,
   value,
@@ -218,37 +241,34 @@ export function StatCard({
   label: string;
   value: string;
   icon: ReactNode;
-  hint?: string;
+  hint?: ReactNode;
   to?: string;
-  tone?: 'orange' | 'green' | 'pink' | 'blue';
+  tone?: 'orange' | 'green' | 'pink' | 'blue' | 'violet' | 'red';
 }) {
   const chip = {
     orange: 'bg-primary-soft text-primary-strong',
     green: 'bg-success/12 text-success',
     pink: 'bg-[#fde7ee] text-[#b4235a]',
     blue: 'bg-[#e4f0fd] text-[#1d5fa8]',
+    violet: 'bg-[#efe8fd] text-[#6d3fd6]',
+    red: 'bg-danger/10 text-danger',
   }[tone];
   const body = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-sm font-semibold">{label}</span>
-        <span
-          className={cx('grid size-9 shrink-0 place-items-center rounded-full', chip)}
-          aria-hidden
-        >
-          {icon}
-        </span>
-      </div>
-      <span className="tabular break-words text-[1.375rem] font-bold leading-tight tracking-[-0.02em] sm:text-[1.75rem] sm:leading-none">
-        {value}
+      <span className={cx('grid size-12 shrink-0 place-items-center rounded-2xl [&_svg]:size-[22px]', chip)} aria-hidden>
+        {icon}
       </span>
-      {hint && <span className="text-xs text-muted">{hint}</span>}
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="text-[13px] font-medium text-muted">{label}</span>
+        <span className="font-display tabular break-words text-[1.5rem] font-bold leading-none tracking-[-0.01em] sm:text-[1.625rem]">{value}</span>
+        {hint && <span className="truncate text-xs text-muted" title={typeof hint === 'string' ? hint : undefined}>{hint}</span>}
+      </span>
     </>
   );
   const cls =
-    'flex min-w-0 flex-col gap-3 rounded-[20px] bg-surface p-4 sm:p-5 ring-1 ring-line/70 transition-shadow';
+    'flex min-w-0 items-start gap-3.5 rounded-[20px] bg-surface p-4 shadow-[0_1px_2px_rgb(30_29_27/0.04),0_10px_24px_-18px_rgb(122_59_16/0.35)] ring-1 ring-line/70 transition-shadow sm:p-5';
   return to ? (
-    <Link to={to} className={cx(cls, 'hover:shadow-md')}>
+    <Link to={to} className={cx(cls, 'hover:shadow-md hover:ring-primary/40')}>
       {body}
     </Link>
   ) : (
@@ -269,7 +289,12 @@ export function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={cx('rounded-[20px] bg-surface p-3 ring-1 ring-line/70 md:p-4', className)}>
+    <section
+      className={cx(
+        'min-w-0 rounded-[20px] bg-surface p-3 shadow-[0_1px_2px_rgb(30_29_27/0.04),0_10px_24px_-18px_rgb(122_59_16/0.3)] ring-1 ring-line/70 md:p-4',
+        className,
+      )}
+    >
       {(title || actions) && (
         <header className="flex flex-wrap items-center justify-between gap-3 px-2 pb-3 pt-1">
           {title && <h2 className="text-base font-bold">{title}</h2>}
@@ -283,7 +308,7 @@ export function SectionCard({
 
 /** Row of KPI tiles at the top of a page. */
 export function StatGrid({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">{children}</div>;
+  return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-4 xl:grid-cols-4">{children}</div>;
 }
 
 // ---------- People ----------

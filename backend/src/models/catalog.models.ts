@@ -38,6 +38,9 @@ const productSchema = new Schema(
     isArchived: { type: Boolean, default: false }, // products are archived, never deleted
     isVegetarian: Boolean,
     preparationTimeMinutes: { type: Number, min: 0 },
+    // From customer reviews of delivered orders containing this dish.
+    ratingSum: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
     variants: { type: [variantSchema], default: [] },
   },
   { timestamps: true },
@@ -106,3 +109,26 @@ const offerSectionSchema = new Schema(
 offerSectionSchema.index({ isActive: 1, sortOrder: 1 });
 export type OfferSectionDoc = InferSchemaType<typeof offerSectionSchema>;
 export const OfferSection = model('OfferSection', offerSectionSchema);
+
+/** Home carousel banner (VSR pattern): admin-managed slide with photo, copy and a link. */
+const bannerSchema = new Schema(
+  {
+    title: { type: String, required: true, trim: true, maxlength: 40 },
+    /** Second title line shown in orange (e.g. "Delicious Food"). */
+    highlight: { type: String, trim: true, maxlength: 40 },
+    subtitle: { type: String, trim: true, maxlength: 120 },
+    buttonText: { type: String, trim: true, maxlength: 24 },
+    /** Where the button goes: a category slug, product slug, offer section id or a URL/path. */
+    linkType: { type: String, enum: ['none', 'category', 'product', 'offer', 'url'], default: 'none' },
+    linkValue: { type: String, trim: true, maxlength: 300 },
+    image: { type: String, required: true },
+    startsAt: Date,
+    endsAt: Date,
+    isActive: { type: Boolean, default: true },
+    sortOrder: { type: Number, default: 0 },
+  },
+  { timestamps: true },
+);
+bannerSchema.index({ isActive: 1, sortOrder: 1 });
+export type BannerDoc = InferSchemaType<typeof bannerSchema>;
+export const Banner = model('Banner', bannerSchema);

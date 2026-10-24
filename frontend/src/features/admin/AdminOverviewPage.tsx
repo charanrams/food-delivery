@@ -80,6 +80,7 @@ const ROAD_LABEL: Partial<Record<OrderStatus, string>> = {
 /** Admin · Overview — a live kitchen board: one column per stage, one big button per ticket. */
 export function AdminOverviewPage() {
   const [notice, setNotice] = useState<Notice>();
+  const [tab, setTab] = useState<string>();
   const summary = useQuery({
     queryKey: adminKeys.summary,
     queryFn: adminApi.summary,
@@ -103,14 +104,15 @@ export function AdminOverviewPage() {
   const s = summary.data;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
+        crumbs={[{ label: 'Kitchen' }, { label: 'Live kitchen' }]}
         title="Kitchen board"
         description="Every live order, by stage. Press the button on a ticket to move it along."
         actions={<KitchenSwitch onError={(text) => setNotice({ tone: 'danger', text })} />}
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 [&>*]:min-w-0">
         <StatCard
           label="Live orders"
           value={s ? String(s.liveOrders ?? s.ordersToday) : '-'}
@@ -155,75 +157,84 @@ export function AdminOverviewPage() {
           <ErrorState onRetry={() => queue.refetch()} />
         </Card>
       ) : (
-        <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:-mx-8 md:px-8 xl:mx-0 xl:grid xl:grid-cols-4 xl:overflow-visible xl:px-0">
-          {LANES.map((lane) => {
+        (() => {
+          const byLane = LANES.map((lane) => {
             const orders = items
               .filter((o) => lane.statuses.includes(o.status))
               .sort((x, y) => Date.parse(x.timeline.placedAt) - Date.parse(y.timeline.placedAt));
-            const tone = LANE_TONE[lane.id]!;
-            const late = orders.filter((o) => waitLevel(o) === 'late').length;
-            return (
-              <section
-                key={lane.id}
-                aria-labelledby={`lane-${lane.id}`}
-                className="flex w-[85vw] max-w-sm shrink-0 snap-start flex-col rounded-[24px] bg-surface ring-1 ring-line/70 sm:w-80 xl:w-auto xl:max-w-none"
-              >
-                <header className="flex items-center gap-3 border-b border-line/70 px-4 py-3.5">
-                  <span
-                    className={cx(
-                      'grid size-9 shrink-0 place-items-center rounded-full',
-                      tone.chip,
-                    )}
-                    aria-hidden
-                  >
-                    <lane.icon className="size-[18px]" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <h2 id={`lane-${lane.id}`} className="flex items-center gap-2 font-bold">
-                      {lane.title}
+            return { lane, orders, late: orders.filter((o) => waitLevel(o) === 'late').length };
+          });
+          // Default: the first stage that has something in it.
+          const current = byLane.find((b) => b.lane.id === tab) ?? byLane.find((b) => b.orders.length) ?? byLane[0]!;
+          const { lane, orders } = current;
+          return (
+            <section className="flex flex-col gap-4">
+              <div role="tablist" aria-label="Kitchen stages" className="grid grid-cols-2 gap-2 rounded-[20px] bg-surface p-2 shadow-sm ring-1 ring-line/70 md:grid-cols-4">
+                {byLane.map(({ lane: l, orders: list, late }) => {
+                  const on = l.id === current.lane.id;
+                  const tone = LANE_TONE[l.id]!;
+                  return (
+                    <button
+                      key={l.id}
+                      role="tab"
+                      id={`tab-${l.id}`}
+                      aria-selected={on}
+                      aria-controls="kitchen-panel"
+                      onClick={() => setTab(l.id)}
+                      className={cx(
+                        'flex min-h-14 items-center gap-3 rounded-2xl px-3.5 text-left transition-colors',
+                        on ? 'bg-ink text-surface shadow-sm' : 'hover:bg-primary-soft',
+                      )}
+                    >
+                      <span className={cx('grid size-9 shrink-0 place-items-center rounded-full', on ? 'bg-surface/15 text-primary' : tone.chip)} aria-hidden>
+                        <l.icon className="size-[18px]" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-bold">{l.title}</span>
+                        <span className={cx('block truncate text-xs', on ? 'text-surface/70' : late ? 'font-semibold text-danger' : 'text-muted')}>
+                          {late ? `${late} running late` : l.hint}
+                        </span>
+                      </span>
                       <span
                         className={cx(
-                          'tabular grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-xs font-bold',
-                          orders.length ? tone.count : 'bg-panel text-muted',
+                          'tabular relative grid h-7 min-w-7 place-items-center rounded-full px-2 text-xs font-bold',
+                          on ? 'bg-primary text-ink' : list.length ? tone.count : 'bg-[#f4efe8] text-muted',
                         )}
                       >
-                        {queue.isPending ? '' : orders.length}
+                        {queue.isPending ? '' : list.length}
+                        {late > 0 && !on && <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-danger ring-2 ring-surface" aria-hidden />}
                       </span>
-                    </h2>
-                    <p className="truncate text-xs text-muted">
-                      {late > 0 ? (
-                        <span className="font-semibold text-danger">{late} running late</span>
-                      ) : (
-                        lane.hint
-                      )}
-                    </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div id="kitchen-panel" role="tabpanel" aria-labelledby={`tab-${lane.id}`}>
+                {queue.isPending ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <Skeleton key={i} className="h-40 rounded-2xl" />
+                    ))}
                   </div>
-                </header>
-                <div className="flex min-h-48 flex-1 flex-col gap-2.5 p-2.5">
-                  {queue.isPending ? (
-                    <Skeleton className="h-32 rounded-2xl" />
-                  ) : orders.length === 0 ? (
-                    <div className="m-auto flex flex-col items-center gap-2 px-4 py-8 text-center">
-                      <span className="grid size-11 place-items-center rounded-full bg-panel text-muted">
-                        <lane.icon className="size-5" aria-hidden />
-                      </span>
-                      <p className="text-sm font-semibold">{lane.empty}</p>
-                    </div>
-                  ) : (
-                    orders.map((o) => (
-                      <Ticket
-                        key={o.id}
-                        order={o}
-                        busy={act.isPending && act.variables?.id === o.id}
-                        onAct={(action) => act.mutate({ id: o.id, action })}
-                      />
-                    ))
-                  )}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+                ) : orders.length === 0 ? (
+                  <div className="flex flex-col items-center gap-2 rounded-[20px] bg-surface px-4 py-14 text-center ring-1 ring-line/70">
+                    <span className="grid size-12 place-items-center rounded-full bg-primary-soft text-primary-strong">
+                      <lane.icon className="size-5" aria-hidden />
+                    </span>
+                    <p className="font-semibold">{lane.empty}</p>
+                    <p className="text-sm text-muted">New tickets appear here by themselves.</p>
+                  </div>
+                ) : (
+                  <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 [&>*]:min-w-0">
+                    {orders.map((o) => (
+                      <Ticket key={o.id} order={o} busy={act.isPending && act.variables?.id === o.id} onAct={(action) => act.mutate({ id: o.id, action })} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })()
       )}
 
       <div className="flex justify-end">
@@ -276,7 +287,7 @@ function Ticket({
   return (
     <article
       className={cx(
-        'relative flex flex-col gap-2.5 rounded-2xl bg-surface p-3.5 ring-1 transition-shadow hover:shadow-md',
+        'relative flex h-full flex-col gap-2.5 rounded-2xl bg-surface p-4 ring-1 transition-shadow hover:shadow-md',
         level === 'late' ? 'ring-2 ring-danger/50' : isNew ? 'ring-primary/40' : 'ring-line/80',
       )}
     >
@@ -320,7 +331,7 @@ function Ticket({
         {o.items.length > 3 && <li className="pl-7.5 text-muted">+{o.items.length - 3} more</li>}
       </ul>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-dashed border-line pt-2.5">
         <span className="tabular text-sm font-bold">{formatPaise(o.totalPaise)}</span>
         <span
           className={cx(

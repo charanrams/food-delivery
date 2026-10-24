@@ -31,7 +31,7 @@ export function SpecialCard({ special }: { special: SpecialDto }) {
           zoom
           className="aspect-[16/10] w-full"
         />
-        <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary-strong px-2.5 py-0.5 text-xs font-extrabold text-surface shadow-sm">
+        <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-xs font-extrabold text-surface shadow-sm">
           <BadgePercent className="size-3" aria-hidden />
           {special.label || `${special.discountPercent}% OFF`}
         </span>
@@ -71,7 +71,7 @@ export function SpecialCard({ special }: { special: SpecialDto }) {
                 multi ? navigate(`/product/${p.slug}`) : add(p, defaultVariant(p)?.id, 1)
               }
               aria-label={multi ? `Choose a portion of ${p.name}` : `Add ${p.name} to cart`}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-primary-strong active:scale-90"
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
             >
               <Plus className="size-4" strokeWidth={2.75} aria-hidden />
             Add

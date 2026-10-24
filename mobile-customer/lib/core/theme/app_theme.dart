@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// Design tokens — mirror of docs/DESIGN_SYSTEM.md §3 and frontend/src/index.css.
 /// Keep this file identical in mobile-customer and mobile-delivery.
 abstract final class A3Colors {
-  static const primary = Color(0xFFF58220);
+  static const primary = Color(0xFFEA5A0C); // app-bar artwork orange
   static const primaryStrong = Color(0xFFB4530A);
   static const primarySoft = Color(0xFFFFF0E3);
   static const background = Color(0xFFF6F5F2);
@@ -18,7 +18,10 @@ abstract final class A3Colors {
 
   /// Two-tone layout: orange frame (header + bottom bar) around a white content panel.
   /// Slightly deeper than [primary] so white headings on it stay readable (≥3:1 for large text).
-  static const frame = Color(0xFFE6721A);
+  static const frame = Color(0xFFEC5E0C); // matches the app-bar artwork
+
+  /// Filled buttons: the same orange as the app-bar artwork.
+  static const brand = Color(0xFFEA5A0C);
 
   /// Soft card fill inside the white panel.
   static const card = Color(0xFFF3F2EF);
@@ -90,7 +93,7 @@ ThemeData buildA3Theme() {
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        backgroundColor: A3Colors.primary,
+        backgroundColor: A3Colors.brand,
         foregroundColor: Colors.white,
         disabledBackgroundColor: A3Colors.line,
         disabledForegroundColor: A3Colors.muted,

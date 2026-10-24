@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUpDown, Clock, Heart, Search, SlidersHorizontal, Trash2, UtensilsCrossed } from 'lucide-react';
+import { ArrowUpDown, Check, ChevronDown, Clock, Heart, Search, SlidersHorizontal, Trash2, UtensilsCrossed } from 'lucide-react';
 import { cx, Skeleton, ErrorState, EmptyState, ButtonLink, FoodImage, VegMark } from '@/components/ui';
 import type { ProductDto } from '@a3/contracts';
 import { FrameIconButton, PageFrame, PillChip } from '@/components/frame';
@@ -20,6 +20,72 @@ function RowsSkeleton() {
       {Array.from({ length: 6 }, (_, i) => (
         <Skeleton key={i} className="h-64 rounded-[20px]" />
       ))}
+    </div>
+  );
+}
+
+const SORTS: { value: Sort; label: string }[] = [
+  { value: 'popular', label: 'Popular' },
+  { value: 'rating-desc', label: 'Rating: High to Low' },
+  { value: 'discount-desc', label: 'Discount: High to Low' },
+  { value: 'discount-asc', label: 'Discount: Low to High' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+];
+
+/** Sort pill with its own menu, right-aligned under the pill (the native select popup didn't line up). */
+function SortMenu({ value, onChange }: { value: Sort; onChange: (s: Sort) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, [open]);
+  const current = SORTS.find((x) => x.value === value) ?? SORTS[0]!;
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Sort by: ${current.label}`}
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-surface px-4 text-sm font-semibold ring-1 ring-inset ring-line hover:ring-ink/25 focus-visible:outline-2 focus-visible:outline-primary"
+      >
+        <ArrowUpDown className="size-4 text-primary-strong" aria-hidden />
+        <span className="max-w-[9.5rem] truncate">{current.label}</span>
+        <ChevronDown className={cx('size-4 text-muted transition-transform', open && 'rotate-180')} aria-hidden />
+      </button>
+      {open && (
+        <ul role="listbox" aria-label="Sort by" className="absolute right-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-2xl bg-surface py-1.5 shadow-xl ring-1 ring-line">
+          {SORTS.map((o) => (
+            <li key={o.value} role="option" aria-selected={o.value === value}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
+                className={cx(
+                  'flex min-h-11 w-full items-center justify-between gap-2 px-4 text-left text-sm hover:bg-primary-soft',
+                  o.value === value ? 'font-bold text-primary-strong' : 'font-medium',
+                )}
+              >
+                {o.label}
+                {o.value === value && <Check className="size-4" aria-hidden />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -55,11 +121,7 @@ export function MenuPage() {
       }
       return 0;
     };
-    const getRating = (p: ProductDto) => {
-      let hash = 0;
-      for (let i = 0; i < p.name.length; i++) hash = (hash * 31 + p.name.charCodeAt(i)) & 0xffffffff;
-      return 4.3 + (Math.abs(hash % 7) * 0.1);
-    };
+    const getRating = (p: ProductDto) => p.rating ?? 0;
 
     if (sort === 'discount-desc') return [...list].sort((a, b) => getDiscount(b) - getDiscount(a) || getPrice(a) - getPrice(b));
     if (sort === 'discount-asc') return [...list].sort((a, b) => getDiscount(a) - getDiscount(b) || getPrice(a) - getPrice(b));
@@ -93,18 +155,7 @@ export function MenuPage() {
           <p className="text-sm font-medium text-muted">
             {products.data ? `${visible.length} ${visible.length === 1 ? 'dish' : 'dishes'}` : 'Loading dishes…'}
           </p>
-          <label className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-card px-4 text-sm font-semibold shadow-sm ring-1 ring-line/60">
-            <SlidersHorizontal className="size-4 text-primary-strong" aria-hidden />
-            <span className="sr-only">Sort by</span>
-            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="bg-transparent font-medium outline-none">
-              <option value="popular">Popular</option>
-              <option value="discount-desc">Discount: High to Low</option>
-              <option value="discount-asc">Discount: Low to High</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating-desc">Rating: High to Low</option>
-            </select>
-          </label>
+          <SortMenu value={sort} onChange={setSort} />
         </div>
 
         {products.isError ? (
@@ -209,18 +260,7 @@ function DesktopMenu({ categorySlug, diet, setDiet, sort, setSort, visible, load
                   </button>
                 ))}
               </div>
-              <label className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-sm font-semibold ring-1 ring-inset ring-line hover:ring-ink/25">
-                <ArrowUpDown className="size-4 text-muted" aria-hidden />
-                <span className="text-muted">Sort</span>
-                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="bg-transparent font-semibold outline-none">
-                  <option value="popular">Popular</option>
-                  <option value="discount-desc">Discount: High to Low</option>
-                  <option value="discount-asc">Discount: Low to High</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating-desc">Rating: High to Low</option>
-                </select>
-              </label>
+              <SortMenu value={sort} onChange={setSort} />
             </div>
           </div>
 
@@ -309,11 +349,7 @@ export function CategoriesPage() {
       }
       return 0;
     };
-    const getRating = (p: (typeof list)[number]) => {
-      let hash = 0;
-      for (let i = 0; i < p.name.length; i++) hash = (hash * 31 + p.name.charCodeAt(i)) & 0xffffffff;
-      return 4.3 + (Math.abs(hash % 7) * 0.1);
-    };
+    const getRating = (p: (typeof list)[number]) => p.rating ?? 0;
 
     if (sort === 'discount-desc') list.sort((a, b) => getDiscount(b) - getDiscount(a) || getPrice(a) - getPrice(b));
     else if (sort === 'discount-asc') list.sort((a, b) => getDiscount(a) - getDiscount(b) || getPrice(a) - getPrice(b));
@@ -327,6 +363,8 @@ export function CategoriesPage() {
 
   return (
     <PageFrame
+      art
+      subtitle="Explore dishes by category"
       title="Categories"
     >
       {categories.isError ? (
@@ -417,18 +455,7 @@ export function CategoriesPage() {
                   </h2>
                   <p className="text-sm text-muted">{products.data ? `${dishes.length} ${dishes.length === 1 ? 'dish' : 'dishes'} available` : 'Loading dishes…'}</p>
                 </div>
-                <label className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-semibold ring-1 ring-line focus-within:ring-2 focus-within:ring-ink">
-                  <ArrowUpDown className="size-4" aria-hidden />
-                  <span className="sr-only">Sort by</span>
-                  <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="bg-transparent font-medium outline-none">
-                    <option value="popular">Popular</option>
-                    <option value="discount-desc">Discount: High to Low</option>
-                    <option value="discount-asc">Discount: Low to High</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="rating-desc">Rating: High to Low</option>
-                  </select>
-                </label>
+                <SortMenu value={sort} onChange={setSort} />
               </div>
               {products.isError ? (
                 <ErrorState onRetry={() => products.refetch()} />
@@ -569,7 +596,7 @@ export function FavoritesPage() {
   };
 
   return (
-    <PageFrame title="Favourites">
+    <PageFrame art title="Favourites" subtitle="Dishes you love, saved for later">
       {products.isError ? (
         <ErrorState onRetry={() => products.refetch()} />
       ) : products.isPending ? (

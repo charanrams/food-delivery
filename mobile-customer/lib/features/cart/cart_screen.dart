@@ -21,36 +21,9 @@ class CartScreen extends ConsumerWidget {
     final loggedIn = ref.watch(authProvider).value != null;
 
     return FramedPage(
+      art: true,
       title: 'My Cart',
-      showBack: false,
-      actions: [
-        if (lines.isNotEmpty)
-          IconButton(
-            tooltip: 'Clear cart',
-            color: Colors.white,
-            icon: const Icon(Icons.delete_sweep_outlined),
-            onPressed: () async {
-              final ok = await showDialog<bool>(
-                context: context,
-                builder: (c) => AlertDialog(
-                  title: const Text('Clear your cart?'),
-                  content: const Text('All dishes will be removed.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Keep'),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Clear all'),
-                    ),
-                  ],
-                ),
-              );
-              if (ok == true) cart.clear();
-            },
-          ),
-      ],
+      subtitle: 'Review your dishes and check out',
       bottom: lines.isEmpty
           ? null
           : FilledButton(
@@ -148,15 +121,6 @@ class CartScreen extends ConsumerWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              IconButton(
-                                tooltip: 'Remove ${l.product.name}',
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () => cart.setQuantity(l.key, 0),
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  color: A3Colors.muted,
-                                ),
-                              ),
                               Container(
                                 decoration: BoxDecoration(
                                   color: A3Colors.surface,
@@ -166,8 +130,12 @@ class CartScreen extends ConsumerWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     _QtyButton(
-                                      icon: Icons.remove,
-                                      tooltip: 'Decrease quantity',
+                                      icon: l.quantity == 1
+                                          ? Icons.delete_outline
+                                          : Icons.remove,
+                                      tooltip: l.quantity == 1
+                                          ? 'Remove ${l.product.name}'
+                                          : 'Decrease quantity',
                                       onTap: () => cart.setQuantity(
                                         l.key,
                                         l.quantity - 1,

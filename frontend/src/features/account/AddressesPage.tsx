@@ -164,6 +164,8 @@ export function AddressesPage() {
 
   return (
     <PageFrame
+      art
+      subtitle="Where should we deliver your food?"
       title={editing ? (editing === 'new' ? 'Add address' : 'Edit address') : 'My addresses'}
       bottom={
         !editing && (

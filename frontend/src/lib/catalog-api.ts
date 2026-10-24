@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { CategoryDto, OfferSectionDto, ProductDto, SpecialDto } from '@a3/contracts';
+import type { CategoryDto, OfferSectionDto, ProductDto, SpecialDto, BannerDto } from '@a3/contracts';
 import { api, ApiError, qs } from './api';
 
 export const categoriesQuery = queryOptions({
@@ -29,6 +29,23 @@ export const popularQuery = queryOptions({
 });
 
 /** Admin-made Home rows (e.g. Weekend deals); their dishes are the specials with that sectionId. */
+/** Live home carousel banners (admin → Home banners). */
+export const bannersQuery = queryOptions({
+  queryKey: ['banners'],
+  queryFn: () => api.get<BannerDto[]>('/banners'),
+  staleTime: 60_000,
+});
+
+/** Where a banner's button goes (internal path or full URL). */
+export function bannerHref(b: Pick<BannerDto, 'linkType' | 'linkValue'>): string | undefined {
+  if (!b.linkValue) return undefined;
+  if (b.linkType === 'category') return `/menu/${b.linkValue}`;
+  if (b.linkType === 'product') return `/product/${b.linkValue}`;
+  if (b.linkType === 'offer') return `/offers/${b.linkValue}`;
+  if (b.linkType === 'url') return b.linkValue;
+  return undefined;
+}
+
 export const offerSectionsQuery = queryOptions({
   queryKey: ['offer-sections'],
   queryFn: () => api.get<OfferSectionDto[]>('/offer-sections'),

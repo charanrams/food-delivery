@@ -18,7 +18,9 @@ class ProfileScreen extends ConsumerWidget {
     final auth = ref.watch(authProvider);
 
     return FramedPage(
+      art: true,
       title: 'Profile',
+      subtitle: 'Your account, orders and saved places',
       showBack: false,
       child: auth.when(
         loading: () => const Center(child: CircularProgressIndicator()),

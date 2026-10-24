@@ -6,6 +6,7 @@ import type { UserRole } from '@a3/contracts';
 import { config } from '../config';
 import {
   Address,
+  Banner,
   Category,
   DeliveryAssignment,
   DeliveryOtp,
@@ -163,6 +164,7 @@ const routes: [Model<never>, Route][] = [
   [Category as unknown as Model<never>, () => send('public', ['catalog'])],
   [Special as unknown as Model<never>, () => send('public', ['catalog'])],
   [OfferSection as unknown as Model<never>, () => send('public', ['catalog'])],
+  [Banner as unknown as Model<never>, () => send('public', ['catalog'])],
   [Settings as unknown as Model<never>, () => send('public', ['settings', 'catalog'])],
   [
     User as unknown as Model<never>,

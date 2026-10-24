@@ -29,12 +29,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final notes = ref.watch(notificationsProvider);
     final api = ref.read(apiClientProvider);
     return FramedPage(
+      art: true,
       title: 'Notifications',
+      subtitle: 'Order updates, offers and alerts',
       actions: [
         if ((notes.value?.unread ?? 0) > 0)
           IconButton(
             tooltip: 'Mark all read',
-            color: Colors.white,
             icon: const Icon(Icons.done_all),
             onPressed: () async {
               await api.post('/notifications/read-all');

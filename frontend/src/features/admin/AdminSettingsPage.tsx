@@ -18,6 +18,7 @@ export function AdminSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        crumbs={[{ label: 'Business' }, { label: 'Settings' }]}
         title="Settings"
         description="These apply to every new order the moment you save."
       />
@@ -230,7 +231,7 @@ function SettingsForm({ initial }: { initial: KitchenSettings }) {
         )}
       </Section>
 
-      <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-3 border-t border-line bg-panel px-4 py-4 shadow-[0_-8px_16px_-12px_rgb(41_35_31/0.25)] md:-mx-8 md:flex-row md:items-center md:justify-between md:px-8">
+      <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-[20px] bg-surface px-5 py-4 shadow-[0_10px_30px_-12px_rgb(122_59_16/0.35)] ring-1 ring-line/70 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0 flex-1">
           <NoticeBar notice={notice} />
         </div>

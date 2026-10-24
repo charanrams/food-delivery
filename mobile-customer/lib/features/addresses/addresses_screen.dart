@@ -20,7 +20,9 @@ class AddressesScreen extends ConsumerWidget {
     final selecting = selectFor != null;
 
     return FramedPage(
+      art: true,
       title: selecting ? 'Deliver to' : 'My addresses',
+      subtitle: 'Where should we deliver your food?',
       bottom: FilledButton.icon(
         onPressed: () async {
           final created = await context.push<Address>('/addresses/new');

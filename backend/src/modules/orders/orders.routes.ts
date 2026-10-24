@@ -44,6 +44,11 @@ customerOrdersRouter.post('/:id/cancel', validate({ params: idParams, body: reas
   ok(res, await orders.getForCustomer(actor, String(req.params.id)));
 });
 
+const reviewBody = z.object({ rating: z.number().int().min(1).max(5), comment: z.string().trim().max(500).optional() });
+customerOrdersRouter.post('/:id/review', validate({ params: idParams, body: reviewBody }), async (req, res) => {
+  ok(res, await orders.reviewOrder(actorOf(req), String(req.params.id), req.body));
+});
+
 // ---------- Admin: /admin/orders ----------
 export const adminOrdersRouter = Router();
 adminOrdersRouter.use(authenticate, requireRole('ADMIN'));

@@ -72,6 +72,41 @@ final specialsProvider = FutureProvider<List<Special>>((ref) async {
   return data.map((j) => Special.fromJson(j as Map<String, dynamic>)).toList();
 });
 
+/// Admin-managed Home carousel slide (web BannerDto).
+class HomeBanner {
+  const HomeBanner({
+    required this.id,
+    required this.title,
+    required this.image,
+    required this.linkType,
+    this.highlight,
+    this.subtitle,
+    this.buttonText,
+    this.linkValue,
+  });
+  final String id, title, image, linkType;
+  final String? highlight, subtitle, buttonText, linkValue;
+
+  factory HomeBanner.fromJson(Map<String, dynamic> j) => HomeBanner(
+    id: j['id'] as String,
+    title: j['title'] as String,
+    image: j['image'] as String,
+    linkType: j['linkType'] as String? ?? 'none',
+    highlight: j['highlight'] as String?,
+    subtitle: j['subtitle'] as String?,
+    buttonText: j['buttonText'] as String?,
+    linkValue: j['linkValue'] as String?,
+  );
+}
+
+/// Live Home banners (admin → Home banners), in their admin order.
+final bannersProvider = FutureProvider<List<HomeBanner>>((ref) async {
+  final data = await ref.watch(apiClientProvider).get('/banners') as List;
+  return data
+      .map((j) => HomeBanner.fromJson(j as Map<String, dynamic>))
+      .toList();
+});
+
 /// Switched-on offer sections in Home order.
 final offerSectionsProvider = FutureProvider<List<OfferSection>>((ref) async {
   final data =

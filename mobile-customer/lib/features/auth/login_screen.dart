@@ -96,7 +96,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final code = await _auth.sendPhoneOtp(_phoneDigits);
         setState(() {
           _devCode = code;
-          _otp.text = code ?? ''; // no SMS yet: the server hands the code back, fill it in
+          _otp.text =
+              code ??
+              ''; // no SMS yet: the server hands the code back, fill it in
           _step = _Step.otp;
         });
       }

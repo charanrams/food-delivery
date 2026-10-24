@@ -16,7 +16,7 @@
 
 /* Design tokens — docs/DESIGN_SYSTEM.md §3. Components use these, never raw hex. */
 @theme {
-  --color-primary: #f58220;
+  --color-primary: #ea5a0c; /* app-bar artwork orange */
   --color-primary-strong: #b4530a;
   --color-primary-soft: #fff0e3;
   --color-primary-soft-hover: #ffe4cc;
@@ -35,7 +35,9 @@
   --color-danger: #c0392b;
   --color-warning: #b7791f;
   /* Two-tone layout: orange frame around a white content panel (matches the apps). */
-  --color-frame: #e6721a;
+  --color-frame: #ec5e0c; /* matches the app-bar artwork */
+  --color-brand: #ea5a0c; /* filled buttons, same orange as the artwork */
+  --color-brand-hover: #d94e06;
   --color-card: #f3f2ef;
 
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -139,4 +141,18 @@
 @keyframes sheet-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
+}
+
+/* Admin page background — the customer onboarding wash (peach → white). */
+.admin-wash {
+  background:
+    linear-gradient(180deg, #ffe3cc 0, #fff4ea 280px, #ffffff 720px) no-repeat,
+    #ffffff;
+}
+
+/* Scroll boxes contain their absolutely positioned children (e.g. sr-only table labels),
+   so nothing escapes and widens the page on phones. */
+.overflow-x-auto,
+.overflow-auto {
+  position: relative;
 }

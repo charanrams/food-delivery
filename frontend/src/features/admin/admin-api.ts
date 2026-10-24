@@ -1,4 +1,4 @@
-import type { AddressDto, AdminSummaryDto, CategoryDto, DeliveryPartnerDto, EligiblePartnerDto, OfferSectionDto, OfferSectionInput, OrderDto, OrderStatus, PaymentMethod, PaymentStatus, ProductDto, SpecialDto, SpecialInput, UploadSignatureDto } from '@a3/contracts';
+import type { AddressDto, BannerDto, BannerInput, AdminSummaryDto, CategoryDto, DeliveryPartnerDto, EligiblePartnerDto, OfferSectionDto, OfferSectionInput, OrderDto, OrderStatus, PaymentMethod, PaymentStatus, ProductDto, SpecialDto, SpecialInput, UploadSignatureDto, AdminDashboardDto } from '@a3/contracts';
 import { api, ApiError, qs } from '@/lib/api';
 
 export const adminKeys = {
@@ -6,6 +6,7 @@ export const adminKeys = {
   products: (params: object) => ['admin', 'products', params] as const,
   specials: ['admin', 'specials'] as const,
   offerSections: ['admin', 'offer-sections'] as const,
+  banners: ['admin', 'banners'] as const,
   product: (id: string) => ['admin', 'product', id] as const,
   partners: (search: string) => ['admin', 'partners', search] as const,
   summary: ['admin', 'summary'] as const,
@@ -28,6 +29,11 @@ export const adminApi = {
   createSpecial: (b: SpecialInput) => api.post<SpecialDto>('/admin/specials', b),
   updateSpecial: (id: string, b: Partial<SpecialInput>) => api.patch<SpecialDto>(`/admin/specials/${id}`, b),
   deleteSpecial: (id: string) => api.delete<{ id: string }>(`/admin/specials/${id}`),
+  banners: () => api.get<BannerDto[]>('/admin/banners'),
+  createBanner: (b: BannerInput) => api.post<BannerDto>('/admin/banners', b),
+  updateBanner: (id: string, b: Partial<BannerInput>) => api.patch<BannerDto>(`/admin/banners/${id}`, b),
+  reorderBanners: (ids: string[]) => api.post<BannerDto[]>('/admin/banners/reorder', { ids }),
+  deleteBanner: (id: string) => api.delete<{ id: string }>(`/admin/banners/${id}`),
   offerSections: () => api.get<OfferSectionDto[]>('/admin/offer-sections'),
   createOfferSection: (b: OfferSectionInput) => api.post<OfferSectionDto>('/admin/offer-sections', b),
   updateOfferSection: (id: string, b: Partial<OfferSectionInput>) => api.patch<OfferSectionDto>(`/admin/offer-sections/${id}`, b),
@@ -48,6 +54,7 @@ export const adminApi = {
   deletePartner: (id: string) => api.delete(`/admin/delivery-partners/${id}`),
 
   summary: () => api.get<AdminSummaryDto>('/admin/orders/summary'),
+  dashboard: () => api.get<AdminDashboardDto>('/admin/dashboard'),
   orders: (p: { status?: OrderFilter; search?: string; page?: number }) => api.page<OrderDto>(`/admin/orders${qs({ limit: 50, ...p })}`),
   order: (id: string) => api.get<OrderDto>(`/admin/orders/${id}`),
   eligiblePartners: () => api.get<EligiblePartnerDto[]>('/admin/orders/eligible-partners'),
@@ -143,7 +150,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 /** Signed direct upload to Cloudinary — the API secret never reaches the browser. */
-export async function uploadImage(file: File, folder: 'products' | 'categories'): Promise<string> {
+export async function uploadImage(file: File, folder: 'products' | 'categories' | 'banners'): Promise<string> {
   if (!TYPES.includes(file.type)) throw new ApiError(400, 'VALIDATION_ERROR', 'Use a JPG, PNG or WebP photo.');
   if (file.size > MAX_BYTES) throw new ApiError(400, 'VALIDATION_ERROR', 'Photos must be 5 MB or smaller.');
 

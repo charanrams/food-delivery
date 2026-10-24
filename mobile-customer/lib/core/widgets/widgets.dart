@@ -256,7 +256,7 @@ class QtyStepper extends StatelessWidget {
       container: true,
       label: 'Quantity for $label: $value',
       child: Material(
-        color: A3Colors.primaryStrong,
+        color: A3Colors.primary,
         borderRadius: BorderRadius.circular(12),
         child: Row(
           mainAxisSize: MainAxisSize.min,

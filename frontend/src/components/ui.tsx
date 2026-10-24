@@ -26,7 +26,7 @@ export function Logo({ tone = 'ink', size = 40 }: { tone?: 'ink' | 'light'; size
 type Variant = 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger';
 type Size = 'lg' | 'md' | 'sm';
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary-strong text-surface shadow-press hover:bg-primary-deep',
+  primary: 'bg-brand text-surface shadow-press hover:bg-brand-hover',
   secondary: 'bg-surface text-ink ring-1 ring-inset ring-line hover:ring-ink/25 hover:bg-panel',
   soft: 'bg-primary-soft text-primary-strong hover:bg-primary-soft-hover',
   ghost: 'text-ink hover:bg-ink/[0.05]',
@@ -141,7 +141,7 @@ export function Stepper({
   const Minus_ = value <= 1 ? Trash2 : Minus;
   return (
     <div
-      className={cx('inline-flex items-center gap-0.5 rounded-xl p-0.5', solid ? 'bg-primary-strong shadow-press' : 'bg-surface ring-1 ring-inset ring-line')}
+      className={cx('inline-flex items-center gap-0.5 rounded-xl p-0.5', solid ? 'bg-primary shadow-press' : 'bg-surface ring-1 ring-inset ring-line')}
       role="group"
       aria-label={`Quantity for ${label}`}
     >

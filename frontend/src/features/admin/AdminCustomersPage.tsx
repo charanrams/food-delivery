@@ -61,6 +61,7 @@ export function AdminCustomersPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        crumbs={[{ label: 'People' }, { label: 'Customers' }]}
         title="Customers"
         description={
           customers.data && !debounced

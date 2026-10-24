@@ -5,7 +5,7 @@ import type { CategoryDto } from '@a3/contracts';
 import { Button, EmptyState, ErrorState, Skeleton, Toggle, cx } from '@/components/ui';
 import { ApiError } from '@/lib/api';
 import { categoryImage, sized } from '@/lib/catalog-api';
-import { NoticeBar, PageHeader, RowMenu, StatCard, StatGrid, type Notice } from './admin-ui';
+import { FilterTabs, NoticeBar, PageHeader, RowMenu, SearchInput, SectionCard, StatCard, StatGrid, tdCls, thCls, type Notice } from './admin-ui';
 import { adminApi, adminKeys } from './admin-api';
 import { ImageUploader } from './ImageUploader';
 
@@ -16,6 +16,8 @@ export function AdminCategoriesPage() {
   const qc = useQueryClient();
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [notice, setNotice] = useState<Notice>();
+  const [show, setShow] = useState<'all' | 'on' | 'hidden' | 'home'>('all');
+  const [search, setSearch] = useState('');
 
   const categories = useQuery({ queryKey: adminKeys.categories, queryFn: adminApi.categories });
   const refresh = () => {
@@ -58,10 +60,16 @@ export function AdminCategoriesPage() {
     onError: fail,
   });
 
+  const list = categories.data ?? [];
+  const rows = list
+    .filter((c) => (show === 'on' ? c.isActive : show === 'hidden' ? !c.isActive : show === 'home' ? c.showOnHome : true))
+    .filter((c) => c.name.toLowerCase().includes(search.trim().toLowerCase()));
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
-        title="Food categories"
+        crumbs={[{ label: 'Menu' }, { label: 'Categories' }]}
+        title="Categories"
         description="Sections of your menu. Hiding one hides its dishes too, without losing anything."
         actions={
           <Button
@@ -107,110 +115,120 @@ export function AdminCategoriesPage() {
 
       <NoticeBar notice={notice} onDismiss={() => setNotice(undefined)} />
 
-      {categories.isError ? (
-        <ErrorState onRetry={() => categories.refetch()} />
-      ) : categories.isPending ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }, (_, i) => (
-            <Skeleton key={i} className="h-64 rounded-[20px]" />
-          ))}
+      <SectionCard>
+        <div className="flex flex-col gap-3 px-1 pb-3 lg:flex-row lg:items-center lg:justify-between">
+          <FilterTabs
+            label="Show"
+            value={show}
+            options={[
+              { value: 'all', label: 'All', count: list.length },
+              { value: 'on', label: 'On the menu', count: list.filter((c) => c.isActive).length },
+              { value: 'hidden', label: 'Hidden', count: list.filter((c) => !c.isActive).length },
+              { value: 'home', label: 'Row on Home', count: list.filter((c) => c.showOnHome).length },
+            ]}
+            onChange={setShow}
+          />
+          <SearchInput id="cat-search" value={search} onChange={setSearch} placeholder="Search categories" className="lg:w-72 lg:shrink-0" />
         </div>
-      ) : categories.data.length === 0 ? (
-        <EmptyState
-          icon={<FolderTree className="size-9" />}
-          title="No categories yet"
-          body="Start with sections like Biryani, Curries or Desserts."
-          action={
-            <Button onClick={() => setDialog({ mode: 'add' })}>Add your first category</Button>
-          }
-        />
-      ) : (
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-          {categories.data.map((c) => {
-            const count = c.productCount ?? 0;
-            return (
-              <li
-                key={c.id}
-                className={cx(
-                  'flex flex-col overflow-hidden rounded-[20px] bg-surface ring-1 ring-line/70 transition-shadow hover:shadow-md',
-                  !c.isActive && 'bg-panel',
-                )}
-              >
-                <button
-                  type="button"
-                  onClick={() => setDialog({ mode: 'edit', category: c })}
-                  className="group relative block aspect-[4/3] overflow-hidden"
-                  aria-label={`Edit ${c.name}`}
-                >
-                  <img
-                    src={sized(categoryImage(c), 480)}
-                    alt=""
-                    className={cx(
-                      'size-full bg-primary-soft object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]',
-                      !c.isActive && 'opacity-50 grayscale',
-                    )}
-                  />
-                  {!c.isActive && (
-                    <span className="absolute left-3 top-3 rounded-full bg-ink/80 px-2.5 py-1 text-xs font-semibold text-surface">
-                      Hidden
-                    </span>
-                  )}
-                </button>
-                <div className="flex flex-1 flex-col gap-3 p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="truncate font-bold">{c.name}</h3>
-                      <p className="text-sm text-muted">
+
+        {categories.isError ? (
+          <ErrorState onRetry={() => categories.refetch()} />
+        ) : categories.isPending ? (
+          <Skeleton className="h-80 rounded-xl" />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            icon={<FolderTree className="size-9" />}
+            title={list.length ? 'No categories match' : 'No categories yet'}
+            body={list.length ? 'Try another filter or search.' : 'Start with sections like Biryani, Curries or Desserts.'}
+            action={list.length ? undefined : <Button onClick={() => setDialog({ mode: 'add' })}>Add your first category</Button>}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
+              <thead>
+                <tr>
+                  <th scope="col" className={thCls}>Category</th>
+                  <th scope="col" className={thCls}>Dishes</th>
+                  <th scope="col" className={thCls}>Row on Home</th>
+                  <th scope="col" className={thCls}>On the menu</th>
+                  <th scope="col" className={cx(thCls, 'text-right')}>
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="[&_td]:border-t [&_td]:border-line/70 [&_tr:first-child_td]:border-t-0">
+                {rows.map((c) => {
+                  const count = c.productCount ?? 0;
+                  return (
+                    <tr key={c.id} className={cx('transition-colors hover:bg-primary-soft/40', !c.isActive && 'bg-[#faf8f5]')}>
+                      <td className={tdCls}>
+                        <button type="button" onClick={() => setDialog({ mode: 'edit', category: c })} className="flex items-center gap-3.5 text-left">
+                          <img
+                            src={sized(categoryImage(c), 160)}
+                            alt=""
+                            className={cx('size-14 shrink-0 rounded-xl bg-primary-soft object-cover', !c.isActive && 'opacity-50 grayscale')}
+                          />
+                          <span className="min-w-0">
+                            <span className="block font-semibold hover:text-primary-strong">{c.name}</span>
+                            <span className="block text-xs text-muted">{c.isActive ? 'Shown to customers' : 'Hidden with its dishes'}</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td className={cx(tdCls, 'tabular')}>
                         {count} {count === 1 ? 'dish' : 'dishes'}
-                      </p>
-                    </div>
-                    <RowMenu
-                      label={`More actions for ${c.name}`}
-                      items={[
-                        {
-                          label: 'Edit name or photo',
-                          icon: <Pencil />,
-                          onSelect: () => setDialog({ mode: 'edit', category: c }),
-                        },
-                        {
-                          label: 'Delete category',
-                          icon: <Trash2 />,
-                          danger: true,
-                          disabled: count > 0,
-                          hint: 'Move or archive its dishes first',
-                          onSelect: () =>
-                            window.confirm(`Delete “${c.name}”? This can’t be undone.`) &&
-                            remove.mutate(c),
-                        },
-                      ]}
-                    />
-                  </div>
-                  <label className="mt-auto flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl bg-panel px-3 text-sm font-semibold">
-                    <span className={c.isActive ? 'text-success' : 'text-muted'}>
-                      {c.isActive ? 'On the menu' : 'Hidden'}
-                    </span>
-                    <Toggle
-                      checked={c.isActive}
-                      label={`Show ${c.name} on the menu`}
-                      disabled={visibility.isPending && visibility.variables?.id === c.id}
-                      onChange={() => visibility.mutate(c)}
-                    />
-                  </label>
-                  <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl bg-panel px-3 text-sm font-semibold">
-                    <span className={c.showOnHome && c.isActive ? 'text-success' : 'text-muted'}>Row on Home</span>
-                    <Toggle
-                      checked={c.showOnHome}
-                      label={`Show ${c.name} as a row on Home`}
-                      disabled={homeRow.isPending && homeRow.variables?.id === c.id}
-                      onChange={() => homeRow.mutate(c)}
-                    />
-                  </label>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                      </td>
+                      <td className={tdCls}>
+                        <Toggle
+                          checked={c.showOnHome}
+                          label={`Show ${c.name} as a row on Home`}
+                          disabled={homeRow.isPending && homeRow.variables?.id === c.id}
+                          onChange={() => homeRow.mutate(c)}
+                        />
+                      </td>
+                      <td className={tdCls}>
+                        <label className="inline-flex cursor-pointer items-center gap-2.5">
+                          <Toggle
+                            checked={c.isActive}
+                            label={`Show ${c.name} on the menu`}
+                            disabled={visibility.isPending && visibility.variables?.id === c.id}
+                            onChange={() => visibility.mutate(c)}
+                          />
+                          <span className={cx('text-[13px] font-semibold', c.isActive ? 'text-success' : 'text-muted')}>{c.isActive ? 'On' : 'Hidden'}</span>
+                        </label>
+                      </td>
+                      <td className={cx(tdCls, 'text-right')}>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setDialog({ mode: 'edit', category: c })}
+                            className="inline-flex min-h-10 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold ring-1 ring-line hover:bg-primary-soft hover:text-primary-strong"
+                            aria-label={`Edit ${c.name}`}
+                          >
+                            <Pencil className="size-4" aria-hidden /> Edit
+                          </button>
+                          <RowMenu
+                            label={`More actions for ${c.name}`}
+                            items={[
+                              {
+                                label: 'Delete category',
+                                icon: <Trash2 />,
+                                danger: true,
+                                disabled: count > 0,
+                                hint: 'Move or archive its dishes first',
+                                onSelect: () => window.confirm(`Delete “${c.name}”? This can’t be undone.`) && remove.mutate(c),
+                              },
+                            ]}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </SectionCard>
 
       {dialog && (
         <CategoryDialog

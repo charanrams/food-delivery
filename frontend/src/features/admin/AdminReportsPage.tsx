@@ -32,6 +32,7 @@ export function AdminReportsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        crumbs={[{ label: 'Business' }, { label: 'Reports' }]}
         title="Reports"
         description="Revenue counts money received only. Pending, failed and refunded payments are left out."
       />

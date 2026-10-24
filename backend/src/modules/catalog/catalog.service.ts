@@ -33,6 +33,7 @@ export const toProductDto = (p: WithId<ProductDoc>): ProductDto => ({
   isArchived: p.isArchived,
   ...(p.isVegetarian != null && { isVegetarian: p.isVegetarian }),
   ...(p.preparationTimeMinutes != null && { preparationTimeMinutes: p.preparationTimeMinutes }),
+  ...(p.ratingCount ? { rating: Math.round(((p.ratingSum ?? 0) / p.ratingCount) * 10) / 10, ratingCount: p.ratingCount } : {}),
   variants: p.variants.map((v) => ({
     id: String((v as unknown as { _id: unknown })._id),
     name: v.name,

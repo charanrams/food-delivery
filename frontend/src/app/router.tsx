@@ -24,6 +24,8 @@ import { RegisterPage } from '@/features/auth/RegisterPage';
 import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage';
 import { AdminDeliveryPartnersPage } from '@/features/admin/AdminDeliveryPartnersPage';
 import { AdminOverviewPage } from '@/features/admin/AdminOverviewPage';
+import { AdminDashboardPage } from '@/features/admin/AdminDashboardPage';
+import { AdminNotificationsPage } from '@/features/admin/AdminNotificationsPage';
 import { AdminMenuPage } from '@/features/admin/AdminMenuPage';
 import { AdminProductFormPage } from '@/features/admin/AdminProductFormPage';
 import { AdminCategoriesPage } from '@/features/admin/AdminCategoriesPage';
@@ -31,6 +33,7 @@ import { AdminOrderPage, AdminOrdersPage } from '@/features/admin/AdminOrdersPag
 import { AdminCustomerPage, AdminPartnerPage } from '@/features/admin/AdminPeoplePages';
 import { AdminOfferSectionPage } from '@/features/admin/AdminSpecialsPage';
 import { AdminOfferSectionsPage } from '@/features/admin/AdminOfferSectionsPage';
+import { AdminBannersPage } from '@/features/admin/AdminBannersPage';
 import { AdminCustomersPage } from '@/features/admin/AdminCustomersPage';
 import { AdminPaymentsPage } from '@/features/admin/AdminPaymentsPage';
 import { AdminReportsPage } from '@/features/admin/AdminReportsPage';
@@ -95,7 +98,9 @@ export const routes: RouteObject[] = [
       {
         element: <AdminLayout />,
         children: [
-          { index: true, element: <AdminOverviewPage /> },
+          { index: true, element: <AdminDashboardPage /> },
+          { path: 'kitchen', element: <AdminOverviewPage /> },
+          { path: 'notifications', element: <AdminNotificationsPage /> },
           { path: 'orders', element: <AdminOrdersPage /> },
           { path: 'orders/:orderId', element: <AdminOrderPage /> },
           { path: 'customers/:customerId', element: <AdminCustomerPage /> },
@@ -108,6 +113,7 @@ export const routes: RouteObject[] = [
           { path: 'menu', element: <AdminMenuPage /> },
           { path: 'specials', element: <Navigate to="/admin/offer-sections" replace /> },
           { path: 'offer-sections', element: <AdminOfferSectionsPage /> },
+          { path: 'banners', element: <AdminBannersPage /> },
           { path: 'offer-sections/:sectionId', element: <AdminOfferSectionPage /> },
           { path: 'menu/new', element: <AdminProductFormPage /> },
           { path: 'menu/:id', element: <AdminProductFormPage /> },
@@ -154,7 +160,7 @@ function RouteError() {
         body="This page hit an unexpected problem. Reloading usually fixes it."
         action={
           <div className="flex gap-2">
-            <button onClick={() => window.location.reload()} className="min-h-12 rounded-[10px] bg-primary-strong px-5 font-semibold text-surface hover:bg-[#9a4508]">
+            <button onClick={() => window.location.reload()} className="min-h-12 rounded-[10px] bg-primary px-5 font-semibold text-surface hover:bg-[#9a4508]">
               Reload page
             </button>
             <ButtonLink to="/" variant="secondary">

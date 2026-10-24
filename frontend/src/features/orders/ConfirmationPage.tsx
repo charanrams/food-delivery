@@ -1,4 +1,5 @@
-import { useParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Check, Clock, MapPin, Wallet } from 'lucide-react';
 import { formatPaise } from '@a3/contracts';
@@ -10,6 +11,18 @@ import { addressLine, orderQuery } from '@/lib/orders-api';
 export function ConfirmationPage() {
   const { orderId = '' } = useParams();
   const order = useQuery(orderQuery(orderId));
+  const navigate = useNavigate();
+  const [left, setLeft] = useState(5);
+  // VSR: the success screen opens the order page by itself after a few seconds.
+  useEffect(() => {
+    if (!order.data) return;
+    if (left <= 0) {
+      navigate(`/orders/${orderId}`, { replace: true });
+      return;
+    }
+    const t = setTimeout(() => setLeft((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [left, order.data, orderId, navigate]);
 
   return (
     <PageFrame title="Order placed" back={false}>
@@ -55,6 +68,9 @@ export function ConfirmationPage() {
             <ButtonLink to={`/orders/${order.data.id}`} className="w-full">
               Track your order
             </ButtonLink>
+            <p className="text-[13px] text-muted" aria-live="polite">
+              Opening your order in {left} s…
+            </p>
             <ButtonLink to="/" variant="secondary" className="w-full">
               Back to home
             </ButtonLink>

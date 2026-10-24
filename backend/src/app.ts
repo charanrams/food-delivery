@@ -17,6 +17,7 @@ import { partnersRouter } from './modules/partners/partners.routes';
 import { addressesRouter } from './modules/addresses/addresses';
 import { geoRouter } from './modules/geo/geo';
 import { adminOfferSectionsRouter, adminSpecialsRouter, publicSpecialsRouter } from './modules/specials/specials';
+import { adminBannersRouter, publicBannersRouter } from './modules/banners/banners';
 import { paymentsRouter } from './modules/payments/payments';
 import { notificationsRouter } from './modules/notifications/notifications';
 import { adminInsightsRouter } from './modules/admin/admin.routes';
@@ -62,6 +63,8 @@ export function createApp(env: Env) {
   api.use(publicSpecialsRouter);
   api.use('/admin/specials', adminSpecialsRouter);
   api.use('/admin/offer-sections', adminOfferSectionsRouter);
+  api.use(publicBannersRouter);
+  api.use('/admin/banners', adminBannersRouter);
   api.use('/orders', customerOrdersRouter);
   api.use('/delivery', deliveryRouter);
   api.use('/notifications', notificationsRouter);

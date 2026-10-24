@@ -10,6 +10,7 @@ import '../../core/prefs.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/frame.dart';
 import '../../core/widgets/widgets.dart';
+import '../home/offer_rows.dart' show specialsProvider;
 import 'catalog_providers.dart';
 import 'product_tile.dart';
 
@@ -96,7 +97,11 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
               'Menu');
 
     return FramedPage(
+      art: true,
       title: title,
+      subtitle: isSearching
+          ? 'Find your favourite dish'
+          : 'Explore dishes by category',
       child: Column(
         children: [
           Padding(
@@ -409,7 +414,7 @@ class CategoriesScreen extends ConsumerStatefulWidget {
   ConsumerState<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
-enum _Sort { popular, priceLow, priceHigh }
+enum _Sort { popular, rating, discountHigh, discountLow, priceLow, priceHigh }
 
 class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   final _pages = PageController();
@@ -431,7 +436,19 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
   List<Product> _dishes(List<Product> all, Category c) {
     final list = all.where((p) => p.categoryId == c.id).toList();
+    // Live special discount per dish (same source as the web sort).
+    final off = {
+      for (final s in ref.read(specialsProvider).value ?? const [])
+        if (s.isLive) s.product.id: s.discountPercent,
+    };
+    int d(Product p) => off[p.id] ?? 0;
     switch (_sort) {
+      case _Sort.rating:
+        list.sort((a, b) => (b.rating ?? 0).compareTo(a.rating ?? 0));
+      case _Sort.discountHigh:
+        list.sort((a, b) => d(b).compareTo(d(a)));
+      case _Sort.discountLow:
+        list.sort((a, b) => d(a).compareTo(d(b)));
       case _Sort.priceLow:
         list.sort((a, b) => displayPrice(a).compareTo(displayPrice(b)));
       case _Sort.priceHigh:
@@ -891,8 +908,11 @@ class _SortButton extends StatelessWidget {
   final ValueChanged<_Sort> onChanged;
   static const _labels = {
     _Sort.popular: 'Popular',
-    _Sort.priceLow: 'Price: low',
-    _Sort.priceHigh: 'Price: high',
+    _Sort.rating: 'Rating: High to Low',
+    _Sort.discountHigh: 'Discount: High to Low',
+    _Sort.discountLow: 'Discount: Low to High',
+    _Sort.priceLow: 'Price: Low to High',
+    _Sort.priceHigh: 'Price: High to Low',
   };
 
   @override
@@ -1204,16 +1224,15 @@ class FavoritesScreen extends ConsumerWidget {
     final ids = ref.watch(favoritesProvider).value ?? const <String>{};
     final products = ref.watch(productsProvider(''));
     return FramedPage(
+      art: true,
       title: 'Favourites',
+      subtitle: 'Dishes you love, saved for later',
       actions: ids.isEmpty
           ? const []
           : [
               IconButton(
                 tooltip: 'Clear wishlist',
-                icon: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.white,
-                ),
+                icon: const Icon(Icons.delete_outline_rounded),
                 onPressed: () async {
                   final ok = await showDialog<bool>(
                     context: context,

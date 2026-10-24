@@ -71,7 +71,7 @@ export function CartControl({ product }: { product: ProductDto }) {
       type="button"
       onClick={() => (multi ? navigate(`/product/${product.slug}`) : add(product, variant?.id, 1))}
       aria-label={multi ? `Choose a portion of ${product.name}` : `Add ${product.name} to cart`}
-      className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-primary-strong active:scale-90"
+      className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
     >
       <Plus className="size-4" strokeWidth={2.75} aria-hidden />
     Add
@@ -98,7 +98,7 @@ export function DishCard({ product }: { product: ProductDto }) {
       <div className="relative">
         <FoodImage src={sized(productImage(product), 600)} alt="" dimmed={unavailable} zoom className="aspect-[16/10] w-full" />
         {hasDiscount && (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary-strong px-2.5 py-0.5 text-xs font-extrabold text-surface shadow-sm">
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-xs font-extrabold text-surface shadow-sm">
             <BadgePercent className="size-3" aria-hidden />
             {label}
           </span>
@@ -133,7 +133,7 @@ export function DishCard({ product }: { product: ProductDto }) {
               type="button"
               onClick={() => (multi ? navigate(`/product/${product.slug}`) : add(product, defaultVariant(product)?.id, 1))}
               aria-label={multi ? `Choose a portion of ${product.name}` : `Add ${product.name} to cart`}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-primary-strong active:scale-90"
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
             >
               <Plus className="size-4" strokeWidth={2.75} aria-hidden />
             Add
@@ -162,7 +162,7 @@ export function PopularCard({ product }: { product: ProductDto }) {
       <div className="relative">
         <FoodImage src={sized(productImage(product), 600)} alt="" dimmed={unavailable} zoom className="aspect-[16/10] w-full" />
         {hasDiscount && (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary-strong px-2.5 py-0.5 text-xs font-extrabold text-surface shadow-sm">
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-xs font-extrabold text-surface shadow-sm">
             <BadgePercent className="size-3" aria-hidden />
             {label}
           </span>
@@ -197,7 +197,7 @@ export function PopularCard({ product }: { product: ProductDto }) {
               type="button"
               onClick={() => (multi ? navigate(`/product/${product.slug}`) : add(product, defaultVariant(product)?.id, 1))}
               aria-label={multi ? `Choose a portion of ${product.name}` : `Add ${product.name} to cart`}
-              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-primary-strong active:scale-90"
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3.5 text-sm font-bold text-surface shadow-press transition-[background-color,transform] duration-150 hover:bg-brand-hover active:scale-90"
             >
               <Plus className="size-4" strokeWidth={2.75} aria-hidden />
             Add

@@ -50,6 +50,9 @@ export interface ProductDto {
   isArchived: boolean;
   isVegetarian?: boolean;
   preparationTimeMinutes?: number;
+  /** Average customer rating (1–5, one decimal) and how many reviews it's from. */
+  rating?: number;
+  ratingCount?: number;
   variants: VariantDto[];
 }
 
@@ -156,6 +159,8 @@ export interface OrderDto {
   timeline: OrderTimelineDto;
   rejectionReason?: string;
   cancellationReason?: string;
+  /** Customer's rating after delivery. */
+  review?: { rating: number; comment?: string; createdAt: string };
   customer?: { id: string; name: string; phone: string };
   partner?: OrderPartnerDto;
   assignmentStatus?: import('./enums').AssignmentStatus;
@@ -244,6 +249,38 @@ export interface AdminSummaryDto {
   yesterday: { orders: number; revenuePaise: number; delivered: number; cancelled: number };
 }
 
+/** GET /admin/dashboard — everything the admin Dashboard shows, in one request. */
+export interface AdminDashboardDto {
+  kpis: {
+    ordersToday: number;
+    ordersYesterday: number;
+    revenueTodayPaise: number;
+    revenueYesterdayPaise: number;
+    liveOrders: number;
+    newOrders: number;
+    cookingOrders: number;
+    deliveredToday: number;
+    /** Average minutes from placed to delivered, today (null when nothing delivered yet). */
+    avgDeliveryMinutes: number | null;
+    ridersOnline: number;
+    ridersTotal: number;
+    ridersBusy: number;
+  };
+  /** Last 7 IST days, oldest first; revenue counts paid orders only. */
+  trend: { date: string; orders: number; revenuePaise: number }[];
+  /** Today's orders grouped for the donut. */
+  byStatus: { delivered: number; inKitchen: number; onTheRoad: number; cancelled: number };
+  /** Share of items sold in the last 30 days, by category. */
+  topCategories: { name: string; quantity: number; percent: number }[];
+  /** Last 7 days. */
+  bestSellers: { productId: string; name: string; imageUrl?: string; quantity: number; pricePaise: number }[];
+  newCustomers: { id: string; name: string; createdAt: string; orders: number; spentPaise: number }[];
+  partners: { online: number; busy: number; offline: number };
+  recentOrders: { id: string; orderNumber: string; customerName: string; items: number; totalPaise: number; status: import('./enums').OrderStatus; createdAt: string }[];
+  activity: { id: string; action: string; entityType: string; to?: string; actorName?: string; createdAt: string }[];
+  payments: { onlinePaise: number; codPaise: number; cashWithRidersPaise: number; refundsPending: number; refundsPendingPaise: number };
+}
+
 /** What a client needs to open Razorpay Checkout for an unpaid online order. */
 export interface RazorpayCheckoutDto {
   keyId: string;
@@ -286,6 +323,25 @@ export interface SpecialInput {
 }
 
 // ---------- Offer sections (admin-made Home rows like Today's specials) ----------
+/** Home carousel banner (admin-managed). */
+export interface BannerDto {
+  id: string;
+  title: string;
+  highlight?: string;
+  subtitle?: string;
+  buttonText?: string;
+  linkType: 'none' | 'category' | 'product' | 'offer' | 'url';
+  /** category/product slug, offer section id, or a URL / in-app path. */
+  linkValue?: string;
+  image: string;
+  startsAt?: string;
+  endsAt?: string;
+  isActive: boolean;
+  /** Switched on and inside its date window right now. */
+  isLive: boolean;
+  sortOrder: number;
+}
+
 export interface OfferSectionDto {
   id: string;
   /** DEALS = admin-picked discounted dishes; POPULAR = automatic best sellers from /products/popular. */
@@ -303,6 +359,21 @@ export interface OfferSectionDto {
   sortOrder: number;
   /** Admin list only: deals in the section. */
   specialCount?: number;
+}
+
+/** Create/update body for /admin/banners (null clears an optional field). */
+export interface BannerInput {
+  title: string;
+  highlight?: string | null;
+  subtitle?: string | null;
+  buttonText?: string | null;
+  linkType: BannerDto['linkType'];
+  linkValue?: string | null;
+  image: string;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  isActive?: boolean;
+  sortOrder?: number;
 }
 
 export interface OfferSectionInput {

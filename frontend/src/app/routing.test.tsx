@@ -38,8 +38,13 @@ describe('role-based routing', () => {
     expect(await screen.findByText(/Hi, Suresh/)).toBeInTheDocument();
   });
 
-  it('lets an admin into the kitchen dashboard', async () => {
+  it('lets an admin into the dashboard', async () => {
     renderAt('/admin', { id: '3', name: 'Anitha', role: 'ADMIN' });
+    expect(await screen.findByRole('heading', { level: 1, name: /, Anitha$/ })).toBeInTheDocument();
+  });
+
+  it('keeps the live kitchen board at /admin/kitchen', async () => {
+    renderAt('/admin/kitchen', { id: '3', name: 'Anitha', role: 'ADMIN' });
     expect(await screen.findByRole('heading', { name: 'Kitchen board' })).toBeInTheDocument();
   });
 

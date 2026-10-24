@@ -11,7 +11,9 @@ import 'api/api_client.dart';
 /// whenever data changes; we re-fetch the affected providers. Polling stays as a fallback.
 /// Watched once from the app root, so it lives for the whole session and reconnects per user.
 final realtimeProvider = Provider<void>((ref) {
-  ref.watch(authProvider.select((a) => a.value?.id)); // new socket per signed-in user
+  ref.watch(
+    authProvider.select((a) => a.value?.id),
+  ); // new socket per signed-in user
   final api = ref.read(apiClientProvider);
   final origin = apiBaseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
 
@@ -47,6 +49,7 @@ final realtimeProvider = Provider<void>((ref) {
           ref.invalidate(searchProvider);
           ref.invalidate(specialsProvider);
           ref.invalidate(offerSectionsProvider);
+          ref.invalidate(bannersProvider);
           ref.invalidate(quoteProvider);
         case 'settings':
           ref.invalidate(quoteProvider);
@@ -57,13 +60,18 @@ final realtimeProvider = Provider<void>((ref) {
   }
 
   socket.on('sync', (data) {
-    final topics = (data is Map ? data['topics'] as List? : null)?.cast<String>() ?? const [];
+    final topics =
+        (data is Map ? data['topics'] as List? : null)?.cast<String>() ??
+        const [];
     refresh(topics);
   });
   // Rotated access tokens: always reconnect with the current one.
   socket.io.on('reconnect_attempt', (_) => socket.auth = auth());
   // After a gap (background, network drop) catch up on anything missed.
-  socket.io.on('reconnect', (_) => refresh(const ['orders', 'notifications', 'catalog', 'addresses']));
+  socket.io.on(
+    'reconnect',
+    (_) => refresh(const ['orders', 'notifications', 'catalog', 'addresses']),
+  );
   socket.onConnectError((err) async {
     if ('$err'.contains('unauthorized') && await api.refresh()) {
       socket.auth = auth();

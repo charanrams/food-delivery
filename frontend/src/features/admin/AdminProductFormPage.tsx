@@ -2,10 +2,11 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
-import { Button, Card, ErrorState, Skeleton, cx } from '@/components/ui';
+import { Button, Card, ErrorState, Skeleton, cx, Toggle } from '@/components/ui';
 import { ApiError } from '@/lib/api';
 import { adminApi, adminKeys, paiseToRupees, rupeesToPaise, type ProductInput } from './admin-api';
 import { ImageUploader } from './ImageUploader';
+import { PageHeader, SectionCard } from './admin-ui';
 
 interface FormState {
   name: string;
@@ -123,23 +124,27 @@ export function AdminProductFormPage() {
     );
 
   return (
-    <form onSubmit={submit} noValidate className="mx-auto flex max-w-3xl flex-col gap-6">
-      <div>
-        <Link
-          to="/admin/menu"
-          className="mb-3 inline-flex min-h-10 items-center gap-1.5 text-sm font-medium text-muted hover:text-ink"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> Menu items
-        </Link>
-        <h1 className="font-display text-3xl">
-          {isNew ? 'Add a dish' : `Edit ${existing.data?.name ?? 'dish'}`}
-        </h1>
-      </div>
+    <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+      <PageHeader
+        crumbs={[{ label: 'Menu' }, { label: 'Menu items', to: '/admin/menu' }, { label: isNew ? 'Add dish' : 'Edit dish' }]}
+        title={isNew ? 'Add a dish' : existing.data?.name ?? 'Edit dish'}
+        description="Changes go live in the app and on the website as soon as you save."
+        actions={
+          <>
+            <Link to="/admin/menu" className="inline-flex h-11 items-center gap-2 rounded-xl bg-surface px-4 text-sm font-semibold shadow-sm ring-1 ring-line hover:bg-primary-soft">
+              <ArrowLeft className="size-4" aria-hidden /> Cancel
+            </Link>
+            <Button type="submit" loading={save.isPending}>
+              {isNew ? 'Add dish' : 'Save changes'}
+            </Button>
+          </>
+        }
+      />
 
-      <Card as="section" className="flex flex-col gap-5 rounded-[20px] p-6 ring-line/70">
-        <ImageUploader value={form.images} onChange={(v) => set('images', v)} folder="products" />
-
-        <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
+      <div className="flex min-w-0 flex-col gap-4">
+      <SectionCard title="Basic details">
+        <div className="grid gap-5 px-2 pb-2 md:grid-cols-2">
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <label htmlFor="name" className="text-[13px] font-medium">
               Dish name
@@ -247,21 +252,13 @@ export function AdminProductFormPage() {
           </fieldset>
         </div>
 
-        <label className="flex min-h-11 items-center gap-3">
-          <input
-            type="checkbox"
-            checked={form.isAvailable}
-            onChange={(e) => set('isAvailable', e.target.checked)}
-            className="size-5 accent-primary-strong"
-          />
-          <span className="text-[15px]">Available to order now</span>
-        </label>
-      </Card>
+      </SectionCard>
 
-      <Card as="section" className="flex flex-col gap-4 rounded-[20px] p-6 ring-line/70">
-        <div className="flex items-center justify-between">
+      <SectionCard>
+        <div className="flex flex-col gap-4 px-2 pb-2">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-semibold">Portions</h2>
+            <h2 className="text-base font-bold">Portions &amp; prices</h2>
             <p className="text-sm text-muted">
               Optional, e.g. Half / Full. Each portion has its own price.
             </p>
@@ -326,7 +323,29 @@ export function AdminProductFormPage() {
           </div>
         ))}
         {fieldError('variants')}
-      </Card>
+        </div>
+      </SectionCard>
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-4">
+        <SectionCard title="Photos" actions={<span className="text-xs text-muted">Up to 6 · first is the cover</span>}>
+          <div className="px-2 pb-2">
+            <ImageUploader value={form.images} onChange={(v) => set('images', v)} folder="products" />
+          </div>
+        </SectionCard>
+        <SectionCard title="Availability">
+          <div className="flex flex-col gap-3 px-2 pb-2">
+            <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl bg-[#faf6f1] px-3.5">
+              <span className="text-sm font-semibold">{form.isAvailable ? 'In stock, customers can order' : 'Sold out for now'}</span>
+              <Toggle checked={form.isAvailable} label="Available to order now" onChange={() => set('isAvailable', !form.isAvailable)} />
+            </label>
+            <p className="rounded-xl bg-[#e4f0fd] px-3.5 py-2.5 text-[13px] text-[#1d5fa8]">
+              Sold-out dishes stay visible but can’t be ordered. Archive a dish from Menu items to hide it everywhere.
+            </p>
+          </div>
+        </SectionCard>
+      </div>
+      </div>
 
       {errors.form && (
         <p role="alert" className="rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">

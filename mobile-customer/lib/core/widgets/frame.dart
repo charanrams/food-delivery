@@ -12,21 +12,183 @@ class FramedPage extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
+    this.subtitle,
     this.actions = const [],
     this.bottom,
     this.showBack = true,
     this.onBack,
+    this.art = false,
   });
 
   final String title;
+
+  /// Second line under the title (e.g. the order number).
+  final String? subtitle;
   final Widget child;
   final List<Widget> actions;
   final Widget? bottom;
   final bool showBack;
   final VoidCallback? onBack;
 
+  /// VSR app bar: the Hyderabad/biryani artwork behind a large left-aligned title + subtitle.
+  final bool art;
+
+  Widget _panel() => ClipRRect(
+    borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+    child: ColoredBox(
+      color: A3Colors.surface,
+      child: Column(
+        children: [
+          Expanded(child: child),
+          if (bottom != null)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  A3Spacing.lg,
+                  A3Spacing.sm,
+                  A3Spacing.lg,
+                  A3Spacing.lg,
+                ),
+                child: bottom,
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+
+  Widget _artPage(BuildContext context) {
+    final topPad = MediaQuery.of(context).padding.top;
+    const bar = 150.0;
+    return AnnotatedRegion(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+      ),
+      child: Scaffold(
+        backgroundColor: A3Colors.frame,
+        body: Stack(
+          children: [
+            // Artwork runs under the status bar and a little under the panel's round corners.
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: topPad + bar + 40,
+              child: Image.asset(
+                'assets/images/home_header.jpg',
+                fit: BoxFit.cover,
+                alignment: Alignment.topRight,
+                excludeFromSemantics: true,
+              ),
+            ),
+            Column(
+              children: [
+                SizedBox(
+                  height: topPad + bar,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      A3Spacing.lg,
+                      topPad + 10,
+                      A3Spacing.lg,
+                      0,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (showBack) ...[
+                          ArtIconButton(
+                            tooltip: 'Back',
+                            icon: Icons.arrow_back_rounded,
+                            onPressed:
+                                onBack ??
+                                () => context.canPop()
+                                    ? context.pop()
+                                    : context.go('/'),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontFamily: 'Outfit',
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  shadows: [
+                                    Shadow(
+                                      color: Color(0x40000000),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (subtitle != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 230,
+                                    ),
+                                    child: Text(
+                                      subtitle!,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        height: 1.35,
+                                        fontWeight: FontWeight.w500,
+                                        shadows: [
+                                          Shadow(
+                                            color: Color(0x40000000),
+                                            blurRadius: 8,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        IconButtonTheme(
+                          data: IconButtonThemeData(
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: A3Colors.primaryStrong,
+                              minimumSize: const Size(48, 48),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 8,
+                            children: actions,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(child: _panel()),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (art) return _artPage(context);
     return AnnotatedRegion(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -51,16 +213,33 @@ class FramedPage extends StatelessWidget {
                     else
                       const SizedBox(width: 48),
                     Expanded(
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (subtitle != null)
+                            Text(
+                              subtitle!,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     // Same width as the back button side so the title stays centred; 48 fits an IconButton.
@@ -282,5 +461,32 @@ class PillChip extends StatelessWidget {
         ),
       ),
     ),
+  );
+}
+
+/// Round white button with an orange icon, for the artwork app bar (48dp target).
+class ArtIconButton extends StatelessWidget {
+  const ArtIconButton({
+    super.key,
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: tooltip,
+    onPressed: onPressed,
+    style: IconButton.styleFrom(
+      backgroundColor: Colors.white,
+      foregroundColor: A3Colors.primaryStrong,
+      minimumSize: const Size(48, 48),
+      elevation: 2,
+      shadowColor: Colors.black26,
+    ),
+    icon: Icon(icon),
   );
 }

@@ -172,11 +172,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         AuthError(_error),
         const SizedBox(height: A3Spacing.xl),
-        AuthButton(
-          label: 'Create account',
-          busy: _busy,
-          onPressed: _create,
-        ),
+        AuthButton(label: 'Create account', busy: _busy, onPressed: _create),
         const SizedBox(height: A3Spacing.md),
         TextButton(
           onPressed: () => context.pushReplacement('/login'),

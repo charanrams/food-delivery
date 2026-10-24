@@ -189,6 +189,7 @@ export async function toOrderDto(o: OrderRow, role: UserRole, opts: { withOtp?: 
     },
     ...(o.rejectionReason ? { rejectionReason: o.rejectionReason } : {}),
     ...(o.cancellationReason ? { cancellationReason: o.cancellationReason } : {}),
+    ...(o.review?.rating ? { review: { rating: o.review.rating, ...(o.review.comment ? { comment: o.review.comment } : {}), createdAt: iso(o.review.createdAt) ?? '' } } : {}),
     ...(customer ? { customer: { id: String(customer._id), name: customer.name, phone: customer.phone } } : {}),
     ...(partnerUser
       ? {
@@ -659,6 +660,21 @@ async function completeDelivery(actor: Actor, orderId: string, input: { otp?: st
 export async function listForCustomer(actor: Actor) {
   const rows = await Order.find({ customerId: actor.userId }).sort({ createdAt: -1 }).limit(50).lean();
   return Promise.all(rows.map((o) => toOrderDto(o, 'CUSTOMER')));
+}
+
+/** One rating per delivered order. */
+export async function reviewOrder(actor: Actor, id: string, body: { rating: number; comment?: string }) {
+  const o = isValidObjectId(id) ? await Order.findOne({ _id: id, customerId: actor.userId }).lean() : null;
+  if (!o) throw AppError.notFound('Order not found.', 'ORDER_NOT_FOUND');
+  if (o.status !== 'DELIVERED') throw AppError.conflict('INVALID_ORDER_TRANSITION', 'You can review an order once it’s delivered.');
+  if (o.review?.rating) throw AppError.conflict('ALREADY_EXISTS', 'You’ve already reviewed this order.');
+  const res = await Order.updateOne({ _id: o._id, 'review.rating': { $exists: false } }, { $set: { review: { rating: body.rating, comment: body.comment || undefined, createdAt: new Date() } } });
+  // Each dish in the order gets the rating once (feeds menu "Rating: High to Low").
+  if (res.modifiedCount) {
+    const ids = [...new Set(o.items.map((i) => String(i.productId)))];
+    await Product.updateMany({ _id: { $in: ids } }, { $inc: { ratingSum: body.rating, ratingCount: 1 } });
+  }
+  return getForCustomer(actor, id);
 }
 
 export async function getForCustomer(actor: Actor, id: string) {

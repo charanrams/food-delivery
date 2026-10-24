@@ -23,9 +23,11 @@ export function CustomerLayout() {
   const isHome = pathname === '/';
   // Dish details is a full-bleed photo page on phones: no header, no bottom bar (like the app).
   const isDish = pathname.startsWith('/product/');
+  // Dish, cart, checkout and Order placed have no bottom tab bar.
+  const noTabs = isDish || pathname === '/cart' || pathname === '/checkout' || pathname.endsWith('/confirmed');
 
   return (
-    <div className="flex min-h-dvh flex-col bg-surface pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:bg-transparent md:pb-0">
+    <div className={cx('flex min-h-dvh flex-col bg-surface md:bg-transparent md:pb-0', noTabs ? 'pb-[env(safe-area-inset-bottom)]' : 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]')}>
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2">
         Skip to content
       </a>
@@ -78,7 +80,7 @@ export function CustomerLayout() {
       )}
 
       {/* Mobile bottom bar (matches the app): floating white pill with 4 tabs + round cart button, above the safe area. */}
-      <div className={cx('pointer-events-none fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 bg-surface px-3.5 pt-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] md:hidden', isDish && 'hidden')}>
+      <div className={cx('pointer-events-none fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 bg-surface px-3.5 pt-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] md:hidden', noTabs && 'hidden')}>
         <nav aria-label="Primary" className="pointer-events-auto grid h-[66px] flex-1 grid-cols-4 rounded-[26px] bg-surface shadow-[0_8px_24px_rgb(30_29_27/0.16)]">
           {[
             { to: '/', label: 'Home', icon: Home, end: true },
