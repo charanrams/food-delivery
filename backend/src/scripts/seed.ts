@@ -4,6 +4,7 @@ import { connectDatabase, disconnectDatabase } from '../config/db';
 import { syncIndexes } from '../models';
 import { seedDemoData } from './seed-data';
 import { seedDemoActivity } from './seed-activity';
+import { seedBanners } from './seed-banners';
 
 // `npm run seed -w backend` — seeds an empty dev/staging database.
 const env = loadEnv();
@@ -13,4 +14,5 @@ await connectDatabase(env);
 await syncIndexes();
 await seedDemoData();
 await seedDemoActivity();
+await seedBanners();
 await disconnectDatabase();

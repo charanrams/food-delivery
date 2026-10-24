@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit -p .",
     "test": "vitest run",
     "seed": "tsx --env-file-if-exists=.env src/scripts/seed.ts",
+    "seed:banners": "tsx --env-file-if-exists=.env src/scripts/seed-banners.ts",
     "photos": "tsx --env-file-if-exists=.env src/scripts/upload-photos.ts"
   },
   "dependencies": {
