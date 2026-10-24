@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,10 +9,10 @@ import '../../core/widgets/frame.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/auth_controller.dart';
 import 'deliveries_providers.dart';
+import 'new_order_card.dart';
 
-/// Partner home: Duty Console + active deliveries.
-/// Assignments already auto-opened this session (so each pops up only once).
-final _opened = <String>{};
+/// Partner home (home mockup): header art, today's stats, duty card, then
+/// new orders (accept/reject card with 30 s countdown) and active assignments.
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -24,17 +23,6 @@ class HomeScreen extends ConsumerWidget {
     final online = partner?.online ?? false;
     final deliveries = ref.watch(activeDeliveriesProvider);
     final earnings = ref.watch(earningsProvider).value;
-
-    // A new assignment opens its accept/reject screen once (30 s window).
-    ref.listen(activeDeliveriesProvider, (_, next) {
-      for (final d in next.value ?? const <Delivery>[]) {
-        if (d.actions.contains('accept') && _opened.add(d.id)) {
-          HapticFeedback.heavyImpact();
-          context.push('/delivery/${d.id}');
-          break;
-        }
-      }
-    });
 
     return FramedPage(
       title: 'A3 Delivery Partner',
@@ -176,28 +164,27 @@ class HomeScreen extends ConsumerWidget {
                     title: 'Delivered',
                     value: '${partner?.todayDelivered ?? 0}',
                     subtitle: 'Today',
-                    icon: Icons.check_circle_outline,
+                    icon: Icons.check_circle_outline_rounded,
                     color: A3Colors.success,
                   ),
                 ),
                 const SizedBox(width: A3Spacing.md),
                 Expanded(
                   child: _StatCard(
-                    title: "Today's Pay",
+                    title: "Today's Earnings",
                     value: formatPaise(earnings?.today.earningsPaise ?? 0),
-                    subtitle: 'Earned',
-                    icon: Icons.currency_rupee,
-                    color: A3Colors.primaryStrong,
+                    icon: Icons.currency_rupee_rounded,
+                    color: A3Colors.primary,
                   ),
                 ),
                 const SizedBox(width: A3Spacing.md),
                 Expanded(
                   child: _StatCard(
-                    title: 'Active',
+                    title: 'Active Orders',
                     value: '${deliveries.value?.length ?? 0}',
-                    subtitle: 'Orders',
-                    icon: Icons.two_wheeler,
-                    color: A3Colors.ink,
+                    subtitle: 'Now',
+                    icon: Icons.two_wheeler_rounded,
+                    color: const Color(0xFF1A73E8),
                   ),
                 ),
               ],
@@ -256,59 +243,25 @@ class HomeScreen extends ConsumerWidget {
                   );
                 }
 
-                if (list.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.all(A3Spacing.xl),
-                    decoration: BoxDecoration(
-                      color: A3Colors.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: A3Colors.line),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: A3Colors.primarySoft,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.radar_rounded,
-                            size: 40,
-                            color: A3Colors.primaryStrong,
-                          ),
-                        ),
-                        const SizedBox(height: A3Spacing.lg),
-                        const Text(
-                          'Waiting for assignments',
-                          style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Outfit',
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'A3 Kitchen is live. As soon as the kitchen assigns an order to you, it will ring with audio and vibration alert.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: A3Colors.muted,
-                            fontSize: 13,
-                            height: 1.45,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
+                final fresh = list
+                    .where((d) => d.actions.contains('accept'))
+                    .toList();
+                final ongoing = list
+                    .where((d) => !d.actions.contains('accept'))
+                    .toList();
                 return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      children: [
-                        const Text(
+                    const _OnDutyCard(),
+                    const SizedBox(height: A3Spacing.md),
+                    for (final d in fresh) ...[
+                      NewOrderCard(key: ValueKey('new-${d.id}'), d: d),
+                      const SizedBox(height: A3Spacing.md),
+                    ],
+                    if (ongoing.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.only(top: 4, bottom: A3Spacing.sm),
+                        child: Text(
                           'Active Assignments',
                           style: TextStyle(
                             fontSize: 18,
@@ -316,29 +269,46 @@ class HomeScreen extends ConsumerWidget {
                             fontFamily: 'Outfit',
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: A3Colors.primary,
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                          child: Text(
-                            '${list.length}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
-                            ),
-                          ),
+                      ),
+                      for (final d in ongoing) _DeliveryCard(delivery: d),
+                    ],
+                    if (list.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(A3Spacing.xl),
+                        decoration: BoxDecoration(
+                          color: A3Colors.card,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: A3Colors.line),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: A3Spacing.md),
-                    for (final d in list) _DeliveryCard(delivery: d),
+                        child: const Column(
+                          children: [
+                            Icon(
+                              Icons.radar_rounded,
+                              size: 40,
+                              color: A3Colors.primaryStrong,
+                            ),
+                            SizedBox(height: A3Spacing.md),
+                            Text(
+                              'Waiting for assignments',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Outfit',
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              'New orders appear here with a 30-second window to accept.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: A3Colors.muted,
+                                fontSize: 13,
+                                height: 1.45,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 );
               },
@@ -354,49 +324,107 @@ class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.title,
     required this.value,
-    required this.subtitle,
     required this.icon,
     required this.color,
+    this.subtitle,
   });
 
-  final String title, value, subtitle;
+  final String title, value;
+  final String? subtitle;
   final IconData icon;
   final Color color;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(A3Spacing.md),
-      decoration: BoxDecoration(
-        color: A3Colors.card,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 20, color: color),
-          const SizedBox(height: 8),
-          Text(
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(A3Spacing.md),
+    decoration: BoxDecoration(
+      color: A3Colors.card,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.14),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: color),
+        ),
+        const SizedBox(height: 10),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
             value,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.w800,
               fontFamily: 'Outfit',
               color: A3Colors.ink,
             ),
           ),
+        ),
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 12, color: A3Colors.muted),
+        ),
+        if (subtitle != null)
           Text(
-            title,
-            style: const TextStyle(
-              fontSize: 11,
-              color: A3Colors.muted,
-              fontWeight: FontWeight.w500,
-            ),
+            subtitle!,
+            style: const TextStyle(fontSize: 12, color: A3Colors.muted),
           ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
+
+/// Green "You are ON DUTY" strip (home mockup).
+class _OnDutyCard extends StatelessWidget {
+  const _OnDutyCard();
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    decoration: BoxDecoration(
+      color: const Color(0xFFEAF7EF),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: const Color(0xFFBFE6CC)),
+    ),
+    child: const Row(
+      children: [
+        CircleAvatar(
+          radius: 22,
+          backgroundColor: Color(0xFFD3F0DD),
+          child: Icon(Icons.gps_fixed_rounded, color: A3Colors.success),
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'You are ON DUTY',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  fontFamily: 'Outfit',
+                ),
+              ),
+              Text(
+                'Ready to receive new orders',
+                style: TextStyle(fontSize: 13, color: A3Colors.muted),
+              ),
+            ],
+          ),
+        ),
+        Icon(Icons.delivery_dining_rounded, size: 40, color: A3Colors.primary),
+      ],
+    ),
+  );
 }
 
 class _DeliveryCard extends StatelessWidget {

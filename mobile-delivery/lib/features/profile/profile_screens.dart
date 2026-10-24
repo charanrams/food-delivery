@@ -515,7 +515,7 @@ class _HistoryRow extends StatelessWidget {
   }
 }
 
-/// Profile, Vehicle details & Kitchen Support screen.
+/// Partner profile: identity card with live stats, grouped menus, logout.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -523,276 +523,124 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = ref.watch(authProvider).value;
     if (p == null) return const SizedBox.shrink();
+    final earnings = ref.watch(earningsProvider).value;
 
     return FramedPage(
       title: 'Partner Profile',
       showBack: false,
+      actions: [
+        SoftIconButton(
+          icon: Icons.notifications_none_rounded,
+          tooltip: 'Notifications',
+          onPressed: () => context.push('/notifications'),
+        ),
+      ],
       child: ListView(
-        padding: const EdgeInsets.all(A3Spacing.lg),
+        padding: const EdgeInsets.fromLTRB(
+          A3Spacing.lg,
+          A3Spacing.lg,
+          A3Spacing.lg,
+          A3Spacing.xl,
+        ),
         children: [
-          // Partner Card
-          Container(
-            padding: const EdgeInsets.all(A3Spacing.lg),
-            decoration: BoxDecoration(
-              color: A3Colors.card,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: A3Colors.primarySoft,
-                  child: Text(
-                    p.name.characters.first,
-                    style: const TextStyle(
-                      color: A3Colors.primaryStrong,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 24,
-                      fontFamily: 'Outfit',
-                    ),
-                  ),
-                ),
-                const SizedBox(width: A3Spacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        p.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                          fontFamily: 'Outfit',
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        p.phone,
-                        style: const TextStyle(
-                          color: A3Colors.muted,
-                          fontSize: 13,
-                        ),
-                      ),
-                      if (p.email != null)
-                        Text(
-                          p.email!,
-                          style: const TextStyle(
-                            color: A3Colors.muted,
-                            fontSize: 13,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: A3Spacing.lg),
+          _PartnerCard(partner: p, earnings: earnings),
+          const SizedBox(height: A3Spacing.xl),
 
-          // Fleet & Operations Menu
-          const SectionTitle('Operations & Shifts'),
-          const SizedBox(height: A3Spacing.sm),
-          Ink(
-            decoration: BoxDecoration(
-              color: A3Colors.card,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Color(0xFF6A1B9A),
-                  ),
-                  title: const Text(
-                    'Notifications',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Order dispatches and payout notices'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/notifications'),
-                ),
-              ],
-            ),
+          const _GroupHeading(
+            'Account & Finance',
+            'Manage your personal and payment details',
           ),
-          const SizedBox(height: A3Spacing.lg),
-
-          // Account & Finance
-          const SectionTitle('Account & Finance'),
-          const SizedBox(height: A3Spacing.sm),
-          Ink(
-            decoration: BoxDecoration(
-              color: A3Colors.card,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(
-                    Icons.badge_outlined,
-                    color: A3Colors.ink,
-                  ),
-                  title: const Text(
-                    'Edit Profile',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Name, photo, vehicle & contact info'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/edit-profile'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.account_balance_rounded,
-                    color: Color(0xFF2E7D4F),
-                  ),
-                  title: const Text(
-                    'Bank Details & KYC',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Direct bank account & documents'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/bank-kyc'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.receipt_long_rounded,
-                    color: Color(0xFF00897B),
-                  ),
-                  title: const Text(
-                    'Payout History',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Weekly settlements & transfer UTRs'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/payout-history'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.settings_outlined,
-                    color: A3Colors.ink,
-                  ),
-                  title: const Text(
-                    'App Settings',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Language, location, dark mode & cache'),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/settings'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: A3Spacing.lg),
-
-          // Kitchen Support & Legal
-          const SectionTitle('Support & Legal'),
-          const SizedBox(height: A3Spacing.sm),
-          Ink(
-            decoration: BoxDecoration(
-              color: A3Colors.card,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(
-                    Icons.help_outline_rounded,
-                    color: A3Colors.primaryStrong,
-                  ),
-                  title: const Text(
-                    'Help & Support',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text(
-                    'FAQs, issue resolution & kitchen hotline',
-                  ),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/help-support'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.policy_outlined,
-                    color: A3Colors.ink,
-                  ),
-                  title: const Text(
-                    'Privacy Policy',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/privacy-policy'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.gavel_outlined,
-                    color: A3Colors.ink,
-                  ),
-                  title: const Text(
-                    'Terms & Conditions',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: A3Colors.muted,
-                  ),
-                  onTap: () => context.push('/terms-conditions'),
-                ),
-                const Divider(color: A3Colors.line, height: 1),
-                ListTile(
-                  leading: const Icon(
-                    Icons.emergency_outlined,
-                    color: A3Colors.danger,
-                  ),
-                  title: const Text(
-                    'Emergency Assistance (SOS)',
-                    style: TextStyle(
-                      color: A3Colors.danger,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  subtitle: const Text(
-                    'Police & emergency medical support (112)',
-                  ),
-                  onTap: () => callNumber(context, '112'),
-                ),
-              ],
-            ),
+          _MenuGroup(
+            children: [
+              _MenuRow(
+                icon: Icons.person_rounded,
+                tint: A3Colors.success,
+                title: 'Edit Profile',
+                subtitle: 'Name, photo, vehicle & contact info',
+                onTap: () => context.push('/edit-profile'),
+              ),
+              _MenuRow(
+                icon: Icons.account_balance_rounded,
+                tint: A3Colors.primary,
+                title: 'Bank Details & KYC',
+                subtitle: 'Direct bank account & documents',
+                onTap: () => context.push('/bank-kyc'),
+              ),
+              _MenuRow(
+                icon: Icons.receipt_long_rounded,
+                tint: const Color(0xFF7C3AED),
+                title: 'Payout History',
+                subtitle: 'Weekly settlements & transfer UTRs',
+                onTap: () => context.push('/payout-history'),
+              ),
+              _MenuRow(
+                icon: Icons.settings_rounded,
+                tint: const Color(0xFF2563EB),
+                title: 'App Settings',
+                subtitle: 'Language, location, dark mode & cache',
+                onTap: () => context.push('/settings'),
+              ),
+            ],
           ),
           const SizedBox(height: A3Spacing.xl),
 
-          // Logout Button
+          const _GroupHeading(
+            'Support & Legal',
+            'Get help and important information',
+          ),
+          _MenuGroup(
+            children: [
+              _MenuRow(
+                icon: Icons.help_outline_rounded,
+                tint: A3Colors.danger,
+                title: 'Help & Support',
+                subtitle: 'FAQs, issue resolution & kitchen hotline',
+                onTap: () => context.push('/help-support'),
+              ),
+              _MenuRow(
+                icon: Icons.shield_outlined,
+                tint: const Color(0xFF2563EB),
+                title: 'Privacy Policy',
+                subtitle: 'Read our privacy policy',
+                onTap: () => context.push('/privacy-policy'),
+              ),
+              _MenuRow(
+                icon: Icons.description_outlined,
+                tint: A3Colors.primary,
+                title: 'Terms & Conditions',
+                subtitle: 'Read our terms and conditions',
+                onTap: () => context.push('/terms-conditions'),
+              ),
+            ],
+          ),
+          const SizedBox(height: A3Spacing.lg),
+
+          // SOS sits apart from the menus so it is never mistaken for one.
+          Material(
+            color: const Color(0xFFFDECEA),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+              side: const BorderSide(color: Color(0xFFF5B7B1)),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: _MenuRow(
+              icon: Icons.emergency_rounded,
+              tint: A3Colors.danger,
+              title: 'Emergency Assistance (SOS)',
+              subtitle: 'Police & emergency medical support (112)',
+              danger: true,
+              onTap: () => callNumber(context, '112'),
+            ),
+          ),
+          const SizedBox(height: A3Spacing.lg),
+
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
               foregroundColor: A3Colors.danger,
               side: const BorderSide(color: A3Colors.danger),
-              minimumSize: const Size.fromHeight(50),
+              minimumSize: const Size.fromHeight(52),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
             icon: const Icon(Icons.logout_rounded),
@@ -841,4 +689,391 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _PartnerCard extends StatelessWidget {
+  const _PartnerCard({required this.partner, required this.earnings});
+  final Partner partner;
+  final PartnerEarnings? earnings;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = partner;
+    final e = earnings;
+    return Container(
+      decoration: BoxDecoration(
+        color: A3Colors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: A3Colors.line),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(A3Spacing.lg),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CircleAvatar(
+                      radius: 36,
+                      backgroundColor: A3Colors.primarySoft,
+                      child: Text(
+                        p.name.characters.first.toUpperCase(),
+                        style: const TextStyle(
+                          color: A3Colors.primaryStrong,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 28,
+                          fontFamily: 'Outfit',
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: -2,
+                      bottom: -2,
+                      child: Material(
+                        color: A3Colors.success,
+                        shape: const CircleBorder(
+                          side: BorderSide(color: Colors.white, width: 2),
+                        ),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => context.push('/edit-profile'),
+                          child: const Padding(
+                            padding: EdgeInsets.all(6),
+                            child: Icon(
+                              Icons.edit_rounded,
+                              size: 14,
+                              color: Colors.white,
+                              semanticLabel: 'Edit profile',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: A3Spacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              p.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 19,
+                                fontFamily: 'Outfit',
+                                color: A3Colors.ink,
+                              ),
+                            ),
+                          ),
+                          _StatusPill(online: p.online),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      _ContactLine(Icons.phone_outlined, p.phone),
+                      if (p.email != null)
+                        _ContactLine(Icons.mail_outline_rounded, p.email!),
+                      const SizedBox(height: A3Spacing.sm),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE7F5EC),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.verified_rounded,
+                              size: 15,
+                              color: A3Colors.success,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'Verified Partner',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: A3Colors.success,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: A3Colors.line),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: A3Spacing.sm,
+              vertical: A3Spacing.md,
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  _StatTile(
+                    icon: Icons.two_wheeler_rounded,
+                    tint: A3Colors.primary,
+                    value: e == null ? '–' : '${e.totalDelivered}',
+                    label: 'Total trips',
+                  ),
+                  const VerticalDivider(width: 1, color: A3Colors.line),
+                  _StatTile(
+                    icon: Icons.emoji_events_rounded,
+                    tint: A3Colors.success,
+                    value: e == null ? '–' : '${e.month.deliveredCount}',
+                    label: 'This month',
+                  ),
+                  const VerticalDivider(width: 1, color: A3Colors.line),
+                  _StatTile(
+                    icon: Icons.account_balance_wallet_rounded,
+                    tint: const Color(0xFF7C3AED),
+                    value: e == null ? '–' : formatPaise(e.today.earningsPaise),
+                    label: "Today's earnings",
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.online});
+  final bool online;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = online ? A3Colors.success : A3Colors.muted;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: online ? const Color(0xFFE7F5EC) : A3Colors.card,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.circle, size: 8, color: color),
+          const SizedBox(width: 6),
+          Text(
+            online ? 'Online' : 'Offline',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContactLine extends StatelessWidget {
+  const _ContactLine(this.icon, this.text);
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 2),
+    child: Row(
+      children: [
+        Icon(icon, size: 15, color: A3Colors.muted),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 13, color: A3Colors.muted),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.icon,
+    required this.tint,
+    required this.value,
+    required this.label,
+  });
+  final IconData icon;
+  final Color tint;
+  final String value, label;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: Column(
+      children: [
+        Icon(icon, size: 22, color: tint),
+        const SizedBox(height: 6),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Outfit',
+              color: A3Colors.ink,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 12, color: A3Colors.muted),
+        ),
+      ],
+    ),
+  );
+}
+
+class _GroupHeading extends StatelessWidget {
+  const _GroupHeading(this.title, this.subtitle);
+  final String title, subtitle;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 4, bottom: A3Spacing.sm),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            fontFamily: 'Outfit',
+            color: A3Colors.ink,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: const TextStyle(fontSize: 13, color: A3Colors.muted),
+        ),
+      ],
+    ),
+  );
+}
+
+class _MenuGroup extends StatelessWidget {
+  const _MenuGroup({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: A3Colors.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(18),
+      side: const BorderSide(color: A3Colors.line),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) const Divider(height: 1, indent: 72, color: A3Colors.line),
+          children[i],
+        ],
+      ],
+    ),
+  );
+}
+
+class _MenuRow extends StatelessWidget {
+  const _MenuRow({
+    required this.icon,
+    required this.tint,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.danger = false,
+  });
+  final IconData icon;
+  final Color tint;
+  final String title, subtitle;
+  final VoidCallback onTap;
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.all(A3Spacing.md),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: tint.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: tint, size: 22),
+          ),
+          const SizedBox(width: A3Spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: danger ? A3Colors.danger : A3Colors.ink,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: danger ? A3Colors.danger : A3Colors.muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: danger ? A3Colors.danger : A3Colors.muted,
+          ),
+        ],
+      ),
+    ),
+  );
 }

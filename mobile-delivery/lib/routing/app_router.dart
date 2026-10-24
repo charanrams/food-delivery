@@ -9,7 +9,6 @@ import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/onboarding_screen.dart';
 import '../features/auth/reset_password_screen.dart';
-import '../features/deliveries/delivery_confirmation_screen.dart';
 import '../features/deliveries/delivery_screen.dart';
 import '../features/deliveries/home_screen.dart';
 import '../features/profile/app_settings_screen.dart';
@@ -162,16 +161,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/delivery/:id',
         builder: (_, s) => DeliveryScreen(orderId: s.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/delivery-confirmation',
-        builder: (_, s) {
-          final extra = s.extra as Map<String, dynamic>? ?? {};
-          return DeliveryConfirmationScreen(
-            orderNumber: extra['orderNumber'] as String? ?? '#AK12834',
-            earningsPaise: extra['earningsPaise'] as int? ?? 4000,
-          );
-        },
       ),
       GoRoute(path: '/bank-kyc', builder: (_, _) => const BankKycScreen()),
       GoRoute(

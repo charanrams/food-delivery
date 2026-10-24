@@ -113,7 +113,7 @@ class FramedPage extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(32),
                     ),
-                    child: ColoredBox(
+                    child: Material(
                       color: A3Colors.surface,
                       child: Column(
                         children: [

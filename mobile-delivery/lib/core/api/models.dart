@@ -37,10 +37,12 @@ class DeliveryItem {
     required this.name,
     this.variant,
     required this.quantity,
+    this.lineTotalPaise = 0,
   });
   final String name;
   final String? variant;
   final int quantity;
+  final int lineTotalPaise;
 }
 
 class Delivery {
@@ -51,6 +53,7 @@ class Delivery {
     required this.paymentMethod,
     required this.paymentStatus,
     required this.totalPaise,
+    this.deliveryFeePaise = 0,
     required this.items,
     required this.customerName,
     required this.customerPhone,
@@ -69,6 +72,9 @@ class Delivery {
       customerName,
       customerPhone;
   final int totalPaise;
+
+  /// Delivery fee on the order = what the partner earns for it.
+  final int deliveryFeePaise;
   final List<DeliveryItem> items;
   final Map<String, dynamic> address;
   final List<String> actions;
@@ -107,12 +113,14 @@ class Delivery {
       paymentMethod: j['paymentMethod'] as String,
       paymentStatus: j['paymentStatus'] as String,
       totalPaise: (j['totalPaise'] as num).toInt(),
+      deliveryFeePaise: (j['deliveryFeePaise'] as num? ?? 0).toInt(),
       items: [
         for (final i in (j['items'] as List).cast<Map<String, dynamic>>())
           DeliveryItem(
             name: i['productName'] as String,
             variant: i['variantName'] as String?,
             quantity: (i['quantity'] as num).toInt(),
+            lineTotalPaise: (i['lineTotalPaise'] as num? ?? 0).toInt(),
           ),
       ],
       customerName: customer['name'] as String? ?? 'Customer',

@@ -7,11 +7,32 @@ import '../../core/kitchen.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/widgets.dart';
 
+/// Straight-line km from the kitchen to the customer's pin (null without a pin).
+double? distanceKm(Delivery d) => d.lat == null || d.lng == null
+    ? null
+    : const Distance().as(
+            LengthUnit.Meter,
+            kitchenLatLng,
+            LatLng(d.lat!, d.lng!),
+          ) /
+          1000;
+
+/// Rough two-wheeler city estimate (~20 km/h) for [km].
+int? etaMinutes(double? km) =>
+    km == null ? null : (km / 20 * 60).ceil().clamp(1, 999);
+
 /// Mockup 4: kitchen → customer on an OpenStreetMap card, straight-line distance, and a
 /// Navigate button that hands turn-by-turn directions to Google Maps.
 /// The dotted line is a straight line, not a road route (no routing service yet).
 class RouteMapCard extends StatelessWidget {
-  const RouteMapCard({super.key, required this.d, required this.toCustomer});
+  const RouteMapCard({
+    super.key,
+    required this.d,
+    required this.toCustomer,
+    this.mapHeight = 220,
+  });
+
+  final double mapHeight;
   final Delivery d;
 
   /// true once the order is picked up (heading to the customer); false = heading to the kitchen.
@@ -38,7 +59,7 @@ class RouteMapCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            height: 220,
+            height: mapHeight,
             child: FlutterMap(
               options: MapOptions(
                 initialCameraFit: customer == null

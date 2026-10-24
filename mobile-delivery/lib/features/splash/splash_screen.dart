@@ -9,11 +9,12 @@ import '../../core/prefs.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/auth_controller.dart';
 
-/// Launch splash — one authored brand moment (~1.7 s):
-///   1. an orange ring draws itself (echoing the logo's hand-drawn circle),
+/// Partner launch splash — one authored brand moment (~1.7 s) on deep orange,
+/// deliberately distinct from the customer app's light splash:
+///   1. a white ring draws itself (echoing the logo's hand-drawn circle),
 ///   2. the emblem settles in with a soft spring,
-///   3. three wisps of steam rise and fade — "freshly prepared",
-///   4. the wordmark wipes in, then the tagline.
+///   3. a scooter rides in along the road beneath it,
+///   4. the wordmark wipes in, then the "Partner" tag and tagline.
 /// Then Home when a session is saved on this device, otherwise Login.
 /// Under reduce-motion the final frame shows immediately.
 class SplashScreen extends ConsumerStatefulWidget {
@@ -48,7 +49,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     begin: 0.6,
     end: 1.0,
   ).animate(_seg(0.12, 0.62, Curves.easeOutBack));
-  late final _steam = _seg(0.42, 1.0, Curves.linear);
+  late final _ride = _seg(0.40, 0.85, Curves.easeOutQuart);
   late final _wordmark = _seg(0.52, 0.82, Curves.easeOutQuart);
   late final _tagline = _seg(0.70, 1.0);
 
@@ -91,9 +92,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     const ring = 164.0;
 
     return Scaffold(
-      backgroundColor: A3Colors.background,
+      backgroundColor: A3Colors.primaryStrong,
       body: Semantics(
-        label: 'A3 Kitchen — Freshly Prepared. Delivered with Care.',
+        label: 'A3 Kitchen Partner — Deliver fresh. Earn on every trip.',
         child: Center(
           child: ExcludeSemantics(
             child: AnimatedBuilder(
@@ -101,12 +102,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               builder: (context, _) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Steam sits above the plate; reserve its space so nothing shifts.
-                  SizedBox(
-                    width: 120,
-                    height: 56,
-                    child: CustomPaint(painter: _SteamPainter(_steam.value)),
-                  ),
                   SizedBox(
                     width: ring,
                     height: ring,
@@ -131,7 +126,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                   BoxShadow(
                                     color: const Color(
                                       0xFF29231F,
-                                    ).withValues(alpha: 0.07 * _logoIn.value),
+                                    ).withValues(alpha: 0.25 * _logoIn.value),
                                     blurRadius: 32,
                                     offset: const Offset(0, 4),
                                   ),
@@ -149,7 +144,35 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: A3Spacing.xl),
+                  const SizedBox(height: A3Spacing.md),
+                  // Scooter rides in from the left and stops under the emblem.
+                  SizedBox(
+                    width: 220,
+                    height: 40,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Container(
+                          height: 2,
+                          color: Colors.white.withValues(
+                            alpha: 0.35 * _ride.value,
+                          ),
+                        ),
+                        Transform.translate(
+                          offset: Offset(-110 * (1 - _ride.value), -2),
+                          child: Opacity(
+                            opacity: _ride.value,
+                            child: const Icon(
+                              Icons.delivery_dining_rounded,
+                              size: 36,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: A3Spacing.lg),
                   // Wordmark: left-to-right wipe.
                   ClipRect(
                     child: Align(
@@ -157,7 +180,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       widthFactor: _wordmark.value,
                       child: Text(
                         'A3 Kitchen',
-                        style: text.headlineMedium?.copyWith(fontSize: 32),
+                        style: text.headlineMedium?.copyWith(
+                          fontSize: 32,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -166,9 +192,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     opacity: _tagline.value,
                     child: Transform.translate(
                       offset: Offset(0, 8 * (1 - _tagline.value)),
-                      child: Text(
-                        'Freshly Prepared. Delivered with Care.',
-                        style: text.bodyMedium?.copyWith(color: A3Colors.muted),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              'Partner',
+                              style: text.labelLarge?.copyWith(
+                                color: A3Colors.primaryStrong,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: A3Spacing.md),
+                          Text(
+                            'Deliver fresh. Earn on every trip.',
+                            style: text.bodyMedium?.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -195,7 +245,7 @@ class _RingPainter extends CustomPainter {
       radius: size.width / 2 - 3,
     );
     final paint = Paint()
-      ..color = A3Colors.primary
+      ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
@@ -208,57 +258,10 @@ class _RingPainter extends CustomPainter {
       false,
       paint
         ..strokeWidth = 1.2
-        ..color = A3Colors.primary.withValues(alpha: 0.45),
+        ..color = Colors.white.withValues(alpha: 0.45),
     );
   }
 
   @override
   bool shouldRepaint(_RingPainter old) => old.t != t;
-}
-
-/// Three wisps of steam that rise, sway and fade — staggered so they read as warmth, not a loader.
-class _SteamPainter extends CustomPainter {
-  _SteamPainter(this.t);
-  final double t;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (t <= 0) return;
-    for (var i = 0; i < 3; i++) {
-      final local = ((t - i * 0.14) / 0.72).clamp(0.0, 1.0);
-      if (local <= 0) continue;
-      final x = size.width * (0.3 + i * 0.2);
-      final rise = 10 * local; // drifts upward as it fades
-      final path = Path()..moveTo(x, size.height - rise);
-      // A gentle S-curve upward.
-      final h = size.height * 0.85;
-      final sway = (i.isEven ? 1 : -1) * 7.0;
-      path.cubicTo(
-        x + sway,
-        size.height - h * 0.33 - rise,
-        x - sway,
-        size.height - h * 0.66 - rise,
-        x + sway * 0.4,
-        size.height - h - rise,
-      );
-      final metric = path.computeMetrics().first;
-      final drawn = metric.extractPath(
-        0,
-        metric.length *
-            Curves.easeOutCubic.transform((local * 1.6).clamp(0.0, 1.0)),
-      );
-      final opacity = math.sin(math.pi * local) * 0.6;
-      canvas.drawPath(
-        drawn,
-        Paint()
-          ..color = A3Colors.primary.withValues(alpha: opacity)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.4
-          ..strokeCap = StrokeCap.round,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_SteamPainter old) => old.t != t;
 }
