@@ -1,175 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/app_theme.dart';
-import '../../core/widgets/frame.dart';
+import '../../core/api/api_client.dart';
+import 'auth_layout.dart';
 
-/// Screen 1 · Forgot Password
-/// Allows delivery partner to request a password reset OTP or link to registered phone/email.
-class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+/// Forgot password: emails a 6-digit reset code (POST /auth/password/forgot). The server
+/// always answers "sent" so it never reveals which emails have accounts.
+class ForgotPasswordScreen extends ConsumerStatefulWidget {
+  const ForgotPasswordScreen({super.key, this.email});
+  final String? email;
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final _phoneController = TextEditingController(text: '');
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
+  late final _email = TextEditingController(
+    text: widget.email?.contains('@') == true ? widget.email : '',
+  );
   bool _busy = false;
+  String? _error;
+
+  static final _pattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _email.dispose();
     super.dispose();
   }
 
-  void _sendReset() {
-    final text = _phoneController.text.trim();
-    if (text.length < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid 10-digit mobile number')),
+  Future<void> _send() async {
+    final email = _email.text.trim();
+    if (!_pattern.hasMatch(email)) {
+      return setState(
+        () => _error = 'Enter the email on your partner account.',
       );
-      return;
     }
-    setState(() => _busy = true);
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) {
-        setState(() => _busy = false);
-        context.push('/reset-password', extra: text);
-      }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _busy = true;
+      _error = null;
     });
+    try {
+      await ref.read(apiClientProvider).post('/auth/password/forgot', {
+        'email': email,
+      });
+      if (mounted) context.push('/reset-password', extra: email);
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FramedPage(
-      title: 'Forgot Password',
-      showBack: true,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: A3Spacing.lg),
-            Center(
-              child: Container(
-                width: 76,
-                height: 76,
-                decoration: BoxDecoration(
-                  color: A3Colors.primarySoft,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.lock_reset_rounded,
-                  size: 40,
-                  color: A3Colors.primary,
-                ),
-              ),
-            ),
-            const SizedBox(height: A3Spacing.lg),
-            const Text(
-              'Forgot Password?',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: A3Colors.ink,
-              ),
-            ),
-            const SizedBox(height: A3Spacing.xs),
-            const Text(
-              'No worries! Enter your registered mobile number and we\'ll send you a verification code.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: A3Colors.muted,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: A3Spacing.xl),
-            const Text(
-              'Mobile Number',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: A3Colors.ink,
-              ),
-            ),
-            const SizedBox(height: A3Spacing.xs),
-            Row(
-              children: [
-                Container(
-                  height: 52,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: A3Colors.card,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: A3Colors.line),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    '+91',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: A3Colors.ink,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: '98765 43210',
-                      filled: true,
-                      fillColor: A3Colors.card,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: A3Colors.line),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: A3Colors.line),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: A3Colors.primary, width: 2),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: A3Spacing.xl),
-            FilledButton(
-              onPressed: _busy ? null : _sendReset,
-              style: FilledButton.styleFrom(
-                backgroundColor: A3Colors.primary,
-                minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: _busy
-                  ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Send Reset Link', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: A3Spacing.lg),
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text(
-                'Back to Login',
-                style: TextStyle(
-                  color: A3Colors.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
+  Widget build(BuildContext context) => AuthLayout(
+    lead: 'Forgot ',
+    accent: 'Password?',
+    subtitle:
+        'Enter your account email and we’ll send you a 6-digit reset code.',
+    badgeIcon: Icons.lock_reset_rounded,
+    buttonLabel: 'Send code',
+    busy: _busy,
+    error: _error,
+    onBack: () => context.canPop() ? context.pop() : context.go('/login'),
+    onSubmit: _send,
+    children: [
+      AuthField(
+        controller: _email,
+        hint: 'Email address',
+        icon: Icons.mail_outline_rounded,
+        keyboardType: TextInputType.emailAddress,
+        autofocus: _email.text.isEmpty,
+        autofillHints: const [AutofillHints.email],
+        onChanged: (_) => setState(() => _error = null),
+        onSubmitted: (_) => _send(),
       ),
-    );
-  }
+    ],
+  );
 }

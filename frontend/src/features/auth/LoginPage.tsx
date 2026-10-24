@@ -136,7 +136,7 @@ export function LoginPage() {
             <OtpField value={otp} onChange={setOtp} />
             <div className="flex items-center justify-between gap-3">
               <span className="text-[13px] text-muted">{devCode ? `Your code is ${devCode} (filled in for you)` : `Sent to +91 ${phone}`}</span>
-              <ResendButton onResend={() => sendOtp().catch((e: unknown) => setError(e instanceof ApiError ? e.message : 'Couldn’t resend.'))} />
+              <ResendButton seconds={30} onResend={() => sendOtp().catch((e: unknown) => setError(e instanceof ApiError ? e.message : 'Couldn’t resend.'))} />
             </div>
           </>
         )}
@@ -150,7 +150,7 @@ export function LoginPage() {
         </Button>
         {step !== 'identifier' && (
           <button type="button" onClick={back} className="min-h-11 text-sm font-semibold text-primary-strong">
-            {step === 'otp' ? 'Change number' : 'Use a different account'}
+            {step === 'otp' ? 'Change mobile number' : 'Change email'}
           </button>
         )}
       </form>

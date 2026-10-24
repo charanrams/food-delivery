@@ -54,8 +54,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
-      GoRoute(path: '/forgot-password', builder: (_, _) => const ForgotPasswordScreen()),
-      GoRoute(path: '/reset-password', builder: (_, s) => ResetPasswordScreen(phone: s.extra as String?)),
+      GoRoute(path: '/forgot-password', builder: (_, s) => ForgotPasswordScreen(email: s.extra as String?)),
+      GoRoute(path: '/reset-password', builder: (_, s) => ResetPasswordScreen(email: s.extra as String?)),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => Scaffold(
           backgroundColor: A3Colors.surface,

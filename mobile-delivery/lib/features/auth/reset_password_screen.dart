@@ -1,208 +1,170 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/api/api_client.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/widgets/frame.dart';
+import 'auth_layout.dart';
 
-/// Screen 2 · Reset Password
-/// Enforces strong password rules with live checklist indicators.
-class ResetPasswordScreen extends StatefulWidget {
-  final String? phone;
-  const ResetPasswordScreen({super.key, this.phone});
+/// Reset password with the emailed code (POST /auth/password/reset). Success signs out
+/// every device on the server, so the partner logs in again with the new password.
+class ResetPasswordScreen extends ConsumerStatefulWidget {
+  const ResetPasswordScreen({super.key, this.email});
+  final String? email;
 
   @override
-  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final _newPassword = TextEditingController();
-  final _confirmPassword = TextEditingController();
-  bool _obscure1 = true;
-  bool _obscure2 = true;
-  bool _busy = false;
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
+  final _code = TextEditingController();
+  final _password = TextEditingController();
+  final _confirm = TextEditingController();
+  bool _busy = false, _show = false;
+  String? _error;
+  int _resendIn = 60; // the server allows a new code once a minute
+  Timer? _timer;
+
+  String get _email => widget.email ?? '';
 
   @override
   void initState() {
     super.initState();
-    _newPassword.addListener(() => setState(() {}));
-    _confirmPassword.addListener(() => setState(() {}));
+    _startTimer();
   }
 
   @override
   void dispose() {
-    _newPassword.dispose();
-    _confirmPassword.dispose();
+    _timer?.cancel();
+    for (final c in [_code, _password, _confirm]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  bool get _hasMinLength => _newPassword.text.length >= 8;
-  bool get _hasUppercase => _newPassword.text.contains(RegExp(r'[A-Z]'));
-  bool get _hasNumber => _newPassword.text.contains(RegExp(r'[0-9]'));
-  bool get _hasSpecialChar => _newPassword.text.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
-  bool get _passwordsMatch => _newPassword.text.isNotEmpty && _newPassword.text == _confirmPassword.text;
-  bool get _isValid => _hasMinLength && _hasUppercase && _hasNumber && _hasSpecialChar && _passwordsMatch;
-
-  void _reset() {
-    if (!_isValid) return;
-    setState(() => _busy = true);
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted) {
-        setState(() => _busy = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password updated successfully! Please log in.'),
-            backgroundColor: A3Colors.success,
-          ),
-        );
-        context.go('/login');
-      }
+  void _startTimer() {
+    _timer?.cancel();
+    _resendIn = 60;
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return t.cancel();
+      setState(() => _resendIn--);
+      if (_resendIn <= 0) t.cancel();
     });
   }
 
-  Widget _buildCheckItem(String label, bool passed) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Icon(
-            passed ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-            size: 18,
-            color: passed ? A3Colors.success : A3Colors.muted,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: passed ? A3Colors.ink : A3Colors.muted,
-              fontWeight: passed ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<void> _run(Future<void> Function() action) async {
+    if (_busy) return;
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await action();
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
+
+  Future<void> _reset() async {
+    if (_code.text.length != 6) {
+      return setState(() => _error = 'Enter the 6-digit code from the email.');
+    }
+    if (_password.text.length < 8) {
+      return setState(
+        () => _error = 'Use at least 8 characters for the new password.',
+      );
+    }
+    if (_password.text != _confirm.text) {
+      return setState(() => _error = 'Passwords don’t match.');
+    }
+    await _run(() async {
+      await ref.read(apiClientProvider).post('/auth/password/reset', {
+        'email': _email,
+        'otp': _code.text,
+        'password': _password.text,
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password updated. Log in with your new password.'),
+          backgroundColor: A3Colors.success,
+        ),
+      );
+      context.go('/login');
+    });
+  }
+
+  Future<void> _resend() => _run(() async {
+    await ref.read(apiClientProvider).post('/auth/password/forgot', {
+      'email': _email,
+    });
+    _startTimer();
+  });
 
   @override
   Widget build(BuildContext context) {
-    return FramedPage(
-      title: 'Reset Password',
-      showBack: true,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: A3Spacing.sm),
-            Center(
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: A3Colors.primarySoft,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.lock_outline_rounded,
-                  size: 38,
-                  color: A3Colors.primary,
-                ),
-              ),
-            ),
-            const SizedBox(height: A3Spacing.md),
-            const Text(
-              'Create New Password',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: A3Colors.ink,
-              ),
-            ),
-            const SizedBox(height: A3Spacing.xs),
-            const Text(
-              'Your new password must be different from previous one.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: A3Colors.muted,
-              ),
-            ),
-            const SizedBox(height: A3Spacing.lg),
-            const Text(
-              'New Password',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink),
-            ),
-            const SizedBox(height: A3Spacing.xs),
-            TextFormField(
-              controller: _newPassword,
-              obscureText: _obscure1,
-              decoration: InputDecoration(
-                hintText: 'Enter new password',
-                filled: true,
-                fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscure1 ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                  onPressed: () => setState(() => _obscure1 = !_obscure1),
-                ),
-              ),
-            ),
-            const SizedBox(height: A3Spacing.md),
-            const Text(
-              'Confirm Password',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: A3Colors.ink),
-            ),
-            const SizedBox(height: A3Spacing.xs),
-            TextFormField(
-              controller: _confirmPassword,
-              obscureText: _obscure2,
-              decoration: InputDecoration(
-                hintText: 'Re-enter new password',
-                filled: true,
-                fillColor: A3Colors.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscure2 ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                  onPressed: () => setState(() => _obscure2 = !_obscure2),
-                ),
-              ),
-            ),
-            const SizedBox(height: A3Spacing.lg),
-            Container(
-              padding: const EdgeInsets.all(A3Spacing.md),
-              decoration: BoxDecoration(
-                color: A3Colors.card,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCheckItem('At least 8 characters', _hasMinLength),
-                  _buildCheckItem('One uppercase letter', _hasUppercase),
-                  _buildCheckItem('One number', _hasNumber),
-                  _buildCheckItem('One special character', _hasSpecialChar),
-                  _buildCheckItem('Passwords match', _passwordsMatch),
-                ],
-              ),
-            ),
-            const SizedBox(height: A3Spacing.xl),
-            FilledButton(
-              onPressed: (_isValid && !_busy) ? _reset : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: A3Colors.primary,
-                minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: _busy
-                  ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Reset Password', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ],
+    void clear() => setState(() => _error = null);
+    return AuthLayout(
+      lead: 'Reset ',
+      accent: 'Password',
+      subtitle: _email.isEmpty
+          ? 'Enter the code from the email and a new password.'
+          : 'We emailed a 6-digit code to $_email',
+      badgeIcon: Icons.key_rounded,
+      buttonLabel: 'Update password',
+      busy: _busy,
+      error: _error,
+      onBack: () => context.canPop() ? context.pop() : context.go('/login'),
+      onSubmit: _reset,
+      children: [
+        AuthField(
+          controller: _code,
+          hint: '6-digit code',
+          icon: Icons.pin_outlined,
+          keyboardType: TextInputType.number,
+          maxLength: 6,
+          digitsOnly: true,
+          letterSpacing: 6,
+          autofocus: true,
+          autofillHints: const [AutofillHints.oneTimeCode],
+          textInputAction: TextInputAction.next,
+          onChanged: (_) => clear(),
         ),
-      ),
+        AuthResendRow(
+          hint: 'Didn’t get it? Check spam.',
+          resendIn: _resendIn,
+          onResend: _busy ? null : _resend,
+        ),
+        AuthField(
+          controller: _password,
+          hint: 'New password (8+ characters)',
+          icon: Icons.lock_outline_rounded,
+          obscure: !_show,
+          autofillHints: const [AutofillHints.newPassword],
+          textInputAction: TextInputAction.next,
+          suffix: PasswordEye(
+            visible: _show,
+            onToggle: () => setState(() => _show = !_show),
+          ),
+          onChanged: (_) => clear(),
+        ),
+        const SizedBox(height: 14),
+        AuthField(
+          controller: _confirm,
+          hint: 'Confirm new password',
+          icon: Icons.lock_outline_rounded,
+          obscure: !_show,
+          autofillHints: const [AutofillHints.newPassword],
+          onChanged: (_) => clear(),
+          onSubmitted: (_) => _reset(),
+        ),
+      ],
     );
   }
 }

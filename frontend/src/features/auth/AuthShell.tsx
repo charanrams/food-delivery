@@ -179,9 +179,9 @@ export function OtpField({ value, onChange, error }: { value: string; onChange: 
   );
 }
 
-/** "Resend code" with a 60 s cooldown that matches the server's. */
-export function ResendButton({ onResend }: { onResend: () => Promise<void> }) {
-  const [left, setLeft] = useState(60);
+/** "Resend code" with a cooldown (60 s default = the server's email-code limit; phone login uses 30 s). */
+export function ResendButton({ onResend, seconds = 60 }: { onResend: () => Promise<void>; seconds?: number }) {
+  const [left, setLeft] = useState(seconds);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (left <= 0) return;
@@ -196,7 +196,7 @@ export function ResendButton({ onResend }: { onResend: () => Promise<void> }) {
         setBusy(true);
         try {
           await onResend();
-          setLeft(60);
+          setLeft(seconds);
         } finally {
           setBusy(false);
         }

@@ -199,7 +199,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _back,
-                  child: const Text('Use a different account'),
+                  child: const Text('Change email'),
                 ),
               ),
             ],
@@ -242,7 +242,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: TextButton.styleFrom(
                       foregroundColor: AuthColors.textSoft,
                     ),
-                    child: const Text('Change number'),
+                    child: const Text('Change mobile number'),
                   ),
                   ResendOtp(
                     onResend: () async {

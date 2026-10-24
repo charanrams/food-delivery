@@ -98,9 +98,9 @@ void main() {
     await tester.enterText(find.byType(TextField), '9000000002');
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
-    expect(find.text('Enter the code'), findsOneWidget);
+    expect(find.text('Enter Code', findRichText: true), findsOneWidget);
     expect(find.text('482913'), findsOneWidget);
-    expect(find.text('Your code is 482913 (filled in for you)'), findsOneWidget);
+    expect(find.text('Your login code'), findsOneWidget);
   });
 
   testWidgets('login: an email goes to the password step', (tester) async {
@@ -110,7 +110,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'delivery@a3kitchen.in');
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
-    expect(find.text('Enter your password'), findsOneWidget);
+    expect(find.text('Enter Password', findRichText: true), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
   });
 }
