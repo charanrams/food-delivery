@@ -570,7 +570,6 @@ export function OrdersPage() {
   return (
     <PageFrame
       art
-      back={false}
       title="My Orders"
       subtitle="Track, manage and reorder your favourite food"
       actions={

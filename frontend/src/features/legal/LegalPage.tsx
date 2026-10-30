@@ -46,38 +46,55 @@ export function LegalPage({ kind }: { kind: keyof typeof PAGES }) {
   }, [page.title]);
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 md:py-16">
-      <h1 className="font-display text-4xl">{page.title}</h1>
-      <p className="mt-2 text-muted">{page.intro}</p>
-      <p className="mt-1 text-sm text-muted">Last updated {LEGAL_UPDATED}</p>
+    // White page (the customer shell is orange behind other pages).
+    <div className="flex-1 bg-surface">
+      <article className="mx-auto w-full max-w-[1100px] px-4 py-10 md:px-10 md:py-14">
+        <header className="border-b border-line pb-8">
+          <h1 className="font-display text-[2rem] font-bold leading-tight md:text-5xl">{page.title}</h1>
+          <p className="mt-3 max-w-[60ch] text-[15px] text-muted md:text-lg">{page.intro}</p>
+          <p className="mt-2 text-sm text-muted">Last updated {LEGAL_UPDATED}</p>
+        </header>
 
-      <nav aria-label="On this page" className="mt-8 rounded-2xl bg-surface p-5 ring-1 ring-line">
-        <ol className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
-          {page.sections.map((s, i) => (
-            <li key={s.heading}>
-              <a href={`#s${i}`} className="text-primary-strong underline-offset-2 hover:underline">{s.heading}</a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-14">
+          {/* Contents: a box on phones, a sticky side list on desktop. */}
+          <nav aria-label="On this page" className="h-fit rounded-2xl bg-card p-5 lg:sticky lg:top-28 lg:bg-transparent lg:p-0">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wide text-muted">On this page</p>
+            <ol className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-1">
+              {page.sections.map((s, i) => (
+                <li key={s.heading}>
+                  <a href={`#s${i}`} className="flex min-h-9 items-center gap-2.5 rounded-lg font-medium text-ink/80 hover:text-primary-strong lg:-ml-3 lg:px-3 lg:hover:bg-primary-soft">
+                    <span className="tabular w-5 text-xs text-muted">{i + 1}.</span>
+                    {s.heading}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
 
-      <div className="mt-10 flex flex-col gap-9">
-        {page.sections.map((s, i) => (
-          <section key={s.heading} id={`s${i}`} className="scroll-mt-24">
-            <h2 className="font-display text-2xl">{s.heading}</h2>
-            {s.body.map((para) => (
-              <p key={para} className="mt-3 max-w-[68ch] leading-relaxed">{para}</p>
+          <div className="flex min-w-0 flex-col gap-10">
+            {page.sections.map((s, i) => (
+              <section key={s.heading} id={`s${i}`} className="scroll-mt-28">
+                <h2 className="font-display text-xl font-bold md:text-2xl">
+                  <span className="tabular mr-2 text-primary-strong">{i + 1}.</span>
+                  {s.heading}
+                </h2>
+                {s.body.map((para) => (
+                  <p key={para} className="mt-3 max-w-[70ch] text-[15px] leading-relaxed text-ink/85 md:text-base">
+                    {para}
+                  </p>
+                ))}
+              </section>
             ))}
-          </section>
-        ))}
-      </div>
 
-      <p className="mt-12 border-t border-line pt-6 text-sm text-muted">
-        See also:{' '}
-        <Link to={kind === 'terms' ? '/privacy' : '/terms'} className="font-medium text-primary-strong">
-          {kind === 'terms' ? 'Privacy Policy' : 'Terms & Conditions'}
-        </Link>
-      </p>
-    </article>
+            <p className="border-t border-line pt-6 text-sm text-muted">
+              See also:{' '}
+              <Link to={kind === 'terms' ? '/privacy' : '/terms'} className="font-semibold text-primary-strong hover:underline">
+                {kind === 'terms' ? 'Privacy Policy' : 'Terms & Conditions'}
+              </Link>
+            </p>
+          </div>
+        </div>
+      </article>
+    </div>
   );
 }

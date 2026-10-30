@@ -58,7 +58,20 @@ export function CustomerLayout() {
               Cart{count > 0 && <span className="tabular">({count})</span>}
             </Link>
             {user ? (
-              <NotificationLink />
+              <>
+                <NotificationLink />
+                {/* Profile (phones reach it from the bottom bar). */}
+                <NavLink
+                  to="/account"
+                  title="Profile"
+                  className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-[15px] font-semibold text-ink hover:bg-surface/25 aria-[current=page]:bg-surface"
+                >
+                  <span className="grid size-9 place-items-center rounded-full bg-surface font-bold text-primary-strong" aria-hidden>
+                    {user.name?.trim().charAt(0).toUpperCase() || <User className="size-5" />}
+                  </span>
+                  Profile
+                </NavLink>
+              </>
             ) : (
               <ButtonLink to="/login" variant="secondary" size="sm">
                 Log in
